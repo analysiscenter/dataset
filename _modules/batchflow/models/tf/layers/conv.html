@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.layers.conv &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.layers.conv</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.layers.conv</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Contains convolutional layers &quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow.keras.layers</span> <span class="k">as</span> <span class="nn">K</span> <span class="c1">#pylint: disable=import-error</span>
+
+<span class="kn">from</span> <span class="nn">.layer</span> <span class="kn">import</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">add_as_function</span>
+
+
+
+<span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">Conv</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Nd convolution layer. Just a wrapper around TensorFlow layers for corresponding dimensions.</span>
+<span class="sd">    Used for `c` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    `tf.layers.conv1d &lt;https://www.tensorflow.org/api_docs/python/keras/layers/Conv1D&gt;`_,</span>
+<span class="sd">    `tf.layers.conv2d &lt;https://www.tensorflow.org/api_docs/python/keras/layers/Conv2D&gt;`_,</span>
+<span class="sd">    `tf.layers.conv3d &lt;https://www.tensorflow.org/api_docs/python/keras/layers/Conv3D&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">Conv3D</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                 <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span> <span class="n">dilation_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span> <span class="o">=</span> <span class="n">dilation_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filters must be a positive integer, instead got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layer_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LAYERS</span><span class="p">[</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="Conv1DTranspose"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.Conv1DTranspose">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">Conv1DTranspose</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Transposed 1D convolution layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filters : int</span>
+<span class="sd">        Number of filters in the ouput tensor.</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Kernel size.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride. Default is 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_last&#39;</span> <span class="k">else</span> <span class="mi">2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">Conv2DTranspose</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">),</span>
+                              <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">axis</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+
+<div class="viewcode-block" id="Conv1DTransposeNn"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.Conv1DTransposeNn">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">Conv1DTransposeNn</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Transposed 1D convolution layer. Analogue of the tf.nn.conv2d_transpose.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filters : tf.Tensor</span>
+<span class="sd">        Convolutional filter.</span>
+<span class="sd">    output_shape : tf.Tensor</span>
+<span class="sd">        The output shape of the deconvolution op.</span>
+<span class="sd">    strides : list</span>
+<span class="sd">        The stride of the sliding window for each dimension of the input tensor.</span>
+<span class="sd">    padding : str</span>
+<span class="sd">        &#39;VALID&#39; or &#39;SAME&#39;. Default - &#39;SAME&#39;.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        &#39;NWC&#39; or &#39;NCW&#39;. Default - &#39;NWC&#39;.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Scope name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;SAME&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;NWC&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;NWC&#39;</span> <span class="k">else</span> <span class="mi">2</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">output_shape</span><span class="p">[:</span><span class="n">axis</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_shape</span><span class="p">[</span><span class="n">axis</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">strides</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">[:</span><span class="n">axis</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="n">axis</span><span class="p">:]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d_transpose</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">axis</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+
+<div class="viewcode-block" id="ConvTranspose"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvTranspose">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">ConvTranspose</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Transposed Nd convolution layer.</span>
+<span class="sd">    Used for `t` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filters : int</span>
+<span class="sd">        Number of filters in the ouput tensor.</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Kernel size.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride. Default is 1.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`.conv1d_transpose`,</span>
+<span class="sd">    `tf.layers.conv2d_transpose &lt;https://www.tensorflow.org/api_docs/python/keras/layers/Conv2DTranspose&gt;`_,</span>
+<span class="sd">    `tf.layers.conv3d_transpose &lt;https://www.tensorflow.org/api_docs/python/keras/layers/Conv3DTranspose&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">Conv1DTranspose</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">Conv2DTranspose</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">Conv3DTranspose</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                 <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filters must be a positive integer, instead got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layer_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LAYERS</span><span class="p">[</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">DepthwiseConvND</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; TensorFlow implementation of depthwise convolution, applicable to any shape. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transpose</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span>
+                 <span class="n">dilation_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span> <span class="o">=</span> <span class="n">transpose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span><span class="p">:</span>
+            <span class="n">conv_layer</span> <span class="o">=</span> <span class="n">ConvTranspose</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conv_layer</span> <span class="o">=</span> <span class="n">Conv</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;dilation_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>
+                  <span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span>
+                  <span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span><span class="p">,</span>
+                  <span class="s1">&#39;strides&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span>
+                  <span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span>
+                  <span class="s1">&#39;activation&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span>
+                  <span class="s1">&#39;data_format&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">}</span>
+
+        <span class="c1"># Get all the shapes</span>
+        <span class="n">inputs_shape</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_last&#39;</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
+        <span class="n">size</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">channels_in</span> <span class="o">=</span> <span class="n">inputs_shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+
+        <span class="c1"># Loop through feature maps</span>
+        <span class="n">depthwise_layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">channels_in</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
+            <span class="n">start</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel</span>
+
+            <span class="n">input_slice</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+            <span class="n">_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                       <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;slice-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">channel</span><span class="p">}</span>
+            <span class="n">slice_conv</span> <span class="o">=</span> <span class="n">conv_layer</span><span class="p">(</span><span class="o">**</span><span class="n">_kwargs</span><span class="p">)(</span><span class="n">input_slice</span><span class="p">)</span>
+            <span class="n">depthwise_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slice_conv</span><span class="p">)</span>
+
+        <span class="c1"># Concatenate the per-channel convolutions along the channel dimension.</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">depthwise_layers</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+
+
+
+<div class="viewcode-block" id="DepthwiseConv"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.DepthwiseConv">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">DepthwiseConv</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Make Nd depthwise convolutions that act separately on channels.</span>
+<span class="sd">    Used for `w` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Kernel size.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride. Default is 1.</span>
+<span class="sd">    padding : str</span>
+<span class="sd">        Padding mode, can be &#39;same&#39; or &#39;valid&#39;. Default - &#39;same&#39;.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        &#39;channels_last&#39; or &#39;channels_first&#39;. Default - &#39;channels_last&#39;.</span>
+<span class="sd">    depth_multiplier : int</span>
+<span class="sd">        The number of depthwise convolution output channels for each input channel.</span>
+<span class="sd">        The total number of depthwise convolution output channels will be equal to</span>
+<span class="sd">        ``num_filters_in`` * ``depth_multiplier``. Deafault - 1.</span>
+<span class="sd">    activation : callable</span>
+<span class="sd">        Default is None: linear activation.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the layer. Default - None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">DepthwiseConvND</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">DepthwiseConv2D</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">DepthwiseConvND</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span>
+                 <span class="n">data_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dilation_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layer_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LAYERS</span><span class="p">[</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DepthwiseConvTranspose"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.DepthwiseConvTranspose">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">DepthwiseConvTranspose</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Make Nd depthwise transpose convolutions that act separately on channels.</span>
+<span class="sd">    Used for `W` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Kernel size.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride. Default is 1.</span>
+<span class="sd">    padding : str</span>
+<span class="sd">        Padding mode, can be &#39;same&#39; or &#39;valid&#39;. Default - &#39;same&#39;.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        &#39;channels_last&#39; or &#39;channels_first&#39;. Default - &#39;channels_last&#39;.</span>
+<span class="sd">    depth_multiplier : int</span>
+<span class="sd">        The number of depthwise convolution output channels for each input channel.</span>
+<span class="sd">        The total number of depthwise convolution output channels will be equal to</span>
+<span class="sd">        ``num_filters_in`` * ``depth_multiplier``. Deafault - 1.</span>
+<span class="sd">    activation : callable</span>
+<span class="sd">        Default is None: linear activation.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the layer. Default - None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dilation_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layer_fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">DepthwiseConvND</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">SeparableConvND</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; TensorFlow implementation of separable convolution, applicable to any shape. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transpose</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span>
+                 <span class="n">dilation_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span> <span class="o">=</span> <span class="n">transpose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+
+        <span class="c1"># Make arguments for depthwise part and call it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span><span class="p">:</span>
+            <span class="n">depthwise_layer</span> <span class="o">=</span> <span class="n">DepthwiseConvTranspose</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">depthwise_layer</span> <span class="o">=</span> <span class="n">DepthwiseConv</span>
+
+        <span class="n">_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>
+                   <span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span>
+                   <span class="s1">&#39;strides&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span>
+                   <span class="s1">&#39;dilation_rate&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span>
+                   <span class="s1">&#39;depth_multiplier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span><span class="p">,</span>
+                   <span class="s1">&#39;activation&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span>
+                   <span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span>
+                   <span class="s1">&#39;data_format&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
+                   <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;depthwise&#39;</span><span class="p">}</span>
+        <span class="n">depthwise</span> <span class="o">=</span> <span class="n">depthwise_layer</span><span class="p">(</span><span class="o">**</span><span class="n">_kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="c1"># If needed, make arguments for pointwise part and call it</span>
+        <span class="n">shape_out</span> <span class="o">=</span> <span class="n">depthwise</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_last&#39;</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">filters_out</span> <span class="o">=</span> <span class="n">shape_out</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">filters_out</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+            <span class="n">_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>
+                       <span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span>
+                       <span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                       <span class="s1">&#39;strides&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                       <span class="s1">&#39;dilation_rate&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                       <span class="s1">&#39;data_format&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
+                       <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;pointwise&#39;</span><span class="p">}</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">Conv</span><span class="p">(</span><span class="o">**</span><span class="n">_kwargs</span><span class="p">)(</span><span class="n">depthwise</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">depthwise</span>
+
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+
+
+
+<div class="viewcode-block" id="SeparableConv"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.SeparableConv">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">SeparableConv</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Make Nd depthwise convolutions that acts separately on channels,</span>
+<span class="sd">    followed by a pointwise convolution that mixes channels.</span>
+<span class="sd">    Used for `C` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filters : int</span>
+<span class="sd">        Number of filters in the output tensor.</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Kernel size.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride. Default is 1.</span>
+<span class="sd">    padding : str</span>
+<span class="sd">        Padding mode, can be &#39;same&#39; or &#39;valid&#39;. Default - &#39;same&#39;,</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        &#39;channels_last&#39; or &#39;channels_first&#39;. Default - &#39;channels_last&#39;.</span>
+<span class="sd">    dilation_rate : int</span>
+<span class="sd">        Default is 1.</span>
+<span class="sd">    depth_multiplier : int</span>
+<span class="sd">        The number of depthwise convolution output channels for each input channel.</span>
+<span class="sd">        The total number of depthwise convolution output channels will be equal to</span>
+<span class="sd">        ``num_filters_in`` * ``depth_multiplier``. Default - 1.</span>
+<span class="sd">    activation : callable</span>
+<span class="sd">        Default is `tf.nn.relu`.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the layer. Default - None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">SeparableConv1D</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">SeparableConv2D</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">SeparableConvND</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                 <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span>
+                 <span class="n">dilation_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filters must be a positive integer, instead got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layer_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LAYERS</span><span class="p">[</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SeparableConvTranspose"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.SeparableConvTranspose">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">SeparableConvTranspose</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Make Nd depthwise transpose convolutions that acts separately on channels,</span>
+<span class="sd">    followed by a pointwise convolution that mixes channels.</span>
+<span class="sd">    Used for `T` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filters : int</span>
+<span class="sd">        Number of filters in the output tensor.</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Kernel size.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride. Default is 1.</span>
+<span class="sd">    padding : str</span>
+<span class="sd">        Padding mode, can be &#39;same&#39; or &#39;valid&#39;. Default - &#39;same&#39;.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        &#39;channels_last&#39; or &#39;channels_first&#39;. Default - &#39;channels_last&#39;.</span>
+<span class="sd">    depth_multiplier : int</span>
+<span class="sd">        The number of depthwise convolution output channels for each input channel.</span>
+<span class="sd">        The total number of depthwise convolution output channels will be equal to</span>
+<span class="sd">        ``num_filters_in`` * ``depth_multiplier``. Deafault - 1.</span>
+<span class="sd">    activation : callable</span>
+<span class="sd">        Default is `tf.nn.relu`.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the layer. Default - None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                 <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span>
+                 <span class="n">dilation_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filters must be a positive integer, instead got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layer_fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">SeparableConvND</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

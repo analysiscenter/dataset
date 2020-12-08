@@ -1,0 +1,818 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.research.research &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.research.research</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.research.research</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Classes Research and auxiliary classes for multiple experiments. &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">dill</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">multiprocess</span> <span class="k">as</span> <span class="nn">mp</span>
+
+<span class="kn">from</span> <span class="nn">.results</span> <span class="kn">import</span> <span class="n">Results</span>
+<span class="kn">from</span> <span class="nn">.distributor</span> <span class="kn">import</span> <span class="n">Distributor</span>
+<span class="kn">from</span> <span class="nn">.workers</span> <span class="kn">import</span> <span class="n">PipelineWorker</span>
+<span class="kn">from</span> <span class="nn">.domain</span> <span class="kn">import</span> <span class="n">Domain</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">ConfigAlias</span>
+<span class="kn">from</span> <span class="nn">.job</span> <span class="kn">import</span> <span class="n">Job</span>
+<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">BaseLogger</span><span class="p">,</span> <span class="n">FileLogger</span><span class="p">,</span> <span class="n">PrintLogger</span><span class="p">,</span> <span class="n">TelegramLogger</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_metrics</span>
+<span class="kn">from</span> <span class="nn">.executable</span> <span class="kn">import</span> <span class="n">Executable</span>
+<span class="kn">from</span> <span class="nn">.named_expr</span> <span class="kn">import</span> <span class="n">RP</span>
+
+<div class="viewcode-block" id="Research"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research">[docs]</a><span class="k">class</span> <span class="nc">Research</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Class Research for multiple parallel experiments with pipelines. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executables</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># TODO: Think about it. Do we need load?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trials</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workers</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;research&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker_class</span> <span class="o">=</span> <span class="n">PipelineWorker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_iters</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_configs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_reps</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_configs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repeat_each</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">FileLogger</span><span class="p">()</span>
+
+        <span class="c1"># update parameters for config. None or dict with keys (function, params, cache)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># update parameters for domain. None or dict with keys (function, each)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_domain</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_updates</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Research.add_pipeline"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.add_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">add_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add new pipeline to research. Pipeline can be divided into root and branch. In that case root pipeline</span>
+<span class="sd">        will prepare batch that can be used by different branches with different configs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        root : Pipeline</span>
+<span class="sd">            a pipeline to execute when the research is run. It must contain `run` action with `lazy=True` or</span>
+<span class="sd">            `run_later`. Only if `branch` is None, `root` may contain parameters that can be defined by domain.</span>
+<span class="sd">        branch : Pipeline or None</span>
+<span class="sd">            a parallelized pipeline to execute within the research.</span>
+<span class="sd">            Several copies of branch pipeline will be executed in parallel per each batch</span>
+<span class="sd">            received from the root pipeline. May contain parameters that can be defined by domain,</span>
+<span class="sd">            all pipelines will have different configs from `Domain`.</span>
+<span class="sd">        dataset : Dataset or None</span>
+<span class="sd">            dataset that will be used with pipelines. If None, root or branch must contain dataset.</span>
+<span class="sd">        variables : str, list of str or None</span>
+<span class="sd">            names of pipeline variables to save after each iteration into results. All of them must be</span>
+<span class="sd">            defined in `root` if `branch` is None or be defined in `branch` if `branch` is not None.</span>
+<span class="sd">            If None, pipeline will be executed without any dumping.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            pipeline name. If None, pipeline will have name `pipeline_{index}`</span>
+<span class="sd">        execute : int, str or list of int and str</span>
+<span class="sd">            If `&#39;last&#39;`, pipeline will be executed just at last iteration (if `iteration + 1 == n_iters`</span>
+<span class="sd">            or `StopIteration` was raised)</span>
+
+<span class="sd">            If positive int, pipeline will be executed each `step` iterations.</span>
+
+<span class="sd">            If str, must be `&#39;#{it}&#39;` or `&#39;last&#39;` where it is int,</span>
+<span class="sd">            the pipeline will be executed at this iteration (zero-based)</span>
+
+<span class="sd">            If list, must be list of int or str described above</span>
+<span class="sd">        dump : int, str or list of int or str</span>
+<span class="sd">            iteration when results will be dumped and cleared. Similar to `execute`</span>
+<span class="sd">        run : bool</span>
+<span class="sd">            if False then `.next_batch()` will be applied to pipeline, else `.run()` and then `.reset(&quot;iter&quot;)`.</span>
+<span class="sd">        logging : bool</span>
+<span class="sd">            include execution information to log file or not</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            parameters that will be added to pipeline config.</span>
+<span class="sd">            Can be `:class:~.RP`.</span>
+
+<span class="sd">            For example,</span>
+<span class="sd">            if test pipeline imports model from the other pipeline with name `&#39;train&#39;` in Research,</span>
+<span class="sd">            corresponding parameter in `import_model` must be `C(&#39;import_from&#39;)` and `add_pipeline`</span>
+<span class="sd">            must be called with parameter `import_from=RP(&#39;train&#39;)`.</span>
+
+
+<span class="sd">        **How to define changing parameters**</span>
+
+<span class="sd">        All parameters in `root` or `branch` that are defined in domain should be defined</span>
+<span class="sd">        as `C(&#39;parameter_name&#39;)`. Corresponding parameter in domain must have the same `&#39;parameter_name&#39;`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;pipeline_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Executable unit with name </span><span class="si">{}</span><span class="s1"> already exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="n">unit</span> <span class="o">=</span> <span class="n">Executable</span><span class="p">()</span>
+        <span class="n">unit</span><span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">execute</span><span class="p">,</span> <span class="n">dump</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.add_callable"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.add_callable">[docs]</a>    <span class="k">def</span> <span class="nf">add_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">returns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span>
+                     <span class="n">on_root</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add function to research.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function : callable</span>
+<span class="sd">            callable object with parameters: `*args, **kwargs`</span>
+<span class="sd">        returns : str, list of str or None</span>
+<span class="sd">            names for function returns to save into results</span>
+<span class="sd">            if None, `function` will be executed without any saving results and dumping</span>
+<span class="sd">        name : str (default None)</span>
+<span class="sd">            function name. If None, a function will have name `func_{index}`</span>
+<span class="sd">        execute : int, str or list of int and str</span>
+<span class="sd">            If `&#39;last&#39;`, function will be executed just at last iteration (if `iteration + 1 == n_iters`</span>
+<span class="sd">            or `StopIteration` was raised)</span>
+
+<span class="sd">            If positive int, function will be executed each `step` iterations.</span>
+
+<span class="sd">            If str, must be `&#39;#{it}&#39;` or `&#39;last&#39;` where it is int,</span>
+<span class="sd">            the function will be executed at this iteration (zero-based)</span>
+
+<span class="sd">            If list, must be list of int or str described above</span>
+<span class="sd">        dump : int, str or list of int or str</span>
+<span class="sd">            iteration when results will be dumped and cleared. Similar to execute.</span>
+<span class="sd">        on_root : bool</span>
+<span class="sd">            If True, each `ResearchExecutableUnit` in args and kwargs will be evaluated as a list of values for</span>
+<span class="sd">            each experiment. If False, will be evaluated as a single value for the current experiment.</span>
+<span class="sd">        logging : bool</span>
+<span class="sd">            include execution information to log file or not</span>
+<span class="sd">        args : list</span>
+<span class="sd">            args for the function. Can be :class:`~.ResearchNamedExpression`.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            kwargs for the function. Can be :class:`~.ResearchNamedExpression`.</span>
+
+<span class="sd">        **How to use experiment**</span>
+
+<span class="sd">        Each pipeline and function added to Research is saved as an :class:`~.Executable`.</span>
+
+<span class="sd">        Experiment is an `OrderedDict` of all pipelines and functions that were added to Research</span>
+<span class="sd">        and are running in current Job. Key is a name of `Executable`, value is `Executable`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Executable unit with name </span><span class="si">{}</span><span class="s1"> already exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">on_root</span> <span class="ow">and</span> <span class="n">returns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If function on root, then it mustn&#39;t have returns&quot;</span><span class="p">)</span>
+
+        <span class="n">unit</span> <span class="o">=</span> <span class="n">Executable</span><span class="p">()</span>
+        <span class="n">unit</span><span class="o">.</span><span class="n">add_callable</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="n">execute</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">returns</span><span class="o">=</span><span class="n">returns</span><span class="p">,</span>
+                          <span class="n">on_root</span><span class="o">=</span><span class="n">on_root</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.get_metrics"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">metrics_var</span><span class="p">,</span> <span class="n">metrics_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                    <span class="n">returns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Evaluate metrics.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline : str</span>
+<span class="sd">            pipeline name</span>
+<span class="sd">        metrics_var : str</span>
+<span class="sd">            pipeline variable which accumulate metrics</span>
+<span class="sd">        metrics_name : str or list of str</span>
+<span class="sd">            metrics to evaluate</span>
+<span class="sd">        returns : str, list of str or None</span>
+<span class="sd">            names to save metrics into results</span>
+<span class="sd">            if None, `returns` will be equal to `metrics_name`</span>
+<span class="sd">        execute : int, str or list of int and str</span>
+<span class="sd">            If `&#39;last&#39;`, metrics will be gathered just at last iteration (if `iteration + 1 == n_iters`</span>
+<span class="sd">            or `StopIteration` was raised)</span>
+
+<span class="sd">            If positive int, metrics will be gathered each `step` iterations.</span>
+
+<span class="sd">            If str, must be `&#39;#{it}&#39;` or `&#39;last&#39;` where it is int,</span>
+<span class="sd">            metrics will be gathered at this iteration (zero-based)</span>
+
+<span class="sd">            If list, must be list of int or str described above</span>
+<span class="sd">        dump : int, str or list of int or str</span>
+<span class="sd">            iteration when results will be dumped and cleared. Similar to execute</span>
+<span class="sd">        logging : bool</span>
+<span class="sd">            include execution information to log file or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">pipeline</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">metrics_var</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="n">returns</span> <span class="ow">or</span> <span class="n">metrics_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_callable</span><span class="p">(</span><span class="n">get_metrics</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="n">execute</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">returns</span><span class="o">=</span><span class="n">returns</span><span class="p">,</span>
+                          <span class="n">on_root</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="n">logging</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="n">RP</span><span class="p">(</span><span class="n">pipeline</span><span class="p">),</span>
+                          <span class="n">metrics_var</span><span class="o">=</span><span class="n">metrics_var</span><span class="p">,</span> <span class="n">metrics_name</span><span class="o">=</span><span class="n">metrics_name</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.init_domain"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.init_domain">[docs]</a>    <span class="k">def</span> <span class="nf">init_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">repeat_each</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add domain of pipeline parameters. Configs from that domain will be generated</span>
+<span class="sd">        and then substitute into pipelines.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        domain : Domain or Option</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">Option</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">Option</span><span class="p">(</span><span class="s1">&#39;_dummy&#39;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_configs</span> <span class="o">=</span> <span class="n">n_configs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_reps</span> <span class="o">=</span> <span class="n">n_reps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_configs</span> <span class="o">=</span> <span class="n">n_configs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repeat_each</span> <span class="o">=</span> <span class="n">repeat_each</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.update_domain"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.update_domain">[docs]</a>    <span class="k">def</span> <span class="nf">update_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">each</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">n_updates</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add domain update functions or update parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function : callable or None</span>
+
+<span class="sd">        each : int or &#39;last&#39;</span>
+<span class="sd">            when update method will be called. If &#39;last&#39;, domain will be updated</span>
+<span class="sd">            when iterator will be finished. If int, domain will be updated with</span>
+<span class="sd">            that period.</span>
+<span class="sd">        n_updates : int</span>
+<span class="sd">            the total number of updates.</span>
+<span class="sd">        *args, **kwargs :</span>
+<span class="sd">            update function parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_domain</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="n">function</span><span class="p">,</span>
+            <span class="s1">&#39;each&#39;</span><span class="p">:</span> <span class="n">each</span><span class="p">,</span>
+            <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="n">kwargs</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_updates</span> <span class="o">=</span> <span class="n">n_updates</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.update_config"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.update_config">[docs]</a>    <span class="k">def</span> <span class="nf">update_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add function to update config from domain.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        function : callable</span>
+<span class="sd">            function to update config.</span>
+<span class="sd">        parameters : list of str or None</span>
+<span class="sd">            if None, the whole config will be passed into function.</span>
+<span class="sd">        cache : int</span>
+<span class="sd">            last `cache` calls of function will be cahced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="n">function</span><span class="p">,</span>
+            <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">parameters</span><span class="p">,</span>
+            <span class="s1">&#39;cache&#39;</span><span class="p">:</span> <span class="n">cache</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.add_logger"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.add_logger">[docs]</a>    <span class="k">def</span> <span class="nf">add_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add custom Logger into Research.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        logger : str, BaseLogger class, tuple or list</span>
+<span class="sd">            if str, it can be &#39;file&#39;, &#39;print&#39; or &#39;tg&#39;</span>
+<span class="sd">            if tuple, pair of str or BaseLogger class and kwargs for them</span>
+<span class="sd">            if list then of str, BaseLogger class and tuples of them and kwargs</span>
+<span class="sd">        kwargs :</span>
+<span class="sd">            initialization parameters for BaseLogger (if `logger` is str or BaseLogger class)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loggers</span> <span class="o">=</span> <span class="p">[</span><span class="n">logger</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">logger</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">BaseLogger</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">loggers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">logger</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">item</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">logger</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">+=</span> <span class="n">FileLogger</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="n">logger</span> <span class="o">==</span> <span class="s1">&#39;print&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">+=</span> <span class="n">PrintLogger</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="n">logger</span> <span class="o">==</span> <span class="s1">&#39;tg&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">+=</span> <span class="n">TelegramLogger</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown logger: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">logger</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">BaseLogger</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">+=</span> <span class="n">logger</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown logger: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">logger</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Research.load_results"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.load_results">[docs]</a>    <span class="k">def</span> <span class="nf">load_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load results of research as pandas.DataFrame or dict (see :meth:`~.Results.load`). &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Results</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Research.run"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_iters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">worker_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trials</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Run research.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_iters: int or None</span>
+<span class="sd">            number of iterations for each configuration. If None, wait StopIteration exception for at least</span>
+<span class="sd">            one executable unit.</span>
+<span class="sd">        workers : int or list of dicts (Configs)</span>
+<span class="sd">            If int - number of workers to run pipelines or workers that will run them, `worker_class` will be used.</span>
+
+<span class="sd">            If list of dicts (Configs) - list of additional configs which will be appended to configs from tasks.</span>
+
+<span class="sd">            Each element corresponds to one worker.</span>
+<span class="sd">        branches: int or list of dicts (Configs)</span>
+<span class="sd">            Number of different branches with different configs with the same root. Each branch will use the same batch</span>
+<span class="sd">            from `root`. Pipelines will be executed in different threads.</span>
+
+<span class="sd">            If int - number of pipelines with different configs that will use the same prepared batch</span>
+<span class="sd">            from `root`.</span>
+
+<span class="sd">            If list of dicts (Configs) - list of dicts with additional configs to each pipeline.</span>
+<span class="sd">        name : str or None</span>
+<span class="sd">            name folder to save research. By default is &#39;research&#39;.</span>
+<span class="sd">        bar : bool or callable</span>
+<span class="sd">            Whether to show a progress bar.</span>
+<span class="sd">            If callable, it must have the same signature as `tqdm`.</span>
+<span class="sd">        devices : str, list or None</span>
+<span class="sd">            all devices will be distributed between workwers and branches.</span>
+<span class="sd">            If you want to use different devices in branches, use expression `C(&#39;device&#39;)`.</span>
+
+<span class="sd">            For example, for :class:`~.TFModel` add `device=C(&#39;device&#39;)` to model config.</span>
+<span class="sd">            If None, default gpu configuration will be used</span>
+<span class="sd">        worker_class : type</span>
+<span class="sd">            worker class. `PipelineWorker` by default.</span>
+<span class="sd">        timeout : int</span>
+<span class="sd">            each job will be killed if it doesn&#39;t answer more then that time in minutes</span>
+<span class="sd">        trials : int</span>
+<span class="sd">            trials to execute job</span>
+
+<span class="sd">        **How does it work**</span>
+
+<span class="sd">        At each iteration all pipelines and functions will be executed in the order in which were added.</span>
+<span class="sd">        If `update_config` callable is defined, each config will be updated by that function and then</span>
+<span class="sd">        will be passed into each `ExecutableUnit`.</span>
+<span class="sd">        If `update_domain` callable is defined, domain will be updated with the corresponding function</span>
+<span class="sd">        accordingly to `each` parameter of `update_domain`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaded</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting loaded research. All parameters passed to run except name, bar and devices are ignored.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;If `devices` is not provided it will be inherited&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">devices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_devices</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_iters</span> <span class="o">=</span> <span class="n">n_iters</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workers</span> <span class="o">=</span> <span class="n">workers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="n">branches</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_devices</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker_class</span> <span class="o">=</span> <span class="n">worker_class</span> <span class="ow">or</span> <span class="n">PipelineWorker</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trials</span> <span class="o">=</span> <span class="n">trials</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">bar</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_domain</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">reset_iter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_folder_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">*</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">set_iter</span><span class="p">(</span><span class="n">n_iters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_configs</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_reps</span><span class="p">,</span> <span class="n">repeat_each</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repeat_each</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_domain</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_domain</span><span class="p">[</span><span class="s1">&#39;each&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;last&#39;</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Research will be infinite because has infinite domain and hasn&#39;t domain updating&quot;</span><span class="p">,</span>
+                          <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Research </span><span class="si">{}</span><span class="s2"> is starting...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="n">jobs_queue</span> <span class="o">=</span> <span class="n">DynamicQueue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_iters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_updates</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">eval_kwargs</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">distr</span> <span class="o">=</span> <span class="n">Distributor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_iters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_class</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">trials</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">distr</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">jobs_queue</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">devices</span><span class="p">):</span>
+        <span class="n">n_branches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="p">)</span>
+        <span class="n">n_workers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">)</span>
+        <span class="n">total_n_branches</span> <span class="o">=</span> <span class="n">n_workers</span> <span class="o">*</span> <span class="n">n_branches</span>
+        <span class="k">if</span> <span class="n">devices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">devices</span> <span class="o">=</span> <span class="p">[[[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">*</span> <span class="n">n_branches</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_workers</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">devices</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="n">devices</span> <span class="o">=</span> <span class="p">[</span><span class="n">devices</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">devices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">total_n_branches</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">):</span>
+                <span class="n">_devices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">devices</span><span class="p">,</span> <span class="n">total_n_branches</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)))</span>
+                <span class="p">))</span>
+                <span class="n">devices</span> <span class="o">=</span> <span class="n">_devices</span> <span class="o">+</span> <span class="n">devices</span><span class="p">[:</span><span class="n">total_n_branches</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">devices</span> <span class="o">=</span> <span class="n">devices</span> <span class="o">+</span> <span class="n">devices</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">total_n_branches</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">total_n_branches</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">branches_per_device</span> <span class="o">=</span> <span class="n">total_n_branches</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span>
+                <span class="n">devices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">branches_per_device</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">%</span> <span class="n">total_n_branches</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">devices_per_branch</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">//</span> <span class="n">total_n_branches</span>
+                <span class="n">devices</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="n">devices</span><span class="p">[</span><span class="n">n_branches</span> <span class="o">*</span> <span class="n">devices_per_branch</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">devices_per_branch</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">devices_per_branch</span><span class="p">)</span>
+                        <span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_branches</span><span class="p">)</span>
+                    <span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_workers</span><span class="p">)</span>
+                <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">devices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">_transform_item</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+                <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">values</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
+
+            <span class="n">devices</span> <span class="o">=</span> <span class="p">[[</span><span class="n">_transform_item</span><span class="p">(</span><span class="n">branch_config</span><span class="p">)</span> <span class="k">for</span> <span class="n">branch_config</span> <span class="ow">in</span> <span class="n">worker_config</span><span class="p">]</span> <span class="k">for</span> <span class="n">worker_config</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">devices</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_folder_exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;configs&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Research with name &#39;</span><span class="si">{}</span><span class="s2">&#39; already exists&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save description of the research to folder &#39;name/description&#39;. &quot;&quot;&quot;</span>
+        <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;research.dill&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">dill</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="c1"># contains `Research` object</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;research.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># contains `Research` parameters as json</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_default_json</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;alias.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># contains representation of the initial domain</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_default_json</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_set_default_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">description</span><span class="p">[</span><span class="s1">&#39;domain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+        <span class="n">description</span><span class="p">[</span><span class="s1">&#39;executables&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="vm">__dict__</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">description</span>
+
+<div class="viewcode-block" id="Research.describe"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Research.load"><a class="viewcode-back" href="../../../api/batchflow.research.html#batchflow.research.Research.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load description of the research from &#39;name/description&#39;. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;research.dill&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">research</span> <span class="o">=</span> <span class="n">dill</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="n">research</span><span class="o">.</span><span class="n">loaded</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="n">research</span></div></div>
+
+<span class="k">class</span> <span class="nc">DynamicQueue</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Queue of tasks that can be changed depending on previous results. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">n_iters</span><span class="p">,</span> <span class="n">executables</span><span class="p">,</span> <span class="n">research_path</span><span class="p">,</span> <span class="n">update_config</span><span class="p">,</span> <span class="n">update_domain</span><span class="p">,</span> <span class="n">n_updates</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="n">branches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_iters</span> <span class="o">=</span> <span class="n">n_iters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executables</span> <span class="o">=</span> <span class="n">executables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">research_path</span> <span class="o">=</span> <span class="n">research_path</span>
+
+        <span class="k">if</span> <span class="n">update_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">])(</span><span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span> <span class="o">=</span> <span class="n">update_config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_branches</span> <span class="o">=</span> <span class="n">branches</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">branches</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_domain</span> <span class="o">=</span> <span class="n">update_domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_updates</span> <span class="o">=</span> <span class="n">n_updates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_domain_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">set_update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">update_domain</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">JoinableQueue</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generated_jobs</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_generate_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">each_config_produce</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">config_from_domain</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+                <span class="n">config_from_func</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">config_from_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">](</span><span class="n">config_from_domain</span><span class="o">.</span><span class="n">config</span><span class="p">())</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">_config_slice</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">config_from_domain</span><span class="o">.</span><span class="n">config</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                                         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]}</span>
+                        <span class="n">config_from_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">](</span><span class="o">**</span><span class="n">_config_slice</span><span class="p">)</span>
+                <span class="n">config_from_func</span> <span class="o">=</span> <span class="n">config_from_func</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config_from_func</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">config_from_func</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">each_config_produce</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">config_from_func</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">config_from_func</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="p">(</span><span class="n">config_from_domain</span><span class="p">,</span> <span class="n">ConfigAlias</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Total estimated size of queue. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_domain_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rolling_mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">each_config_produce</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">each_config_produce</span><span class="p">)</span>
+            <span class="n">estimated_num</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_domain_size</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">each_config_produce</span><span class="p">))</span> <span class="o">*</span> <span class="n">rolling_mean</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">num</span> <span class="o">+</span>  <span class="n">estimated_num</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_branches</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update domain. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_updates</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_idx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_updates</span><span class="p">:</span>
+            <span class="n">new_domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">update_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">research_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">new_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">new_domain</span> <span class="o">*</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">update_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_domain_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">size</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">set_update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">update_domain</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">next_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get next `n_tasks` elements of queue. &quot;&quot;&quot;</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tasks</span><span class="p">):</span>
+            <span class="n">branch_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_branches</span><span class="p">):</span>
+                    <span class="n">branch_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">))</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch_tasks</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">branch_tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch_tasks</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">configs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">generated_jobs</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span>
+                      <span class="n">Job</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">executables</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_iters</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">research_path</span><span class="p">)))</span>
+
+        <span class="n">n_tasks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generated_jobs</span> <span class="o">+=</span> <span class="n">n_tasks</span>
+
+        <span class="k">return</span> <span class="n">n_tasks</span>
+
+    <span class="k">def</span> <span class="nf">stop_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Stop all workers. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_workers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">task_done</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

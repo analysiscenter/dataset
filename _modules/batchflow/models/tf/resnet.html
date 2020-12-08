@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.resnet &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.resnet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.resnet</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Kaiming He et al. &quot;`Deep Residual Learning for Image Recognition</span>
+<span class="sd">&lt;https://arxiv.org/abs/1512.03385&gt;`_&quot;</span>
+
+<span class="sd">Kaiming He et al. &quot;`Identity Mappings in Deep Residual Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1603.05027&gt;`_&quot;</span>
+
+<span class="sd">Sergey Zagoruyko, Nikos Komodakis. &quot;`Wide Residual Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1605.07146&gt;`_&quot;</span>
+
+<span class="sd">Xie S. et al. &quot;`Aggregated Residual Transformations for Deep Neural Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1611.05431&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TFModel</span>
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">conv_block</span>
+
+
+<div class="viewcode-block" id="ResNet"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet">[docs]</a><span class="k">class</span> <span class="nc">ResNet</span><span class="p">(</span><span class="n">TFModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The base ResNet model</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This class is intended to define custom ResNets.</span>
+<span class="sd">    For more convenience use predefined :class:`~.tf.ResNet18`, :class:`~tf..ResNet34`,</span>
+<span class="sd">    and others described down below.</span>
+
+<span class="sd">    **Configuration**</span>
+
+<span class="sd">    inputs : dict</span>
+<span class="sd">        dict with &#39;images&#39; and &#39;labels&#39; (see :meth:`~.TFModel._make_inputs`)</span>
+
+<span class="sd">    initial_block : dict</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of filters (default=64)</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        num_blocks : list of int</span>
+<span class="sd">            number of blocks in each group with the same number of filters.</span>
+<span class="sd">        filters : list of int</span>
+<span class="sd">            number of filters in each group</span>
+<span class="sd">        downsample : list of lists of int</span>
+<span class="sd">            indices of blocks in each group that should perform downsampling;</span>
+<span class="sd">            by default downsampling is applied at first block of each ResNet group</span>
+<span class="sd">            except for the first one.</span>
+
+<span class="sd">        block : dict</span>
+<span class="sd">            layout : str</span>
+<span class="sd">                a sequence of layers in the block</span>
+<span class="sd">            filters : int or list/tuple of ints</span>
+<span class="sd">                number of output filters</span>
+<span class="sd">            zero_pad : bool</span>
+<span class="sd">                whether to pad a shortcut with zeros when a number of filters increases</span>
+<span class="sd">                or apply a 1x1 convolution (default is False)</span>
+<span class="sd">            width_factor : int</span>
+<span class="sd">                widening factor to make WideResNet (default=1)</span>
+<span class="sd">            resnext : int or None</span>
+<span class="sd">                if None - do not use ResNeXt block</span>
+<span class="sd">                if int - number of aggregations in ResNeXt block</span>
+<span class="sd">                default is None</span>
+<span class="sd">            bottleneck : int or None</span>
+<span class="sd">                if None - use simple (3x3,3x3) block</span>
+<span class="sd">                if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</span>
+<span class="sd">                default is None</span>
+<span class="sd">            se_block : dict or None</span>
+<span class="sd">                params for squeeze-and-excitation blocks, see :meth:`~TFModel.se_block` (default=None)</span>
+<span class="sd">            post_activation : None or bool or str</span>
+<span class="sd">                layout to apply after after residual and shortcut summation (default is None)</span>
+
+<span class="sd">    head : dict</span>
+<span class="sd">        &#39;Vdf&#39; with dropout_rate=.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model defaults. See :meth: `~.TFModel.default_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">TFModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;common/conv/use_bias&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                        <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">post_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">bottleneck</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zero_pad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">resnext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">se_block</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;Vdf&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ce&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="ResNet.default_layout"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.default_layout">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_layout</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bottleneck</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define conv block layout &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="n">reps</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">bottleneck</span> <span class="k">else</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="s1">&#39;cna&#39;</span> <span class="o">*</span> <span class="n">reps</span></div>
+
+<div class="viewcode-block" id="ResNet.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s architecture configuration. See :meth: `~.TFModel.build_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;body/filters&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/width_factor&#39;</span><span class="p">]</span>
+            <span class="n">num_blocks</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_blocks&#39;</span><span class="p">]</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block/filters&#39;</span><span class="p">]</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num_blocks</span><span class="p">))</span> <span class="o">*</span> <span class="n">filters</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;body/downsample&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_blocks</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_blocks&#39;</span><span class="p">]</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/downsample&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[]]</span> <span class="o">+</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num_blocks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/units&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/filters&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="ResNet.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        filters : list of int or list of list of int</span>
+<span class="sd">            number of filters in each block group</span>
+<span class="sd">        num_blocks : list of int</span>
+<span class="sd">            number of blocks in each group</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">filters</span><span class="p">,</span> <span class="n">block_args</span><span class="p">,</span> <span class="n">downsample</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">([</span><span class="s1">&#39;filters&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">,</span> <span class="s1">&#39;downsample&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">block_args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">}</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n_blocks</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;num_blocks&#39;</span><span class="p">]):</span>
+                <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;group-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_blocks</span><span class="p">):</span>
+                        <span class="n">block_args</span><span class="p">[</span><span class="s1">&#39;downsample&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">downsample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">bfilters</span> <span class="o">=</span> <span class="n">filters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">filters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">block</span><span class="p">]</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">bfilters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">block</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNet.double_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.double_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">double_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;double_block&#39;</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Two ResNet blocks one after another</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        downsample : bool</span>
+<span class="sd">            whether to decrease spatial dimensions</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            block parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block-1&#39;</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="n">downsample</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block-2&#39;</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNet.block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A network building block</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of layers in the block</span>
+<span class="sd">        filters : int or list/tuple of ints</span>
+<span class="sd">            number of output filters</span>
+<span class="sd">        zero_pad : bool</span>
+<span class="sd">            whether to pad shortcut when a number of filters increases</span>
+<span class="sd">        width_factor : int</span>
+<span class="sd">            a factor to increase number of filters to build a wide network</span>
+<span class="sd">        downsample : bool</span>
+<span class="sd">            whether to decrease spatial dimensions with strides=2 in the first convolution</span>
+<span class="sd">        resnext : int or None</span>
+<span class="sd">            if None - do not use ResNeXt block</span>
+<span class="sd">            if int - number of aggregations in ResNeXt block</span>
+<span class="sd">        bottleneck : int or None</span>
+<span class="sd">            if None - use simple (3x3,3x3) block</span>
+<span class="sd">            if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</span>
+<span class="sd">        se_block : dict or None</span>
+<span class="sd">            params for squeeze-and-excitation blocks, see :meth:`~TFModel.se_block` (default=None)</span>
+<span class="sd">        post_activation : str or bool</span>
+<span class="sd">            layout to apply after after residual and shortcut summation (default is None)</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            conv_block parameters for all sub blocks</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body/block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">downsample</span><span class="p">,</span> <span class="n">zero_pad</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">([</span><span class="s1">&#39;layout&#39;</span><span class="p">,</span> <span class="s1">&#39;filters&#39;</span><span class="p">,</span> <span class="s1">&#39;downsample&#39;</span><span class="p">,</span> <span class="s1">&#39;zero_pad&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">width_factor</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;width_factor&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">bottleneck</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;bottleneck&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">resnext</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;resnext&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">se_block</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;se_block&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">post_activation</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;post_activation&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post_activation</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">post_activation</span><span class="p">:</span>
+            <span class="n">post_activation</span> <span class="o">=</span> <span class="s1">&#39;an&#39;</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="n">filters</span> <span class="o">*</span> <span class="n">width_factor</span>
+            <span class="k">if</span> <span class="n">resnext</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">next_conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">bottleneck</span><span class="p">,</span> <span class="n">resnext</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span>
+                                        <span class="n">downsample</span><span class="o">=</span><span class="n">downsample</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">bottleneck</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span>
+                                   <span class="n">downsample</span><span class="o">=</span><span class="n">downsample</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">data_format</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">)</span>
+            <span class="n">inputs_channels</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">num_channels</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">data_format</span><span class="p">)</span>
+            <span class="n">x_channels</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">num_channels</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">data_format</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">se_block</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">se_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">se_block</span><span class="p">})</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;shortcut&#39;</span><span class="p">):</span>
+                <span class="n">strides</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">downsample</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="n">shortcut</span> <span class="o">=</span> <span class="n">inputs</span>
+                <span class="k">if</span> <span class="n">zero_pad</span> <span class="ow">and</span> <span class="n">inputs_channels</span> <span class="o">&lt;</span> <span class="n">x_channels</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">downsample</span><span class="p">:</span>
+                        <span class="n">shortcut</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">shortcut</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;shortcut&#39;</span><span class="p">,</span>
+                                              <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">inputs_channels</span><span class="p">,</span>
+                                                                  <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">)})</span>
+                    <span class="k">if</span> <span class="n">inputs_channels</span> <span class="o">&lt;</span> <span class="n">x_channels</span><span class="p">:</span>
+                        <span class="n">axis</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">))</span>
+                        <span class="n">padding</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shortcut</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span><span class="p">)]</span>
+                        <span class="n">padding</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_channels</span> <span class="o">-</span> <span class="n">inputs_channels</span><span class="p">]</span>
+                        <span class="n">shortcut</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">shortcut</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">inputs_channels</span> <span class="o">!=</span> <span class="n">x_channels</span> <span class="ow">or</span> <span class="n">downsample</span><span class="p">:</span>
+                    <span class="n">shortcut</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">shortcut</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;shortcut&#39;</span><span class="p">,</span>
+                                          <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">x_channels</span><span class="p">,</span>
+                                                              <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">)})</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">shortcut</span>
+
+            <span class="k">if</span> <span class="n">post_activation</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">post_activation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;post_activation&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNet.conv_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.conv_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">conv_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; ResNet convolution block</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of layers in the block</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of output filters</span>
+<span class="sd">        downsample : bool</span>
+<span class="sd">            whether to decrease spatial dimensions with strides=2</span>
+<span class="sd">        bottleneck : int or None</span>
+<span class="sd">            if None - use simple (3x3,3x3) block</span>
+<span class="sd">            if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            conv_block parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">layout</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_layout</span><span class="p">(</span><span class="n">bottleneck</span><span class="o">=</span><span class="n">bottleneck</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bottleneck</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">bottleneck_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="n">bottleneck</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">simple_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNet.simple_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.simple_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">simple_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A simple residual block (by default with two 3x3 convolutions)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of layers in the block</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of filters</span>
+<span class="sd">        kernel_size : int or tuple</span>
+<span class="sd">            convolution kernel size</span>
+<span class="sd">        downsample : bool</span>
+<span class="sd">            whether to decrease spatial dimensions with strides=2</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            conv_block parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">layout</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">strides</span> <span class="o">=</span> <span class="p">([</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">downsample</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResNet.bottleneck_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.bottleneck_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">bottleneck_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">downsample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A stack of 1x1, 3x3, 1x1 convolutions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of layers in the block</span>
+<span class="sd">        filters : int or list of int</span>
+<span class="sd">            if int, number of filters in the first convolution.</span>
+<span class="sd">            if list, number of filters in each layer.</span>
+<span class="sd">        kernel_size : int or tuple</span>
+<span class="sd">            convolution kernel size</span>
+<span class="sd">        bottleneck : int</span>
+<span class="sd">            filter number multiplier for a bottleneck block</span>
+<span class="sd">        downsample : bool</span>
+<span class="sd">            whether to decrease spatial dimensions with strides=2</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            conv_block parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kernel_size</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">kernel_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">kernel_size</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">layout</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">layout</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;strides&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">strides</span> <span class="o">=</span> <span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">downsample</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">strides</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;strides&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">filters</span> <span class="o">*</span> <span class="n">bottleneck</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNet.next_conv_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet.next_conv_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">next_conv_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">bottleneck</span><span class="p">,</span> <span class="n">resnext</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; ResNeXt convolution block</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of layers in the block</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of output filters</span>
+<span class="sd">        bottleneck : int or None</span>
+<span class="sd">            if None - use simple (3x3,3x3) block</span>
+<span class="sd">            if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</span>
+<span class="sd">        resnext : int</span>
+<span class="sd">            number of aggregations in ResNeXt block</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            `conv_block` parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">bottleneck</span><span class="p">:</span>
+            <span class="n">sub_blocks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">out_filters</span> <span class="o">=</span> <span class="n">filters</span> <span class="o">*</span> <span class="n">bottleneck</span>
+                <span class="n">in_filters</span> <span class="o">=</span> <span class="n">out_filters</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">//</span> <span class="n">resnext</span>
+                <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">in_filters</span><span class="p">,</span> <span class="n">in_filters</span><span class="p">,</span> <span class="n">out_filters</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">resnext</span><span class="p">):</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="n">bottleneck</span><span class="p">,</span>
+                                       <span class="n">name</span><span class="o">=</span><span class="s1">&#39;next_conv_block-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">sub_blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">sub_blocks</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_filters</span> <span class="o">=</span> <span class="n">resnext</span> <span class="o">*</span> <span class="mi">4</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="n">_filters</span><span class="p">,</span> <span class="n">filters</span><span class="p">],</span> <span class="n">bottleneck</span><span class="o">=</span><span class="n">bottleneck</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+
+<div class="viewcode-block" id="ResNet18"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet18">[docs]</a><span class="k">class</span> <span class="nc">ResNet18</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-18 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/bottleneck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet34"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet34">[docs]</a><span class="k">class</span> <span class="nc">ResNet34</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-34 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/bottleneck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet50"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet50">[docs]</a><span class="k">class</span> <span class="nc">ResNet50</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-50 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet34</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/bottleneck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet101"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet101">[docs]</a><span class="k">class</span> <span class="nc">ResNet101</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-101 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/bottleneck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet152"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet152">[docs]</a><span class="k">class</span> <span class="nc">ResNet152</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-152 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNet152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/bottleneck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="ResNeXt18"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt18">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt18</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-18 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet18</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/resnext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt34"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt34">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt34</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-34 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet34</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/resnext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt50"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt50">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt50</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-50 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet50</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/resnext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt101"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt101">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt101</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-101 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet101</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/resnext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt152"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt152">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt152</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-152 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.ResNeXt152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet152</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/resnext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="SEResNet18"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet18">[docs]</a><span class="k">class</span> <span class="nc">SEResNet18</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNet-18 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet18</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet34"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet34">[docs]</a><span class="k">class</span> <span class="nc">SEResNet34</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNet-34 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet34</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet50"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet50">[docs]</a><span class="k">class</span> <span class="nc">SEResNet50</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNet-50 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet50</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet101"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet101">[docs]</a><span class="k">class</span> <span class="nc">SEResNet101</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNet-101 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet101</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet152"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet152">[docs]</a><span class="k">class</span> <span class="nc">SEResNet152</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNet-152 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNet152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNet152</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="SEResNeXt18"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt18">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt18</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-18 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNeXt18</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt34"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt34">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt34</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-34 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNeXt34</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt50"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt50">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt50</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-50 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNeXt50</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt101"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt101">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt101</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-101 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNeXt101</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt152"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt152">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt152</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-152 architecture with squeeze-and-excitation blocks.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resnet.html#batchflow.models.tf.resnet.SEResNeXt152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNeXt152</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/block/se_block/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

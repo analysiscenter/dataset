@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.fcn &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.fcn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.fcn</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Shelhamer E. et al &quot;`Fully Convolutional Networks for Semantic Segmentation</span>
+<span class="sd">&lt;https://arxiv.org/abs/1605.06211&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TFModel</span><span class="p">,</span> <span class="n">VGG16</span>
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">conv_block</span>
+
+
+<div class="viewcode-block" id="FCN"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN">[docs]</a><span class="k">class</span> <span class="nc">FCN</span><span class="p">(</span><span class="n">TFModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base Fully convolutional network (FCN) &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FCN.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model defaults. See :meth: `~.TFModel.default_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">TFModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;common/dropout_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block/base_network&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VGG16</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/upsample&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/upsample&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ce&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FCN.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s architecture configuration. See :meth: `~.TFModel.build_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/num_classes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/num_classes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FCN.initial_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN.initial_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">initial_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">base_network</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base network</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        base_network : class</span>
+<span class="sd">            base network class</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">base_network</span><span class="o">.</span><span class="n">initial_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">base_network</span><span class="o">.</span><span class="n">body</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="FCN.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FCN.head"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN.head">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        targets : tf.Tensor</span>
+<span class="sd">            the tensor with source images (provide the shape to upsample to)</span>
+<span class="sd">        num_classes : int</span>
+<span class="sd">            number of classes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">upsample_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;upsample&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">upsample_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+<div class="viewcode-block" id="FCN32"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN32">[docs]</a><span class="k">class</span> <span class="nc">FCN32</span><span class="p">(</span><span class="n">FCN</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Fully convolutional network (FCN32)</span>
+
+<span class="sd">    **Configuration**</span>
+
+<span class="sd">    inputs : dict</span>
+<span class="sd">        dict with &#39;images&#39; and &#39;masks&#39; (see :meth:`~.TFModel._make_inputs`)</span>
+
+<span class="sd">    initial_block : dict</span>
+<span class="sd">        base_network : class</span>
+<span class="sd">            base network (VGG16 by default)</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of filters in convolutions after base network (default=100)</span>
+<span class="sd">        upsample : dict</span>
+<span class="sd">            upsampling parameters (default={factor:2, layout:t, kernel_size:4)</span>
+
+<span class="sd">    head : dict</span>
+<span class="sd">        upsample : dict</span>
+<span class="sd">            upsampling parameters (default={factor:32, layout:t, kernel_size:64)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FCN32.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN32.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">FCN</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;upsample&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">64</span><span class="p">))</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnad cnad&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FCN32.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN32.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        num_classes : int</span>
+<span class="sd">            number of classes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">num_classes</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FCN16"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN16">[docs]</a><span class="k">class</span> <span class="nc">FCN16</span><span class="p">(</span><span class="n">FCN</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Fully convolutional network (FCN16)</span>
+
+<span class="sd">    **Configuration**</span>
+
+<span class="sd">    inputs : dict</span>
+<span class="sd">        dict with &#39;images&#39; and &#39;masks&#39; (see :meth:`~.TFModel._make_inputs`)</span>
+
+<span class="sd">    initial_block : dict</span>
+<span class="sd">        base_network : class</span>
+<span class="sd">            base network (VGG16 by default)</span>
+<span class="sd">        skip_name : str</span>
+<span class="sd">            tensor name for the skip connection.</span>
+<span class="sd">            Default=&#39;block-3/output:0&#39; for VGG16.</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of filters in convolutions after base network (default=100)</span>
+<span class="sd">        upsample : dict</span>
+<span class="sd">            upsampling parameters (default={factor:2, layout:t, kernel_size:4)</span>
+
+<span class="sd">    head : dict</span>
+<span class="sd">        upsample : dict</span>
+<span class="sd">            upsampling parameters (default={factor:16, layout:t, kernel_size:32)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FCN16.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN16.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">FCN</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;upsample&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">32</span><span class="p">))</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">][</span><span class="s1">&#39;skip_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/initial_block/body/block-3/output:0&#39;</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FCN16.initial_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN16.initial_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">initial_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">FCN</span><span class="o">.</span><span class="n">initial_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">skip_name</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get_name_scope</span><span class="p">()</span> <span class="o">+</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;skip_name&#39;</span><span class="p">]</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get_tensor_by_name</span><span class="p">(</span><span class="n">skip_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">skip</span></div>
+
+<div class="viewcode-block" id="FCN16.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN16.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            two input tensors</span>
+<span class="sd">        num_classes : int</span>
+<span class="sd">            number of classes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;filters&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">upsample_args</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;upsample&#39;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">skip</span> <span class="o">=</span> <span class="n">inputs</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">FCN32</span><span class="o">.</span><span class="n">body</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fcn32&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fcn32_upsample&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">upsample_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">skip</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">skip</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;pool4&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">skip</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">))</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">skip</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
+<div class="viewcode-block" id="FCN8"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN8">[docs]</a><span class="k">class</span> <span class="nc">FCN8</span><span class="p">(</span><span class="n">FCN</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Fully convolutional network (FCN8)</span>
+
+<span class="sd">    **Configuration**</span>
+
+<span class="sd">    inputs : dict</span>
+<span class="sd">        dict with &#39;images&#39; and &#39;masks&#39; (see :meth:`~.TFModel._make_inputs`)</span>
+
+<span class="sd">    initial_block : dict</span>
+<span class="sd">        base_network : class</span>
+<span class="sd">            base network (VGG16 by default)</span>
+<span class="sd">        skip1_name : str</span>
+<span class="sd">            tensor name for the first skip connection.</span>
+<span class="sd">            Default=&#39;block-3/output:0&#39; for VGG16.</span>
+<span class="sd">        skip2_name : str</span>
+<span class="sd">            tensor name for the second skip connection.</span>
+<span class="sd">            Default=&#39;block-2/output:0&#39; for VGG16.</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        filters : int</span>
+<span class="sd">            number of filters in convolutions after base network (default=100)</span>
+<span class="sd">        upsample : dict</span>
+<span class="sd">            upsampling parameters (default={factor:2, layout:t, kernel_size:4)</span>
+
+<span class="sd">    head : dict</span>
+<span class="sd">        upsample : dict</span>
+<span class="sd">            upsampling parameters (default={factor:8, layout:t, kernel_size:16)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FCN8.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN8.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">FCN</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;upsample&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">][</span><span class="s1">&#39;skip1_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/initial_block/body/block-3/output:0&#39;</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">][</span><span class="s1">&#39;skip2_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/initial_block/body/block-2/output:0&#39;</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FCN8.initial_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN8.initial_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">initial_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">FCN</span><span class="o">.</span><span class="n">initial_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">skip1_name</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get_name_scope</span><span class="p">()</span> <span class="o">+</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;skip1_name&#39;</span><span class="p">]</span>
+        <span class="n">skip1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get_tensor_by_name</span><span class="p">(</span><span class="n">skip1_name</span><span class="p">)</span>
+        <span class="n">skip2_name</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get_name_scope</span><span class="p">()</span> <span class="o">+</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;skip2_name&#39;</span><span class="p">]</span>
+        <span class="n">skip2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">get_tensor_by_name</span><span class="p">(</span><span class="n">skip2_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">skip1</span><span class="p">,</span> <span class="n">skip2</span></div>
+
+<div class="viewcode-block" id="FCN8.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.fcn.html#batchflow.models.tf.fcn.FCN8.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        num_classes : int</span>
+<span class="sd">            number of classes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;filters&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">upsample_args</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;upsample&#39;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">skip1</span><span class="p">,</span> <span class="n">skip2</span> <span class="o">=</span> <span class="n">inputs</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">FCN16</span><span class="o">.</span><span class="n">body</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">skip1</span><span class="p">),</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fcn16&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fcn16_upsample&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">upsample_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">skip2</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">skip2</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;pool3&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">skip2</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">))</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">skip2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

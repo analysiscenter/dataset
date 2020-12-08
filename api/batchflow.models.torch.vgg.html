@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>VGG &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ResNet" href="batchflow.models.torch.resnet.html" />
+    <link rel="prev" title="TorchModel" href="batchflow.models.torch.base.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/torch_models.html">Torch models</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.torch.models.html">Models</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.torch.base.html">TorchModel</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">VGG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.torch.resnet.html">ResNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.torch.squeezenet.html">SqueezeNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.torch.unet.html">UNet</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/torch_models.html">Torch models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.torch.models.html">Models</a> &raquo;</li>
+        
+      <li>VGG</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.torch.vgg.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.models.torch.vgg">
+<span id="vgg"></span><h1>VGG<a class="headerlink" href="#module-batchflow.models.torch.vgg" title="Permalink to this headline">¶</a></h1>
+<p>Simonyan K., Zisserman A. “<a class="reference external" href="https://arxiv.org/abs/1409.1556">Very Deep Convolutional Networks for Large-Scale Image Recognition</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.torch.vgg.VGG">
+<em class="property">class </em><code class="sig-name descname">VGG</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.torch.encoder_decoder.Encoder</span></code></p>
+<p>Base VGG architecture.</p>
+<dl class="py method">
+<dt id="batchflow.models.torch.vgg.VGG.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults.</p>
+<p>You need to override this method if you expect your model or its blocks to serve as a base for other models
+(e.g. VGG for FCN, ResNet for LinkNet, etc).</p>
+<p>Put here all constants (like the number of filters, kernel sizes, block layouts, strides, etc)
+specific to the model, but independent of anything else (like image shapes, number of classes, etc).</p>
+<p>These defaults can be changed in <a class="reference internal" href="batchflow.models.torch.base.html#batchflow.models.torch.base.TorchModel.build_config" title="batchflow.models.torch.base.TorchModel.build_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_config()</span></code></a> or when calling <a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline.init_model" title="batchflow.Pipeline.init_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.init_model()</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                   <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnadV&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.torch.vgg.VGG7">
+<em class="property">class </em><code class="sig-name descname">VGG7</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG7"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG7" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.torch.vgg.VGG" title="batchflow.models.torch.vgg.VGG"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.torch.vgg.VGG</span></code></a></p>
+<p>VGG7 network.</p>
+<dl class="py method">
+<dt id="batchflow.models.torch.vgg.VGG7.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG7.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG7.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults.</p>
+<p>You need to override this method if you expect your model or its blocks to serve as a base for other models
+(e.g. VGG for FCN, ResNet for LinkNet, etc).</p>
+<p>Put here all constants (like the number of filters, kernel sizes, block layouts, strides, etc)
+specific to the model, but independent of anything else (like image shapes, number of classes, etc).</p>
+<p>These defaults can be changed in <a class="reference internal" href="batchflow.models.torch.base.html#batchflow.models.torch.base.TorchModel.build_config" title="batchflow.models.torch.base.TorchModel.build_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_config()</span></code></a> or when calling <a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline.init_model" title="batchflow.Pipeline.init_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.init_model()</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                   <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnadV&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.torch.vgg.VGG16">
+<em class="property">class </em><code class="sig-name descname">VGG16</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG16"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.torch.vgg.VGG" title="batchflow.models.torch.vgg.VGG"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.torch.vgg.VGG</span></code></a></p>
+<p>VGG16 network.</p>
+<dl class="py method">
+<dt id="batchflow.models.torch.vgg.VGG16.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG16.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG16.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults.</p>
+<p>You need to override this method if you expect your model or its blocks to serve as a base for other models
+(e.g. VGG for FCN, ResNet for LinkNet, etc).</p>
+<p>Put here all constants (like the number of filters, kernel sizes, block layouts, strides, etc)
+specific to the model, but independent of anything else (like image shapes, number of classes, etc).</p>
+<p>These defaults can be changed in <a class="reference internal" href="batchflow.models.torch.base.html#batchflow.models.torch.base.TorchModel.build_config" title="batchflow.models.torch.base.TorchModel.build_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_config()</span></code></a> or when calling <a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline.init_model" title="batchflow.Pipeline.init_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.init_model()</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                   <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnadV&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.torch.vgg.VGG19">
+<em class="property">class </em><code class="sig-name descname">VGG19</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG19"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG19" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.torch.vgg.VGG" title="batchflow.models.torch.vgg.VGG"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.torch.vgg.VGG</span></code></a></p>
+<p>VGG19 network.</p>
+<dl class="py method">
+<dt id="batchflow.models.torch.vgg.VGG19.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/torch/vgg.html#VGG19.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.torch.vgg.VGG19.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults.</p>
+<p>You need to override this method if you expect your model or its blocks to serve as a base for other models
+(e.g. VGG for FCN, ResNet for LinkNet, etc).</p>
+<p>Put here all constants (like the number of filters, kernel sizes, block layouts, strides, etc)
+specific to the model, but independent of anything else (like image shapes, number of classes, etc).</p>
+<p>These defaults can be changed in <a class="reference internal" href="batchflow.models.torch.base.html#batchflow.models.torch.base.TorchModel.build_config" title="batchflow.models.torch.base.TorchModel.build_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_config()</span></code></a> or when calling <a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline.init_model" title="batchflow.Pipeline.init_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.init_model()</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                   <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnadV&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.torch.resnet.html" class="btn btn-neutral float-right" title="ResNet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.torch.base.html" class="btn btn-neutral float-left" title="TorchModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

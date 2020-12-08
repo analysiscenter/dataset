@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.torch.layers.conv_block &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.torch.layers.conv_block</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.torch.layers.conv_block</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Convenient combining block &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">Activation</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">BatchNorm</span><span class="p">,</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">AlphaDropout</span>
+<span class="kn">from</span> <span class="nn">.conv</span> <span class="kn">import</span> <span class="n">Conv</span><span class="p">,</span> <span class="n">ConvTranspose</span><span class="p">,</span> <span class="n">DepthwiseConv</span><span class="p">,</span> <span class="n">DepthwiseConvTranspose</span><span class="p">,</span> \
+                  <span class="n">SeparableConv</span><span class="p">,</span> <span class="n">SeparableConvTranspose</span>
+<span class="kn">from</span> <span class="nn">.pooling</span> <span class="kn">import</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">GlobalPool</span>
+<span class="kn">from</span> <span class="nn">.resize</span> <span class="kn">import</span> <span class="n">IncreaseDim</span><span class="p">,</span> <span class="n">Reshape</span><span class="p">,</span> <span class="n">Interpolate</span><span class="p">,</span> <span class="n">SubPixelConv</span><span class="p">,</span> <span class="n">Combine</span>
+<span class="kn">from</span> <span class="nn">.attention</span> <span class="kn">import</span> <span class="n">SelfAttention</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">get_shape</span>
+<span class="kn">from</span> <span class="nn">...utils</span> <span class="kn">import</span> <span class="n">unpack_args</span>
+<span class="kn">from</span> <span class="nn">....</span> <span class="kn">import</span> <span class="n">Config</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+
+<span class="k">class</span> <span class="nc">Branch</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Add side branch to a :class:`~.layers.ConvBlock`. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;layout&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="o">=</span> <span class="n">ConvBlock</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+
+<span class="k">class</span> <span class="nc">BaseConvBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Complex multi-dimensional block to apply sequence of different operations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs : torch.Tensor</span>
+<span class="sd">        Example of input tensor to this layer.</span>
+<span class="sd">    layout : str</span>
+<span class="sd">        A sequence of letters, each letter meaning individual operation:</span>
+
+<span class="sd">        - `&gt;` - add new axis to tensor</span>
+<span class="sd">        - r - reshape tensor to desired shape</span>
+<span class="sd">        - c - convolution</span>
+<span class="sd">        - t - transposed convolution</span>
+<span class="sd">        - C - separable convolution</span>
+<span class="sd">        - T - separable transposed convolution</span>
+<span class="sd">        - w - depthwise convolution</span>
+<span class="sd">        - W - depthwise transposed convolution</span>
+<span class="sd">        - f - dense (fully connected)</span>
+<span class="sd">        - n - batch normalization</span>
+<span class="sd">        - a - activation</span>
+<span class="sd">        - p - pooling (default is max-pooling)</span>
+<span class="sd">        - v - average pooling</span>
+<span class="sd">        - P - global pooling (default is max-pooling)</span>
+<span class="sd">        - V - global average pooling</span>
+<span class="sd">        - d - dropout</span>
+<span class="sd">        - D - alpha dropout</span>
+<span class="sd">        - S - attention based on tensor itself (for example, squeeze and excitation)</span>
+<span class="sd">        - b - upsample with bilinear resize</span>
+<span class="sd">        - N - upsample with nearest neighbors resize</span>
+<span class="sd">        - X - upsample with subpixel convolution (:class:`~.layers.SubpixelConv`)</span>
+<span class="sd">        - B, R - start a new branch with auxilliary :class:`~.layers.BaseConvBlock`</span>
+<span class="sd">        - `.` - end the most recent created branch with concatenation</span>
+<span class="sd">        - `+` - end the most recent created branch with summation</span>
+<span class="sd">        - `*` - end the most recent created branch with multiplication</span>
+<span class="sd">        - `&amp;` - end the most recent created branch with softsum</span>
+
+<span class="sd">        Default is &#39;&#39;.</span>
+
+<span class="sd">    filters : int or str</span>
+<span class="sd">        If str, then number of filters is calculated by its evaluation. `S` and `same` stand for the</span>
+<span class="sd">        number of filters in the previous tensor. Note the `eval` usage under the hood.</span>
+<span class="sd">        If int, then number of filters in the output tensor.</span>
+<span class="sd">    kernel_size : int</span>
+<span class="sd">        Convolution kernel size.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the layer that will be used as a scope.</span>
+<span class="sd">    units : int or str</span>
+<span class="sd">        If str, then number of units is calculated by its evaluation. `S` and `same` stand for the</span>
+<span class="sd">        number of units in the previous tensor. Note the `eval` usage under the hood.</span>
+<span class="sd">        If int, then number of units in the dense layer.</span>
+<span class="sd">    strides : int</span>
+<span class="sd">        Convolution stride.</span>
+<span class="sd">    padding : str</span>
+<span class="sd">        Padding mode, can be &#39;same&#39; or &#39;valid&#39;. Default - &#39;same&#39;.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        &#39;channels_last&#39; or &#39;channels_first&#39;. Default - &#39;channels_first&#39;.</span>
+<span class="sd">    dilation_rate: int</span>
+<span class="sd">        Default is 1.</span>
+<span class="sd">    activation : callable</span>
+<span class="sd">        Default is `tf.nn.relu`.</span>
+<span class="sd">    pool_size : int</span>
+<span class="sd">        Default is 2.</span>
+<span class="sd">    pool_strides : int</span>
+<span class="sd">        Default is 2.</span>
+<span class="sd">    pool_op : str</span>
+<span class="sd">        Pooling operation (&#39;max&#39;, &#39;mean&#39;, &#39;frac&#39;)</span>
+<span class="sd">    dropout_rate : float</span>
+<span class="sd">        Default is 0.</span>
+<span class="sd">    upsampling_layout : str</span>
+<span class="sd">        Layout for upsampling layers</span>
+
+<span class="sd">    other named arguments : None, bool, dict or sequence</span>
+<span class="sd">        If None, then no common parameters are passed to all the layers of a given type.</span>
+<span class="sd">        If False, then all the layers of a given type are disabled.</span>
+<span class="sd">        If dict, then contains common parameters for all the layers of a given type. If &#39;disable&#39; is present in</span>
+<span class="sd">        this dictionary and evaluates to True, then all the layers of a given type are disabled.</span>
+<span class="sd">        If sequence, then each element must be a dict with parameters that are passed to corresponding layers</span>
+<span class="sd">        of a given type.</span>
+
+
+<span class="sd">        Name of the argument must be one of:</span>
+
+<span class="sd">        - dense - parameters like initializers, regularalizers, etc.</span>
+<span class="sd">        - conv - parameters like initializers, regularalizers, etc.</span>
+<span class="sd">        - transposed_conv - parameters like initializers, regularalizers, etc.</span>
+<span class="sd">        - batch_norm - parameters like initializers, momentum, etc.</span>
+<span class="sd">        - pooling - parameters like initializers, regularalizers, etc.</span>
+<span class="sd">        - dropout - parameters like noise_shape, dropout_rate, etc.</span>
+<span class="sd">        - subpixel_conv - parameters for :class:`~.layers.SubPixelConv`.</span>
+<span class="sd">        - resize_bilinear - parameters for :class:`~.layers.Interpolate`.</span>
+<span class="sd">        - self_attention - parameters for :class:`~.layers.SelfAttention`.</span>
+<span class="sd">        - branch - parameters for :class:`~.layers.ConvBlock`.</span>
+<span class="sd">        - branch_end - parameters for :class:`~.layers.Combine`.</span>
+
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When ``layout`` includes several layers of the same type, each one can have its own parameters,</span>
+<span class="sd">    if corresponding args are passed as lists (not tuples).</span>
+
+<span class="sd">    Spaces may be used to improve readability.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    A simple block: 3x3 conv, batch norm, relu, 2x2 max-pooling with stride 2::</span>
+
+<span class="sd">        x = BaseConvBlock(layout=&#39;cnap&#39;, filters=32, kernel_size=3)</span>
+
+<span class="sd">    A canonical bottleneck block (1x1, 3x3, 1x1 conv with relu in-between)::</span>
+
+<span class="sd">        x = BaseConvBlock(layout=&#39;nac nac nac&#39;, filters=[64, 64, 256], kernel_size=[1, 3, 1])</span>
+
+<span class="sd">    A complex Nd block:</span>
+
+<span class="sd">    - 5x5 conv with 32 filters</span>
+<span class="sd">    - relu</span>
+<span class="sd">    - 3x3 conv with 32 filters</span>
+<span class="sd">    - relu</span>
+<span class="sd">    - 3x3 conv with 64 filters and a spatial stride 2</span>
+<span class="sd">    - relu</span>
+<span class="sd">    - batch norm</span>
+<span class="sd">    - dropout with rate 0.15</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        x = BaseConvBlock(layout=&#39;ca ca ca nd&#39;, filters=[32, 32, 64], kernel_size=[5, 3, 3],</span>
+<span class="sd">                      strides=[1, 1, 2], dropout_rate=.15)</span>
+
+<span class="sd">    A residual block::</span>
+
+<span class="sd">        x = BaseConvBlock(layout=&#39;R nac +&#39;, filters=&#39;same&#39;)</span>
+
+<span class="sd">    Squeeze and excitation block::</span>
+
+<span class="sd">        x = BaseConvBlock(layout=&#39;S cna *&#39;, filters=64)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LETTERS_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="s1">&#39;activation&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="s1">&#39;branch&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;R&#39;</span><span class="p">:</span> <span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="c1"># stands for `R`esidual</span>
+        <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="s1">&#39;branch_end&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;|&#39;</span><span class="p">:</span> <span class="s1">&#39;branch_end&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="s1">&#39;branch_end&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;&amp;&#39;</span><span class="p">:</span> <span class="s1">&#39;branch_end&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;increase_dim&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="s1">&#39;reshape&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="s1">&#39;dense&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="s1">&#39;conv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="s1">&#39;transposed_conv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;separable_conv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="s1">&#39;separable_conv_transpose&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="s1">&#39;depthwise_conv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="s1">&#39;depthwise_conv_transpose&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="s1">&#39;pooling&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="s1">&#39;pooling&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;P&#39;</span><span class="p">:</span> <span class="s1">&#39;global_pooling&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="s1">&#39;global_pooling&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="s1">&#39;batch_norm&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="s1">&#39;dropout&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="s1">&#39;alpha_dropout&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="s1">&#39;self_attention&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="s1">&#39;resize_bilinear&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="s1">&#39;resize_nn&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;subpixel_conv&#39;</span>
+    <span class="p">}</span>
+
+    <span class="n">LAYERS_MODULES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;activation&#39;</span><span class="p">:</span> <span class="n">Activation</span><span class="p">,</span>
+        <span class="s1">&#39;branch&#39;</span><span class="p">:</span> <span class="n">Branch</span><span class="p">,</span>
+        <span class="s1">&#39;branch_end&#39;</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span>
+        <span class="s1">&#39;increase_dim&#39;</span><span class="p">:</span> <span class="n">IncreaseDim</span><span class="p">,</span>
+        <span class="s1">&#39;reshape&#39;</span><span class="p">:</span> <span class="n">Reshape</span><span class="p">,</span>
+        <span class="s1">&#39;dense&#39;</span><span class="p">:</span> <span class="n">Dense</span><span class="p">,</span>
+        <span class="s1">&#39;conv&#39;</span><span class="p">:</span> <span class="n">Conv</span><span class="p">,</span>
+        <span class="s1">&#39;transposed_conv&#39;</span><span class="p">:</span> <span class="n">ConvTranspose</span><span class="p">,</span>
+        <span class="s1">&#39;separable_conv&#39;</span><span class="p">:</span> <span class="n">SeparableConv</span><span class="p">,</span>
+        <span class="s1">&#39;separable_conv_transpose&#39;</span><span class="p">:</span> <span class="n">SeparableConvTranspose</span><span class="p">,</span>
+        <span class="s1">&#39;depthwise_conv&#39;</span><span class="p">:</span> <span class="n">DepthwiseConv</span><span class="p">,</span>
+        <span class="s1">&#39;depthwise_conv_transpose&#39;</span><span class="p">:</span> <span class="n">DepthwiseConvTranspose</span><span class="p">,</span>
+        <span class="s1">&#39;pooling&#39;</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span>
+        <span class="s1">&#39;global_pooling&#39;</span><span class="p">:</span> <span class="n">GlobalPool</span><span class="p">,</span>
+        <span class="s1">&#39;batch_norm&#39;</span><span class="p">:</span> <span class="n">BatchNorm</span><span class="p">,</span>
+        <span class="s1">&#39;dropout&#39;</span><span class="p">:</span> <span class="n">Dropout</span><span class="p">,</span>
+        <span class="s1">&#39;alpha_dropout&#39;</span><span class="p">:</span> <span class="n">AlphaDropout</span><span class="p">,</span>
+        <span class="s1">&#39;self_attention&#39;</span><span class="p">:</span> <span class="n">SelfAttention</span><span class="p">,</span>
+        <span class="s1">&#39;resize_bilinear&#39;</span><span class="p">:</span> <span class="n">Interpolate</span><span class="p">,</span>
+        <span class="s1">&#39;resize_nn&#39;</span><span class="p">:</span> <span class="n">Interpolate</span><span class="p">,</span>
+        <span class="s1">&#39;subpixel_conv&#39;</span><span class="p">:</span> <span class="n">SubPixelConv</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">DEFAULT_LETTERS</span> <span class="o">=</span> <span class="n">LETTERS_LAYERS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">LETTERS_GROUPS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">DEFAULT_LETTERS</span><span class="p">,</span> <span class="n">DEFAULT_LETTERS</span><span class="p">))</span>
+    <span class="n">LETTERS_GROUPS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span>
+        <span class="p">})</span>
+
+
+    <span class="n">BRANCH_LETTERS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+    <span class="n">COMBINE_LETTERS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">filters</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dilation_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depth_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span>
+                 <span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                 <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_first&#39;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dilation_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_multiplier</span> <span class="o">=</span> <span class="n">dilation_rate</span><span class="p">,</span> <span class="n">depth_multiplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool_strides</span> <span class="o">=</span> <span class="n">pool_size</span><span class="p">,</span> <span class="n">pool_strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">padding</span><span class="p">,</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_modules</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">letter</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BRANCH_LETTERS</span><span class="p">:</span>
+                <span class="n">branches</span> <span class="o">+=</span> <span class="p">[</span><span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
+            <span class="k">elif</span> <span class="n">letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">COMBINE_LETTERS</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">branches</span><span class="o">.</span><span class="n">pop</span><span class="p">()])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+    <span class="k">def</span> <span class="nf">fill_layer_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">layer_class</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">counters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Inspect which parameters should be passed to the layer and get them from instance. &quot;&quot;&quot;</span>
+        <span class="n">layer_params</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">layer_class</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">layer_params</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">param</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">layer_params</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))}</span>
+        <span class="k">if</span> <span class="s1">&#39;inputs&#39;</span> <span class="ow">in</span> <span class="n">layer_params</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;inputs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span>
+
+        <span class="n">layer_args</span> <span class="o">=</span> <span class="n">unpack_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">*</span><span class="n">counters</span><span class="p">)</span>
+        <span class="n">layer_args</span> <span class="o">=</span> <span class="n">layer_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">unpack_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">counters</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">layer_args</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">_make_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create necessary modules from instance parameters. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;BaseConvBlock: layout is empty, so there is nothing to do, just returning inputs.&#39;</span><span class="p">)</span>
+
+        <span class="n">layout_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">:</span>
+            <span class="n">letter_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LETTERS_GROUPS</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span>
+            <span class="n">letter_counts</span> <span class="o">=</span> <span class="n">layout_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">letter_group</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">letter_counts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">letter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">):</span>
+            <span class="c1"># Get the current layer configuration</span>
+            <span class="n">letter_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LETTERS_GROUPS</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span>
+            <span class="n">layer_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LETTERS_LAYERS</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span>
+            <span class="n">layer_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LAYERS_MODULES</span><span class="p">[</span><span class="n">layer_name</span><span class="p">]</span>
+            <span class="n">layout_dict</span><span class="p">[</span><span class="n">letter_group</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Skip-connection letters: parallel execution branch</span>
+            <span class="k">if</span> <span class="n">letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BRANCH_LETTERS</span><span class="p">:</span>
+                <span class="c1"># Make layer arguments</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_layer_params</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">layer_class</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout_dict</span><span class="p">[</span><span class="n">letter_group</span><span class="p">])</span>
+
+                <span class="c1"># Create layer and store the output</span>
+                <span class="n">layer</span> <span class="o">=</span> <span class="n">layer_class</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skip</span><span class="p">)</span>
+
+                <span class="c1"># Create layer description</span>
+                <span class="n">shape_before</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">get_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="n">shape_after</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">get_shape</span><span class="p">(</span><span class="n">skip</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="n">layer_desc</span> <span class="o">=</span> <span class="s1">&#39;Layer </span><span class="si">{}</span><span class="s1">,    skip &quot;</span><span class="si">{}</span><span class="s1">&quot;: </span><span class="si">{}</span><span class="s1"> -&gt; </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">letter</span><span class="p">,</span> <span class="n">shape_before</span><span class="p">,</span> <span class="n">shape_after</span><span class="p">)</span>
+
+            <span class="c1"># Combine multiple inputs with addition, concatenation, etc</span>
+            <span class="k">elif</span> <span class="n">letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">COMBINE_LETTERS</span><span class="p">:</span>
+                <span class="c1"># Make layer arguments: pop additional inputs from storage</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_layer_params</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">layer_class</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout_dict</span><span class="p">[</span><span class="n">letter_group</span><span class="p">])</span>
+                <span class="n">combine_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="n">branches</span><span class="o">.</span><span class="n">pop</span><span class="p">()]</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;inputs&#39;</span><span class="p">:</span> <span class="n">combine_inputs</span><span class="p">,</span> <span class="s1">&#39;op&#39;</span><span class="p">:</span> <span class="n">letter</span><span class="p">}</span>
+
+                <span class="c1"># Create layer</span>
+                <span class="n">layer</span> <span class="o">=</span> <span class="n">layer_class</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">shape_before</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_shape</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">combine_inputs</span><span class="p">]</span>
+                <span class="n">inputs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;inputs&#39;</span><span class="p">])</span>
+                <span class="n">shape_after</span> <span class="o">=</span> <span class="n">get_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+                <span class="c1"># Create layer description: one line for each of the inputs</span>
+                <span class="n">shape_before</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shape_before</span><span class="p">]</span>
+                <span class="n">shape_after</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">shape_after</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="n">layer_desc</span> <span class="o">=</span> <span class="s1">&#39;Layer </span><span class="si">{}</span><span class="s1">, combine &quot;</span><span class="si">{}</span><span class="s1">&quot;: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">letter</span><span class="p">,</span> <span class="n">shape_before</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shape_before</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="n">layer_desc</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">layer_desc</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span> <span class="o">+</span> <span class="n">shape</span>
+                <span class="n">layer_desc</span> <span class="o">+=</span> <span class="s1">&#39; -&gt; </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shape_after</span><span class="p">)</span>
+
+            <span class="c1"># Regular layer</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Check if we need to skip current layer</span>
+                <span class="n">layer_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">skip_layer</span> <span class="o">=</span> <span class="n">layer_args</span> <span class="ow">is</span> <span class="kc">False</span> \
+                             <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer_args</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">layer_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;disable&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                <span class="c1"># Make layer argument</span>
+                <span class="k">if</span> <span class="n">skip_layer</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="n">letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_LETTERS</span><span class="p">:</span>
+                    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_layer_params</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">layer_class</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">layout_dict</span><span class="p">[</span><span class="n">letter_group</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">letter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">LETTERS_LAYERS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown letter symbol - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">letter</span><span class="p">)</span>
+
+                <span class="c1"># Additional params for some of the layers</span>
+                <span class="k">if</span> <span class="n">letter_group</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="s1">&#39;op&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">letter</span>
+                <span class="k">elif</span> <span class="n">letter_group</span> <span class="o">==</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span>
+                    <span class="n">args</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="n">letter</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_layer</span><span class="p">:</span>
+                    <span class="c1"># Create layer</span>
+                    <span class="n">layer</span> <span class="o">=</span> <span class="n">layer_class</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                    <span class="n">shape_before</span> <span class="o">=</span> <span class="n">get_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                    <span class="n">shape_after</span> <span class="o">=</span> <span class="n">get_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+                    <span class="c1"># Create layer description</span>
+                    <span class="n">shape_before</span><span class="p">,</span> <span class="n">shape_after</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">shape_before</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">shape_after</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                    <span class="n">layer_desc</span> <span class="o">=</span> <span class="s1">&#39;Layer </span><span class="si">{}</span><span class="s1">,  letter &quot;</span><span class="si">{}</span><span class="s1">&quot;: </span><span class="si">{}</span><span class="s1"> -&gt; </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">letter</span><span class="p">,</span> <span class="n">shape_before</span><span class="p">,</span> <span class="n">shape_after</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">layer_desc</span><span class="p">,</span> <span class="n">layer</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;layout=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;short_repr&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;layout=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+
+
+
+<div class="viewcode-block" id="update_layers"><a class="viewcode-back" href="../../../../../api/batchflow.models.torch.layers.html#batchflow.models.torch.layers.update_layers">[docs]</a><span class="k">def</span> <span class="nf">update_layers</span><span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Add custom letter to layout parsing procedure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    letter : str</span>
+<span class="sd">        Letter to add.</span>
+<span class="sd">    module : :class:`torch.nn.Module`</span>
+<span class="sd">        Tensor-processing layer. Must have layer-like signature (both init and forward methods overloaded).</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of parameter dictionary. Defaults to `letter`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Add custom `Q` letter::</span>
+
+<span class="sd">        block.add_letter(&#39;Q&#39;, my_module, &#39;custom_module_params&#39;)</span>
+<span class="sd">        block = BaseConvBlock(&#39;cnap Q&#39;, filters=32, custom_module_params={&#39;key&#39;: &#39;value&#39;})</span>
+<span class="sd">        x = block(x)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">letter</span>
+    <span class="n">BaseConvBlock</span><span class="o">.</span><span class="n">LETTERS_LAYERS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">letter</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
+    <span class="n">BaseConvBlock</span><span class="o">.</span><span class="n">LAYERS_MODULES</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">module</span><span class="p">})</span>
+    <span class="n">BaseConvBlock</span><span class="o">.</span><span class="n">LETTERS_GROUPS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">letter</span><span class="p">:</span> <span class="n">letter</span><span class="p">})</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">ConvBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Convenient wrapper for chaining/splitting multiple base blocks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : sequence</span>
+<span class="sd">        Layers to be chained.</span>
+<span class="sd">        If element of a sequence is a module, then it is used as is.</span>
+<span class="sd">        If element of a sequence is a dictionary, then it is used as arguments of a layer creation.</span>
+<span class="sd">        Function that is used as layer is either `base_block` or `base`/`base_block` keys inside the dictionary.</span>
+
+<span class="sd">    base, base_block : nn.Module</span>
+<span class="sd">        Tensor processing function.</span>
+
+<span class="sd">    n_repeats : int</span>
+<span class="sd">        Number of times to repeat the whole block.</span>
+
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Default arguments for layers creation in case of dicts present in `args`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Simple encoder that reduces spatial dimensions by 32 times and increases number</span>
+<span class="sd">    of features to maintain the same tensor size::</span>
+
+<span class="sd">    layer = ConvBlock({layout=&#39;cnap&#39;, filters=&#39;same*2&#39;}, inputs=inputs, n_repeats=5)</span>
+
+<span class="sd">    Repeat the whole construction two times::</span>
+
+<span class="sd">    repeated = splitted * 2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_block</span><span class="o">=</span><span class="n">BaseConvBlock</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">base_block</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">base_block</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">get_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="n">inputs</span><span class="o">.</span><span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_block</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span> <span class="o">=</span> <span class="n">base_block</span><span class="p">,</span> <span class="n">n_repeats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_modules</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_make_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">):</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_layer</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">base_block</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_block</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">layers</span>
+
+    <span class="k">def</span> <span class="nf">_make_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_block</span><span class="o">=</span><span class="n">BaseConvBlock</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># each element in `args` is a dict or module: make a sequential out of them</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">block</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;base_block&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">base_block</span>
+                    <span class="n">block_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;inputs&#39;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">Config</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">+</span> <span class="n">Config</span><span class="p">(</span><span class="n">item</span><span class="p">))}</span>
+                    <span class="n">layer</span> <span class="o">=</span> <span class="n">block</span><span class="p">(</span><span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+                    <span class="n">inputs</span> <span class="o">=</span> <span class="n">item</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Positional arguments of ConvBlock must be either dicts or nn.Modules, </span><span class="se">\</span>
+<span class="s1">                                      got instead </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
+        <span class="c1"># one block only</span>
+        <span class="k">return</span> <span class="n">base_block</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inputs</span>
+
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_inputs</span><span class="p">()</span>
+
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">ConvBlock</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">base_block</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_block</span><span class="p">,</span>
+                              <span class="n">n_repeats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;short_repr&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">_addindent</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">msg</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

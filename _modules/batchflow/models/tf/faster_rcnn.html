@@ -1,0 +1,639 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.faster_rcnn &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.faster_rcnn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.faster_rcnn</h1><div class="highlight"><pre>
+<span></span><span class="c1">#pylint:disable=cell-var-from-loop</span>
+<span class="c1">#pylint:disable=attribute-defined-outside-init</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Ren S. et al &quot;`Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1506.01497&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TFModel</span><span class="p">,</span> <span class="n">VGG7</span>
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">conv_block</span><span class="p">,</span> <span class="n">non_max_suppression</span><span class="p">,</span> <span class="n">roi_pooling_layer</span>
+
+
+<div class="viewcode-block" id="FasterRCNN"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN">[docs]</a><span class="k">class</span> <span class="nc">FasterRCNN</span><span class="p">(</span><span class="n">TFModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Faster Region-based convolutional neural network.</span>
+<span class="sd">    WARNING: FasterRCNN works with TensorFlow 1.3.0 and with fixed batch size. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FasterRCNN.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model defaults. See :meth: `~.TFModel.default_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">TFModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;prefix&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reg&#39;</span><span class="p">,</span> <span class="s1">&#39;cls&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;anchors_batch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;rcn_batch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;nms_threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;rpn_thresholds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">][</span><span class="s1">&#39;base_network&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VGG7</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s architecture configuration. See :meth: `~.TFModel.build_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;image_shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spatial_shape</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;nms_threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;nms_threshold&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;rpn_thresholds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;rpn_thresholds&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;rcn_batch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;rcn_batch&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">anchors_batch</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;anchors_batch&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rpn_thresholds</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;rpn_thresholds&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.initial_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.initial_block">[docs]</a>    <span class="k">def</span> <span class="nf">initial_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">base_network</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Transform inputs.  See :meth: `~.TFModel.initial_block` &quot;&quot;&quot;</span>
+        <span class="n">train_mode</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;train_mode&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_to_attr</span><span class="p">(</span><span class="s1">&#39;train_mode&#39;</span><span class="p">,</span> <span class="n">train_mode</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">base_network</span><span class="o">.</span><span class="n">body</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers.  See :meth: `~.TFModel.body` &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="s1">&#39;ca&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.create_anchors_tensors"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors_tensors">[docs]</a>    <span class="k">def</span> <span class="nf">create_anchors_tensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create placheholders for anchor-based inputs. &quot;&quot;&quot;</span>
+        <span class="n">n_anchors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_anchors</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;anchors&#39;</span><span class="p">):</span>
+            <span class="n">tensors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;batch&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">]),</span>
+                       <span class="s1">&#39;clsf&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">]),</span>
+                       <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">]),</span>
+                       <span class="s1">&#39;reg&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+                      <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store_to_attr</span><span class="p">(</span><span class="s1">&#39;anchors&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_anchors</span><span class="p">())</span>
+            <span class="n">tensors</span><span class="p">[</span><span class="s1">&#39;anchors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anchors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_to_attr</span><span class="p">(</span><span class="s1">&#39;anchors_placeholders&#39;</span><span class="p">,</span> <span class="n">tensors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tensors</span></div>
+
+
+<div class="viewcode-block" id="FasterRCNN.head"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.head">[docs]</a>    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">image_shape</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The last network layers which produce predictions. See :meth: `~.TFModel.head` &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;channels_last&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_anchors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">9</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="n">image_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_anchors_tensors</span><span class="p">()</span>
+
+        <span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_clsf</span><span class="p">,</span> <span class="n">loss1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rpn_head</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">loss2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcn_head</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_clsf</span><span class="p">],</span> <span class="n">image_shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_mode</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">loss1</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">loss2</span><span class="p">)</span>
+
+        <span class="n">tf</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_clsf</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_rpn_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rpn_head&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">n_anchors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_anchors</span>
+        <span class="n">anchors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchors_placeholders</span><span class="p">[</span><span class="s1">&#39;anchors&#39;</span><span class="p">]</span>
+        <span class="n">anchor_reg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchors_placeholders</span><span class="p">[</span><span class="s1">&#39;reg&#39;</span><span class="p">]</span>
+        <span class="n">anchor_clsf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchors_placeholders</span><span class="p">[</span><span class="s1">&#39;clsf&#39;</span><span class="p">]</span>
+        <span class="n">anchor_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchors_placeholders</span><span class="p">[</span><span class="s1">&#39;batch&#39;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+
+            <span class="n">rpn_reg</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="mi">9</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv_reg&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">rpn_clsf</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="mi">9</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv_clsf&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+                <span class="n">rpn_reg</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">rpn_reg</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">rpn_clsf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">rpn_clsf</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+
+            <span class="n">rpn_reg</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rpn_reg</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+            <span class="n">rpn_clsf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rpn_clsf</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">])</span>
+
+            <span class="n">anchor_reg_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="n">anchor_reg</span><span class="p">,</span> <span class="n">anchors</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpn_loss</span><span class="p">(</span><span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_clsf</span><span class="p">,</span> <span class="n">anchor_reg_param</span><span class="p">,</span> <span class="n">anchor_clsf</span><span class="p">,</span> <span class="n">anchor_batch</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+
+            <span class="n">rpn_reg</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unparametrize</span><span class="p">(</span><span class="n">rpn_reg</span><span class="p">,</span> <span class="n">anchors</span><span class="p">),</span> <span class="s1">&#39;reg&#39;</span><span class="p">)</span>
+            <span class="n">rpn_clsf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">rpn_clsf</span><span class="p">,</span> <span class="s1">&#39;clsf&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_clsf</span><span class="p">,</span> <span class="n">loss</span>
+
+    <span class="k">def</span> <span class="nf">_rcn_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">image_shape</span><span class="p">,</span> <span class="n">nms_threshold</span><span class="p">,</span> <span class="n">rpn_thresholds</span><span class="p">,</span>
+                  <span class="n">rcn_batch</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rcn_head&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">anchors_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchors_placeholders</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span>
+        <span class="n">feature_maps</span><span class="p">,</span> <span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_cls</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="n">n_anchors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_anchors</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">rcn_input_indices</span> <span class="o">=</span> <span class="n">non_max_suppression</span><span class="p">(</span><span class="n">rpn_reg</span><span class="p">,</span> <span class="n">rpn_cls</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">n_anchors</span><span class="p">,</span>
+                                                    <span class="n">iou_threshold</span><span class="o">=</span><span class="n">nms_threshold</span><span class="p">,</span>
+                                                    <span class="n">score_threshold</span><span class="o">=</span><span class="n">rpn_thresholds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                    <span class="n">nonempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">rcn_input_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_training</span><span class="p">,</span>
+                                        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_bbox_batch</span><span class="p">(</span><span class="n">rcn_input_indices</span><span class="p">,</span> <span class="n">rcn_batch</span><span class="p">),</span>
+                                        <span class="k">lambda</span><span class="p">:</span> <span class="n">rcn_input_indices</span><span class="p">)</span>
+
+            <span class="n">rcn_input_rois</span><span class="p">,</span> <span class="n">rcn_input_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rois_and_labels</span><span class="p">(</span><span class="n">rpn_reg</span><span class="p">,</span> <span class="n">anchors_labels</span><span class="p">,</span> <span class="n">rcn_input_indices</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">rcn_input_rois</span><span class="p">:</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s1">&#39;roi&#39;</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">rcn_input_labels</span><span class="p">:</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
+            <span class="n">roi_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_shape</span><span class="o">/</span><span class="n">image_shape</span><span class="p">)</span>
+
+            <span class="n">rcn_input_rois</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_gradient_tuple</span><span class="p">(</span><span class="n">rcn_input_rois</span><span class="p">)</span>
+            <span class="n">rcn_input_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_gradient_tuple</span><span class="p">(</span><span class="n">rcn_input_labels</span><span class="p">)</span>
+
+            <span class="n">roi_cropped</span> <span class="o">=</span> <span class="n">roi_pooling_layer</span><span class="p">(</span><span class="n">feature_maps</span><span class="p">,</span> <span class="n">rcn_input_rois</span><span class="p">,</span>
+                                            <span class="n">factor</span><span class="o">=</span><span class="n">roi_factor</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">data_format</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_format&#39;</span><span class="p">])</span>
+            <span class="n">indices</span><span class="p">,</span> <span class="n">roi_cropped</span><span class="p">,</span> <span class="n">rcn_input_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack_tuple</span><span class="p">(</span><span class="n">roi_cropped</span><span class="p">,</span> <span class="n">rcn_input_labels</span><span class="p">)</span> <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+            <span class="n">rcn_clsf</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">roi_cropped</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output_conv&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcn_loss</span><span class="p">(</span><span class="n">rcn_clsf</span><span class="p">,</span> <span class="n">rcn_input_labels</span><span class="p">)</span>
+
+            <span class="n">rcn_clsf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">rcn_clsf</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">rcn_clsf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unstack_tuple</span><span class="p">(</span><span class="n">rcn_clsf</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+            <span class="n">rcn_clsf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">(</span><span class="n">rcn_clsf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;clsf&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">rcn_clsf</span><span class="p">:</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s1">&#39;rcn_output&#39;</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rcn_clsf</span><span class="p">,</span> <span class="n">loss</span>
+
+    <span class="k">def</span> <span class="nf">_fill_feed_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">anchors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">_feed_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;bboxes&#39;</span> <span class="ow">in</span> <span class="n">feed_dict</span><span class="p">:</span>
+            <span class="n">bboxes</span> <span class="o">=</span> <span class="n">feed_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;bboxes&#39;</span><span class="p">)</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">feed_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">)</span>
+            <span class="n">thresholds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpn_thresholds</span>
+
+            <span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;reg&#39;</span><span class="p">],</span> <span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;clsf&#39;</span><span class="p">],</span> <span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_rpn_inputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anchors</span><span class="p">,</span>
+                                                                                        <span class="n">bboxes</span><span class="p">,</span>
+                                                                                        <span class="n">labels</span><span class="p">,</span>
+                                                                                        <span class="n">thresholds</span><span class="p">)</span>
+
+            <span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;batch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_anchors_batch</span><span class="p">(</span><span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;clsf&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchors_batch</span><span class="p">)</span>
+            <span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;clsf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchors</span><span class="p">[</span><span class="s1">&#39;clsf&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">_feed_dict</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">anchors_placeholders</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="n">anchors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">anchors</span><span class="p">}</span>
+
+        <span class="n">feed_dict</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_fill_feed_dict</span><span class="p">(</span><span class="n">feed_dict</span><span class="p">,</span> <span class="n">is_training</span><span class="p">)</span>
+        <span class="n">feed_dict</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">feed_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">_feed_dict</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">feed_dict</span>
+
+<div class="viewcode-block" id="FasterRCNN.stop_gradient_tuple"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.stop_gradient_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">stop_gradient_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Stop gradients through tf.tuple. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+            <span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stop_gradient</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">inputs</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.create_anchors"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors">[docs]</a>    <span class="k">def</span> <span class="nf">create_anchors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scales</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create anchors for image_shape depending on output_map_shape. &quot;&quot;&quot;</span>
+        <span class="n">image_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span>
+        <span class="n">map_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_shape</span>
+        <span class="n">ratios</span> <span class="o">=</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ratio</span><span class="p">),</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ratio</span><span class="p">)),</span>
+                  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                  <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ratio</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ratio</span><span class="p">)))</span>
+
+        <span class="n">anchors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">scales</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">current_ratio</span> <span class="ow">in</span> <span class="n">ratios</span><span class="p">:</span>
+                <span class="n">image_height</span><span class="p">,</span> <span class="n">image_width</span> <span class="o">=</span> <span class="n">image_shape</span>
+                <span class="n">map_height</span><span class="p">,</span> <span class="n">map_width</span> <span class="o">=</span> <span class="n">map_shape</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">map_height</span> <span class="o">*</span> <span class="n">map_width</span>
+
+                <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">map_height</span><span class="p">)))</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">map_width</span><span class="p">))</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+                <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">map_width</span><span class="p">)))</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">map_height</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+                <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="n">scale</span>
+                <span class="n">ratio0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="n">current_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">ratio1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="n">current_ratio</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="n">height</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">ratio0</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">ratio1</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">image_height</span> <span class="o">/</span> <span class="n">map_height</span> <span class="o">-</span> <span class="n">height</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">image_width</span> <span class="o">/</span> <span class="n">map_width</span> <span class="o">-</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+                <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]]</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">image_height</span><span class="o">-</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">image_width</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+
+                <span class="n">cur_anchors</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">]]</span>
+                <span class="n">cur_anchors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">cur_anchors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">anchors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cur_anchors</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+        <span class="n">anchors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchors</span><span class="p">)</span>
+        <span class="n">anchors</span> <span class="o">=</span> <span class="n">anchors</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">anchors</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.create_rpn_inputs"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.create_rpn_inputs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_rpn_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">anchors</span><span class="p">,</span> <span class="n">bboxes</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create reg and clsf targets of RPN. &quot;&quot;&quot;</span>
+        <span class="n">anchor_reg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">anchor_clsf</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">anchor_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">image_bboxes</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bboxes</span><span class="p">):</span> <span class="c1"># TODO: for -&gt; np</span>
+            <span class="n">image_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+
+            <span class="n">n</span> <span class="o">=</span> <span class="n">anchors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">image_bboxes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Compute the IoUs of the anchors and ground truth boxes</span>
+            <span class="n">tiled_anchors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">anchors</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">tiled_bboxes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">image_bboxes</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+            <span class="n">tiled_anchors</span> <span class="o">=</span> <span class="n">tiled_anchors</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+            <span class="n">tiled_bboxes</span> <span class="o">=</span> <span class="n">tiled_bboxes</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+            <span class="n">ious</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">iou_bbox</span><span class="p">(</span><span class="n">tiled_anchors</span><span class="p">,</span> <span class="n">tiled_bboxes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ious</span> <span class="o">=</span> <span class="n">ious</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+            <span class="c1"># Label each anchor based on its max IoU</span>
+            <span class="n">max_ious</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ious</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">best_bbox_for_anchor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">ious</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">_anchor_reg</span> <span class="o">=</span> <span class="n">image_bboxes</span><span class="p">[</span><span class="n">best_bbox_for_anchor</span><span class="p">]</span>
+            <span class="n">_anchor_labels</span> <span class="o">=</span> <span class="n">image_labels</span><span class="p">[</span><span class="n">best_bbox_for_anchor</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># anchor has at least one gt-bbox with IoU &gt; thresholds[1]</span>
+            <span class="n">image_clsf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">max_ious</span> <span class="o">&gt;</span> <span class="n">thresholds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+            <span class="c1"># anchor intersects with at least one bbox</span>
+            <span class="n">best_anchor_for_bbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">ious</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">image_clsf</span><span class="p">[</span><span class="n">best_anchor_for_bbox</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">_anchor_reg</span><span class="p">[</span><span class="n">best_anchor_for_bbox</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_bboxes</span>
+            <span class="n">_anchor_labels</span><span class="p">[</span><span class="n">best_anchor_for_bbox</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_labels</span>
+
+            <span class="c1"># max IoU for anchor &lt; thresholds[0]</span>
+            <span class="n">image_clsf</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">max_ious</span> <span class="o">&lt;</span> <span class="n">thresholds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image_clsf</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">anchor_reg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_anchor_reg</span><span class="p">)</span>
+            <span class="n">anchor_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_anchor_labels</span><span class="p">)</span>
+            <span class="n">anchor_clsf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_clsf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchor_reg</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchor_clsf</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchor_labels</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.iou_bbox"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.iou_bbox">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">iou_bbox</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bboxes1</span><span class="p">,</span> <span class="n">bboxes2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute the IoUs between bounding boxes. &quot;&quot;&quot;</span>
+        <span class="n">bboxes1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">bboxes2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bboxes2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">intersection_min_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">intersection_max_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">intersection_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">intersection_max_y</span> <span class="o">-</span> <span class="n">intersection_min_y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span>
+
+        <span class="n">intersection_min_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">intersection_max_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">intersection_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">intersection_max_x</span> <span class="o">-</span> <span class="n">intersection_min_x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]))</span>
+
+        <span class="n">area_intersection</span> <span class="o">=</span> <span class="n">intersection_height</span> <span class="o">*</span> <span class="n">intersection_width</span>
+        <span class="n">area_first</span> <span class="o">=</span> <span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">bboxes1</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">area_second</span> <span class="o">=</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">bboxes2</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">area_union</span> <span class="o">=</span> <span class="n">area_first</span> <span class="o">+</span> <span class="n">area_second</span> <span class="o">-</span> <span class="n">area_intersection</span>
+
+        <span class="n">iou</span> <span class="o">=</span> <span class="n">area_intersection</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">area_union</span>
+        <span class="n">iof</span> <span class="o">=</span> <span class="n">area_intersection</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">area_first</span>
+        <span class="n">ios</span> <span class="o">=</span> <span class="n">area_intersection</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">area_second</span>
+
+        <span class="k">return</span> <span class="n">iou</span><span class="p">,</span> <span class="n">iof</span><span class="p">,</span> <span class="n">ios</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.create_anchors_batch"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors_batch">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_anchors_batch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">anchor_clsf</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create batch indices for anchors. &quot;&quot;&quot;</span>
+        <span class="n">anchor_batch</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">clsf</span> <span class="ow">in</span> <span class="n">anchor_clsf</span><span class="p">:</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clsf</span><span class="p">))</span>
+            <span class="n">positive</span> <span class="o">=</span> <span class="n">clsf</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">negative</span> <span class="o">=</span> <span class="n">clsf</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">negative</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">batch_size</span><span class="p">:</span>
+                <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">negative</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">batch_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">positive_batch_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span>
+                <span class="n">negative_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">negative</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">batch_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">positive_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">negative</span><span class="p">)</span>
+                <span class="n">negative_batch_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">negative</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">positive_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">negative_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">//</span> <span class="mi">2</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">positive</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span>
+            <span class="n">positive_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">clsf</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">positive_batch_size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">negative</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">negative</span><span class="p">)</span>
+            <span class="n">negative_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">clsf</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">negative_batch_size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">image_anchor_batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">False</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">clsf</span><span class="p">))</span>
+            <span class="n">image_anchor_batch</span><span class="p">[</span><span class="n">positive_batch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">image_anchor_batch</span><span class="p">[</span><span class="n">negative_batch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">anchor_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_anchor_batch</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchor_batch</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.create_bbox_batch"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.create_bbox_batch">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_bbox_batch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create batch indices for bboxes. &quot;&quot;&quot;</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">sample</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">batch</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.rpn_loss"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.rpn_loss">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">rpn_loss</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">reg</span><span class="p">,</span> <span class="n">clsf</span><span class="p">,</span> <span class="n">true_reg</span><span class="p">,</span> <span class="n">true_cls</span><span class="p">,</span> <span class="n">anchor_batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Mixed MSE+CE Loss for RPN. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;rpn_loss&#39;</span><span class="p">):</span>
+            <span class="n">cls_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sigmoid_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="n">true_cls</span><span class="p">,</span> <span class="n">logits</span><span class="o">=</span><span class="n">clsf</span><span class="p">)</span>
+
+            <span class="n">anchor_batch_size_norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">anchor_batch</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">cls_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">anchor_batch_size_norm</span><span class="p">,</span> <span class="n">cls_loss</span> <span class="o">*</span> <span class="n">anchor_batch</span><span class="p">)</span>
+            <span class="n">cls_loss</span> <span class="o">=</span> <span class="n">cls_loss</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">clsf</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">cls_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cls_loss</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cls_loss&#39;</span><span class="p">)</span>
+
+            <span class="n">sums</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">((</span><span class="n">true_reg</span> <span class="o">-</span> <span class="n">reg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">reg_loss</span> <span class="o">=</span> <span class="n">sums</span> <span class="o">*</span> <span class="n">true_cls</span> <span class="o">*</span> <span class="n">anchor_batch</span>
+            <span class="n">reg_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">reg_loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">reg_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">reg_loss</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reg_loss&#39;</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">reg_loss</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">cls_loss</span>
+        <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.rcn_loss"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.rcn_loss">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">rcn_loss</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">clsf</span><span class="p">,</span> <span class="n">true_cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; CE loss for RCN. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;rcn_loss&#39;</span><span class="p">):</span>
+            <span class="n">true_cls</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">true_cls</span><span class="p">,</span> <span class="n">clsf</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">cls_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="n">true_cls</span><span class="p">,</span> <span class="n">logits</span><span class="o">=</span><span class="n">clsf</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">cls_loss</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.parametrize"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.parametrize">[docs]</a>    <span class="k">def</span> <span class="nf">parametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Parametrize inputs coordinates with respect of base. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;parametrize&#39;</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]))</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]))</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="FasterRCNN.unparametrize"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.faster_rcnn.html#batchflow.models.tf.faster_rcnn.FasterRCNN.unparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">unparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Unparametrize inputs coordinates with respect of base. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;parametrize&#39;</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="n">base</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_rois_and_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rois</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;get_rois_and_labels&#39;</span><span class="p">):</span>
+            <span class="n">output_rois</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">output_labels</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+                <span class="n">output_rois</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">rois</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">index</span><span class="p">))</span>
+                <span class="n">output_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">index</span><span class="p">))</span>
+            <span class="n">output_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">(</span><span class="n">output_rois</span><span class="p">)</span>
+            <span class="n">output_labels</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">(</span><span class="n">output_labels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_rois</span><span class="p">,</span> <span class="n">output_labels</span>
+
+
+    <span class="k">def</span> <span class="nf">_stack_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">tuple_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">tensor_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tuple_size</span><span class="p">)]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tensor_sizes</span><span class="p">,</span> <span class="o">*</span><span class="n">outputs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_unstack_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">tensor_sizes</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensor_sizes</span><span class="p">)</span>
+        <span class="n">start_position</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="p">[</span><span class="n">start_position</span><span class="p">,</span> <span class="o">*</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">dim</span><span class="p">)],</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">tensor_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">*</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">dim</span><span class="p">)]))</span>
+            <span class="n">start_position</span> <span class="o">=</span> <span class="n">start_position</span> <span class="o">+</span> <span class="n">tensor_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,662 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.research &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="batchflow.models.torch.layers" href="batchflow.models.torch.layers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="batchflow.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="batchflow.core.html">batchflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.opensets.html">batchflow.opensets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.html">batchflow.models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">batchflow.research</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="batchflow.html">API</a> &raquo;</li>
+        
+      <li>batchflow.research</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.research.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.research">
+<span id="batchflow-research"></span><h1>batchflow.research<a class="headerlink" href="#module-batchflow.research" title="Permalink to this headline">¶</a></h1>
+<p>Research module.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module requries multiprocess package &lt;<a class="reference external" href="http://multiprocess.rtfd.io/">http://multiprocess.rtfd.io/</a>&gt;`_.</p>
+</div>
+<div class="section" id="research">
+<h2>Research<a class="headerlink" href="#research" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchflow.research.Research">
+<em class="property">class </em><code class="sig-name descname">Research</code><a class="reference internal" href="../_modules/batchflow/research/research.html#Research"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class Research for multiple parallel experiments with pipelines.</p>
+<dl class="py method">
+<dt id="batchflow.research.Research.add_pipeline">
+<code class="sig-name descname">add_pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">branch</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dataset</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">variables</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">execute</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dump</span><span class="o">=</span><span class="default_value">'last'</span></em>, <em class="sig-param"><span class="n">run</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">logging</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.add_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.add_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new pipeline to research. Pipeline can be divided into root and branch. In that case root pipeline
+will prepare batch that can be used by different branches with different configs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline" title="batchflow.Pipeline"><em>Pipeline</em></a>) – a pipeline to execute when the research is run. It must contain <cite>run</cite> action with <cite>lazy=True</cite> or
+<cite>run_later</cite>. Only if <cite>branch</cite> is None, <cite>root</cite> may contain parameters that can be defined by domain.</p></li>
+<li><p><strong>branch</strong> (<a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline" title="batchflow.Pipeline"><em>Pipeline</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – a parallelized pipeline to execute within the research.
+Several copies of branch pipeline will be executed in parallel per each batch
+received from the root pipeline. May contain parameters that can be defined by domain,
+all pipelines will have different configs from <cite>Domain</cite>.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference internal" href="batchflow.dataset.html#batchflow.Dataset" title="batchflow.Dataset"><em>Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – dataset that will be used with pipelines. If None, root or branch must contain dataset.</p></li>
+<li><p><strong>variables</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>list of str</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – names of pipeline variables to save after each iteration into results. All of them must be
+defined in <cite>root</cite> if <cite>branch</cite> is None or be defined in <cite>branch</cite> if <cite>branch</cite> is not None.
+If None, pipeline will be executed without any dumping.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – pipeline name. If None, pipeline will have name <cite>pipeline_{index}</cite></p></li>
+<li><p><strong>execute</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of int and str</em>) – <p>If <cite>‘last’</cite>, pipeline will be executed just at last iteration (if <cite>iteration + 1 == n_iters</cite>
+or <cite>StopIteration</cite> was raised)</p>
+<p>If positive int, pipeline will be executed each <cite>step</cite> iterations.</p>
+<p>If str, must be <cite>‘#{it}’</cite> or <cite>‘last’</cite> where it is int,
+the pipeline will be executed at this iteration (zero-based)</p>
+<p>If list, must be list of int or str described above</p>
+</p></li>
+<li><p><strong>dump</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of int</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – iteration when results will be dumped and cleared. Similar to <cite>execute</cite></p></li>
+<li><p><strong>run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – if False then <cite>.next_batch()</cite> will be applied to pipeline, else <cite>.run()</cite> and then <cite>.reset(“iter”)</cite>.</p></li>
+<li><p><strong>logging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – include execution information to log file or not</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>parameters that will be added to pipeline config.
+Can be <cite>:class:~.RP</cite>.</p>
+<p>For example,
+if test pipeline imports model from the other pipeline with name <cite>‘train’</cite> in Research,
+corresponding parameter in <cite>import_model</cite> must be <cite>C(‘import_from’)</cite> and <cite>add_pipeline</cite>
+must be called with parameter <cite>import_from=RP(‘train’)</cite>.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>How to define changing parameters</strong></p>
+<p>All parameters in <cite>root</cite> or <cite>branch</cite> that are defined in domain should be defined
+as <cite>C(‘parameter_name’)</cite>. Corresponding parameter in domain must have the same <cite>‘parameter_name’</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.add_callable">
+<code class="sig-name descname">add_callable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="n">returns</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">execute</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dump</span><span class="o">=</span><span class="default_value">'last'</span></em>, <em class="sig-param"><span class="n">on_root</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">logging</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.add_callable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.add_callable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add function to research.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<em>callable</em>) – callable object with parameters: <cite>*args, **kwargs</cite></p></li>
+<li><p><strong>returns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>list of str</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – names for function returns to save into results
+if None, <cite>function</cite> will be executed without any saving results and dumping</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>default None</em><em>)</em>) – function name. If None, a function will have name <cite>func_{index}</cite></p></li>
+<li><p><strong>execute</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of int and str</em>) – <p>If <cite>‘last’</cite>, function will be executed just at last iteration (if <cite>iteration + 1 == n_iters</cite>
+or <cite>StopIteration</cite> was raised)</p>
+<p>If positive int, function will be executed each <cite>step</cite> iterations.</p>
+<p>If str, must be <cite>‘#{it}’</cite> or <cite>‘last’</cite> where it is int,
+the function will be executed at this iteration (zero-based)</p>
+<p>If list, must be list of int or str described above</p>
+</p></li>
+<li><p><strong>dump</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of int</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – iteration when results will be dumped and cleared. Similar to execute.</p></li>
+<li><p><strong>on_root</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, each <cite>ResearchExecutableUnit</cite> in args and kwargs will be evaluated as a list of values for
+each experiment. If False, will be evaluated as a single value for the current experiment.</p></li>
+<li><p><strong>logging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – include execution information to log file or not</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – args for the function. Can be <code class="xref py py-class docutils literal notranslate"><span class="pre">ResearchNamedExpression</span></code>.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – kwargs for the function. Can be <code class="xref py py-class docutils literal notranslate"><span class="pre">ResearchNamedExpression</span></code>.</p></li>
+<li><p><strong>to use experiment**</strong> (<em>**How</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p>:param Each pipeline and function added to Research is saved as an <a class="reference internal" href="#batchflow.research.research.Executable" title="batchflow.research.research.Executable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executable</span></code></a>.:
+:param Experiment is an <cite>OrderedDict</cite> of all pipelines and functions that were added to Research:
+:param and are running in current Job. Key is a name of <cite>Executable</cite>:
+:param value is <cite>Executable</cite>.:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.get_metrics">
+<code class="sig-name descname">get_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pipeline</span></em>, <em class="sig-param"><span class="n">metrics_var</span></em>, <em class="sig-param"><span class="n">metrics_name</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="n">returns</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">execute</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dump</span><span class="o">=</span><span class="default_value">'last'</span></em>, <em class="sig-param"><span class="n">logging</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">agg</span><span class="o">=</span><span class="default_value">'mean'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.get_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.get_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – pipeline name</p></li>
+<li><p><strong>metrics_var</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – pipeline variable which accumulate metrics</p></li>
+<li><p><strong>metrics_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of str</em>) – metrics to evaluate</p></li>
+<li><p><strong>returns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>list of str</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – names to save metrics into results
+if None, <cite>returns</cite> will be equal to <cite>metrics_name</cite></p></li>
+<li><p><strong>execute</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of int and str</em>) – <p>If <cite>‘last’</cite>, metrics will be gathered just at last iteration (if <cite>iteration + 1 == n_iters</cite>
+or <cite>StopIteration</cite> was raised)</p>
+<p>If positive int, metrics will be gathered each <cite>step</cite> iterations.</p>
+<p>If str, must be <cite>‘#{it}’</cite> or <cite>‘last’</cite> where it is int,
+metrics will be gathered at this iteration (zero-based)</p>
+<p>If list, must be list of int or str described above</p>
+</p></li>
+<li><p><strong>dump</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>list of int</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – iteration when results will be dumped and cleared. Similar to execute</p></li>
+<li><p><strong>logging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – include execution information to log file or not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.init_domain">
+<code class="sig-name descname">init_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domain</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_configs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_reps</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">repeat_each</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.init_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.init_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add domain of pipeline parameters. Configs from that domain will be generated
+and then substitute into pipelines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>domain</strong> (<em>Domain</em><em> or </em><a class="reference internal" href="#batchflow.research.Option" title="batchflow.research.Option"><em>Option</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.update_domain">
+<code class="sig-name descname">update_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">each</span><span class="o">=</span><span class="default_value">'last'</span></em>, <em class="sig-param"><span class="n">n_updates</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.update_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.update_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add domain update functions or update parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<em>callable</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – </p></li>
+<li><p><strong>each</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>'last'</em>) – when update method will be called. If ‘last’, domain will be updated
+when iterator will be finished. If int, domain will be updated with
+that period.</p></li>
+<li><p><strong>n_updates</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – the total number of updates.</p></li>
+<li><p><strong>*args</strong> – update function parameters.</p></li>
+<li><p><strong>**kwargs</strong> – update function parameters.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.update_config">
+<code class="sig-name descname">update_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.update_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.update_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add function to update config from domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<em>callable</em>) – function to update config.</p></li>
+<li><p><strong>parameters</strong> (<em>list of str</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – if None, the whole config will be passed into function.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – last <cite>cache</cite> calls of function will be cahced.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.add_logger">
+<code class="sig-name descname">add_logger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">logger</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.add_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.add_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add custom Logger into Research.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>BaseLogger class</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – if str, it can be ‘file’, ‘print’ or ‘tg’
+if tuple, pair of str or BaseLogger class and kwargs for them
+if list then of str, BaseLogger class and tuples of them and kwargs</p></li>
+<li><p><strong>kwargs</strong> – initialization parameters for BaseLogger (if <cite>logger</cite> is str or BaseLogger class)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.load_results">
+<code class="sig-name descname">load_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.load_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.load_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load results of research as pandas.DataFrame or dict (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_iters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">workers</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">branches</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bar</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">devices</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">worker_class</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">trials</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run research.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_iters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – number of iterations for each configuration. If None, wait StopIteration exception for at least
+one executable unit.</p></li>
+<li><p><strong>workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>list of dicts</em><em> (</em><em>Configs</em><em>)</em>) – <p>If int - number of workers to run pipelines or workers that will run them, <cite>worker_class</cite> will be used.</p>
+<p>If list of dicts (Configs) - list of additional configs which will be appended to configs from tasks.</p>
+<p>Each element corresponds to one worker.</p>
+</p></li>
+<li><p><strong>branches</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>list of dicts</em><em> (</em><em>Configs</em><em>)</em>) – <p>Number of different branches with different configs with the same root. Each branch will use the same batch
+from <cite>root</cite>. Pipelines will be executed in different threads.</p>
+<p>If int - number of pipelines with different configs that will use the same prepared batch
+from <cite>root</cite>.</p>
+<p>If list of dicts (Configs) - list of dicts with additional configs to each pipeline.</p>
+</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – name folder to save research. By default is ‘research’.</p></li>
+<li><p><strong>bar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> or </em><em>callable</em>) – Whether to show a progress bar.
+If callable, it must have the same signature as <cite>tqdm</cite>.</p></li>
+<li><p><strong>devices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – <p>all devices will be distributed between workwers and branches.
+If you want to use different devices in branches, use expression <cite>C(‘device’)</cite>.</p>
+<p>For example, for <a class="reference internal" href="batchflow.models.tf.base.html#batchflow.models.tf.base.TFModel" title="batchflow.models.tf.base.TFModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">TFModel</span></code></a> add <cite>device=C(‘device’)</cite> to model config.
+If None, default gpu configuration will be used</p>
+</p></li>
+<li><p><strong>worker_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.9)"><em>type</em></a>) – worker class. <cite>PipelineWorker</cite> by default.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – each job will be killed if it doesn’t answer more then that time in minutes</p></li>
+<li><p><strong>trials</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – trials to execute job</p></li>
+<li><p><strong>does it work**</strong> (<em>**How</em>) – </p></li>
+<li><p><strong>each iteration all pipelines and functions will be executed in the order in which were added.</strong> (<em>At</em>) – </p></li>
+<li><p><strong>update_config callable is defined</strong> (<em>If</em>) – </p></li>
+<li><p><strong>config will be updated by that function and then</strong> (<em>each</em>) – </p></li>
+<li><p><strong>be passed into each ExecutableUnit.</strong> (<em>will</em>) – </p></li>
+<li><p><strong>update_domain callable is defined</strong> (<em>If</em>) – </p></li>
+<li><p><strong>will be updated with the corresponding function</strong> (<em>domain</em>) – </p></li>
+<li><p><strong>to each parameter of update_domain.</strong> (<em>accordingly</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.describe">
+<code class="sig-name descname">describe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.describe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.describe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Research.load">
+<em class="property">classmethod </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/research.html#Research.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Research.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load description of the research from ‘name/description’.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="executableunit">
+<h2>ExecutableUnit<a class="headerlink" href="#executableunit" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchflow.research.research.Executable">
+<em class="property">class </em><code class="sig-name descname">Executable</code><a class="reference internal" href="../_modules/batchflow/research/executable.html#Executable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.research.Executable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function or pipeline</p>
+<p><strong>Attributes</strong></p>
+<dl class="simple">
+<dt>function<span class="classifier">callable</span></dt><dd><p>is None if <cite>Executable</cite> is a pipeline</p>
+</dd>
+<dt>pipeline<span class="classifier">Pipeline</span></dt><dd><p>is None if <cite>Executable</cite> is a function</p>
+</dd>
+<dt>root_pipeline<span class="classifier">Pipeline</span></dt><dd><p>is None if <cite>Executable</cite> is a function or pipeline is not divided into root and branch</p>
+</dd>
+<dt>dataset<span class="classifier">Dataset or None</span></dt><dd><p>dataset for pipelines</p>
+</dd>
+<dt>part<span class="classifier">str or None</span></dt><dd><p>part of dataset to use</p>
+</dd>
+<dt>result<span class="classifier">dict</span></dt><dd><p>current results of the <cite>Executable</cite>. Keys are names of variables (for pipeline)
+or returns (for function) values are lists of variable values</p>
+</dd>
+<dt>path<span class="classifier">str</span></dt><dd><p>path to the folder where results will be dumped</p>
+</dd>
+</dl>
+<p>exec : int, list of ints or None
+dump : int, list of ints or None
+to_run : bool
+variables : list</p>
+<blockquote>
+<div><p>variables (for pipeline) or returns (for function)</p>
+</div></blockquote>
+<p>on_root : bool</p>
+<p>args : list</p>
+<p>kwargs : dict()</p>
+</dd></dl>
+
+</div>
+<div class="section" id="grid">
+<h2>Grid<a class="headerlink" href="#grid" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="option">
+<h2>Option<a class="headerlink" href="#option" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchflow.research.Option">
+<em class="property">class </em><code class="sig-name descname">Option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameter</span></em>, <em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#Option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for single-parameter option. There is an algebra of options (see <code class="xref py py-class docutils literal notranslate"><span class="pre">Domain</span></code> operations)
+Result is a <cite>Domain</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter</strong> (<a class="reference internal" href="#batchflow.research.KV" title="batchflow.research.KV"><em>KV</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><em>object</em></a>) – </p></li>
+<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>, </em><em>tuple of KV</em><em> or </em><em>objects</em><em>, </em><em>np.ndarray</em><em> or </em><em>Sampler.</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.research.Option.items">
+<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#Option.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Option.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all possible ConfigAliases which can be created from the option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of ConfigAlias objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Option.iterator">
+<code class="sig-name descname">iterator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#Option.iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Option.iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce ConfigAlias from the option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>generator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.Option.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#Option.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.Option.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return ConfigAlias objects created on the base of Sampler-option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – the size of the sample</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ConfigAlias if size is None, list of ConfigAlias objects else.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="kv">
+<h2>KV<a class="headerlink" href="#kv" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchflow.research.KV">
+<em class="property">class </em><code class="sig-name descname">KV</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">alias</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#KV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.KV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for value and alias. Is used to create short and clear alias for some Python object
+that can be used as an element of research <cite>Domain</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>hashable</em>) – </p></li>
+<li><p><strong>alias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><em>object</em></a>) – if None alias will be equal to <cite>value</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="configalias">
+<h2>ConfigAlias<a class="headerlink" href="#configalias" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchflow.research.ConfigAlias">
+<em class="property">class </em><code class="sig-name descname">ConfigAlias</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#ConfigAlias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.ConfigAlias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for config and alias which is represenation of config where all keys are str.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>list of</em><em> (</em><em>key</em><em>, </em><em>value</em><em>)</em>) – keys are KV or hashable, value is KV or object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.research.ConfigAlias.alias">
+<code class="sig-name descname">alias</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">as_string</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">delim</span><span class="o">=</span><span class="default_value">'-'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#ConfigAlias.alias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.ConfigAlias.alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns alias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>as_string</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – if True, return string representation of ConfigAlias. Different items will be
+separated by <cite>delim</cite>, key and value for each pair will be separated by ‘_’.</p></li>
+<li><p><strong>delim</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – delimiter for different ConfigAlias items in string representation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.ConfigAlias.config">
+<code class="sig-name descname">config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#ConfigAlias.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.ConfigAlias.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns values of ConfigAlias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Config</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.ConfigAlias.pop_alias">
+<code class="sig-name descname">pop_alias</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#ConfigAlias.pop_alias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.ConfigAlias.pop_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pop item from ConfigAlias by alias value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#batchflow.research.ConfigAlias" title="batchflow.research.ConfigAlias">ConfigAlias</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.research.ConfigAlias.pop_config">
+<code class="sig-name descname">pop_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/research/domain.html#ConfigAlias.pop_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.research.ConfigAlias.pop_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pop item from ConfigAlias by config value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#batchflow.research.ConfigAlias" title="batchflow.research.ConfigAlias">ConfigAlias</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="batchflow.models.torch.layers.html" class="btn btn-neutral float-left" title="batchflow.models.torch.layers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

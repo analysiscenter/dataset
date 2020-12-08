@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.layers.drop_block &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.layers.drop_block</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.layers.drop_block</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Golnaz Ghiasi, Tsung-Yi Lin, Quoc V. Le &quot;`DropBlock: A regularization method for convolutional networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1810.12890&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.layer</span> <span class="kn">import</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">add_as_function</span>
+<span class="kn">from</span> <span class="nn">.pooling</span> <span class="kn">import</span> <span class="n">MaxPooling</span>
+
+<span class="c1"># TODO:</span>
+<span class="c1"># When max_pooling allows for dynamic kernel size, implement block_size as fraction</span>
+<span class="c1"># of spatial_dims.</span>
+<span class="c1"># Write predefined callables to control dropout_rate</span>
+
+
+<div class="viewcode-block" id="Dropblock"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.Dropblock">[docs]</a><span class="nd">@add_as_function</span>
+<span class="k">class</span> <span class="nc">Dropblock</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Drop Block module</span>
+<span class="sd">    Used for `O` letter in layout convention of :class:`~.tf.layers.ConvBlock`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dropout_rate : float, tf.Tensor or callable.</span>
+<span class="sd">        Default is 0</span>
+<span class="sd">    block_size : int or tuple of ints</span>
+<span class="sd">        Size of the block to drop. If tuple, should be of the same size as spatial</span>
+<span class="sd">        dimensions of inputs.</span>
+<span class="sd">    is_training : bool or tf.Tensor</span>
+<span class="sd">        Default is True.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        `channels_last` or `channels_first`. Default - &#39;channels_last&#39;.</span>
+<span class="sd">    global_step: misc</span>
+<span class="sd">        If `dropout_rate` is callable, and `global_step` is passed to it as the</span>
+<span class="sd">        first positional argument.</span>
+<span class="sd">    seed : int</span>
+<span class="sd">        Seed to use in tf.distributions.Bernoulli.sample method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">data_format</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_size</span> <span class="o">=</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">block_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">data_format</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_step</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">training</span><span class="p">,</span>
+                           <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dropblock</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_size</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">),</span>
+                           <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="s1">&#39;dropblock&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inputs</span>
+
+
+    <span class="k">def</span> <span class="nf">_dropblock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">data_format</span><span class="p">):</span>
+        <span class="n">one</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">zeros_pad</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+            <span class="n">spatial_dims</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">spatial_dims</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">spatial_ndim</span> <span class="o">=</span> <span class="n">spatial_dims</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">block_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">block_size</span><span class="p">]</span> <span class="o">*</span> <span class="n">spatial_ndim</span>
+            <span class="n">block_size_tf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">block_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_size</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span> <span class="o">!=</span> <span class="n">spatial_ndim</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Length of `block_size` should be the same as spatial dimensions of input.&#39;</span><span class="p">)</span>
+            <span class="n">block_size_tf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">block_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;block_size should be int or tuple!&#39;</span><span class="p">)</span>
+        <span class="n">block_size_tf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">block_size_tf</span><span class="p">,</span> <span class="n">spatial_dims</span><span class="p">)</span>
+        <span class="n">block_size_tf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">block_size_tf</span><span class="p">,</span> <span class="n">one</span><span class="p">)</span>
+
+        <span class="n">spatial_dims_float</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">spatial_dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">block_size_tf_float</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">block_size_tf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">inner_area</span> <span class="o">=</span> <span class="n">spatial_dims</span> <span class="o">-</span> <span class="n">block_size_tf</span> <span class="o">+</span> <span class="n">one</span>
+        <span class="n">inner_area_float</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">inner_area</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">spatial_dims_float</span><span class="p">)</span> <span class="o">/</span>
+                 <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">block_size_tf_float</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">inner_area_float</span><span class="p">))</span>
+
+        <span class="c1"># Mask is sampled for each featuremap independently and applied identically to all batch items</span>
+        <span class="n">noise_dist</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">gamma</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+            <span class="n">sampling_mask_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="n">one</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">inner_area</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sampling_mask_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="n">one</span><span class="p">,</span> <span class="n">inner_area</span><span class="p">,</span> <span class="n">channels</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">noise_dist</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">sampling_mask_shape</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="n">left_spatial_pad</span> <span class="o">=</span> <span class="p">(</span><span class="n">block_size_tf</span> <span class="o">-</span> <span class="n">one</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">right_spatial_pad</span> <span class="o">=</span> <span class="n">block_size_tf</span> <span class="o">-</span> <span class="n">one</span> <span class="o">-</span> <span class="n">left_spatial_pad</span>
+        <span class="n">spatial_pads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">left_spatial_pad</span><span class="p">,</span> <span class="n">right_spatial_pad</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+            <span class="n">pad_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="n">zeros_pad</span><span class="p">,</span> <span class="n">zeros_pad</span><span class="p">,</span> <span class="n">spatial_pads</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pad_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="n">zeros_pad</span><span class="p">,</span> <span class="n">spatial_pads</span><span class="p">,</span> <span class="n">zeros_pad</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">pad_shape</span><span class="p">)</span>
+
+        <span class="c1"># Using max pool operation to extend sampled points to blocks of desired size</span>
+        <span class="n">pool_size</span> <span class="o">=</span> <span class="n">block_size</span>
+        <span class="n">strides</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">spatial_ndim</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">MaxPooling</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="n">pool_size</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="n">data_format</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mask</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+
+        <span class="c1"># Scaling the output as in inverted dropout</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

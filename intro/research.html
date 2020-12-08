@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Research &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model zoo" href="model_zoo.html" />
+    <link rel="prev" title="UNet" href="../api/batchflow.models.torch.unet.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">Working with models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tf_models.html">Tensorflow models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="torch_models.html">Torch models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="classes.html">Classes and capabilities</a> &raquo;</li>
+        
+      <li>Research</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/intro/research.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="research">
+<h1>Research<a class="headerlink" href="#research" title="Permalink to this headline">¶</a></h1>
+<p>Research class allows you to easily:
+* experiment with models parameters combinations
+* run multiple pipeline configurations (e.g. simultanious train and test workflow)
+* add functions, customizing research process
+* save and load results of experiments in a unified form</p>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>Let’s compare <cite>VGG7</cite> and <cite>VGG16</cite> performance on <cite>MNIST</cite> dataset with
+different layouts of convolutional blocks. For each combination of
+layout and model class, we train model for 1000 iterations, repeat
+that process 10 times and save accuracy and loss on train and accuracy on test.</p>
+<p>Firstly, import classes from <cite>batchflow</cite> to create pipelines:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">batchflow</span> <span class="kn">import</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">batchflow.opensets</span> <span class="kn">import</span> <span class="n">MNIST</span>
+<span class="kn">from</span> <span class="nn">batchflow.models.tf</span> <span class="kn">import</span> <span class="n">VGG7</span><span class="p">,</span> <span class="n">VGG16</span>
+
+<span class="kn">from</span> <span class="nn">batchflow.research</span> <span class="kn">import</span> <span class="n">Research</span>
+<span class="kn">from</span> <span class="nn">batchflow.research</span> <span class="kn">import</span> <span class="n">ResearchPipeline</span> <span class="k">as</span> <span class="n">RP</span>
+<span class="kn">from</span> <span class="nn">batchflow.research</span> <span class="kn">import</span> <span class="n">ResearchIteration</span> <span class="k">as</span> <span class="n">RI</span>
+</pre></div>
+</div>
+<p>Define model config. All parameters that we want to vary we define
+as <code class="docutils literal notranslate"><span class="pre">C('parameter_name')</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>model_config={</dt><dd><p>‘inputs/images/shape’: B(‘image_shape’),
+‘inputs/labels/classes’: D(‘num_classes’),
+‘inputs/labels/name’: ‘targets’,
+‘initial_block/inputs’: ‘images’,
+‘body/block/layout’: C(‘layout’)</p>
+</dd>
+</dl>
+<p>}</p>
+<p>Strictly saying, the whole <code class="docutils literal notranslate"><span class="pre">model_config</span></code> with different
+<code class="docutils literal notranslate"><span class="pre">'body/block/layout'</span></code> is a pipeline parameter but due
+to a substitution rule of named expressions you can define
+named expression inside of <cite>dict</cite> or <cite>Config</cite> that is used as action parameter
+(See <a class="reference internal" href="named_expr.html"><span class="doc">Named expressions</span></a>).</p>
+<p>Define a dataset and train a pipeline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mnist</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">()</span>
+
+<span class="n">train_ppl</span> <span class="o">=</span> <span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">p</span>
+             <span class="o">.</span><span class="n">init_variable</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+             <span class="o">.</span><span class="n">init_model</span><span class="p">(</span><span class="s1">&#39;dynamic&#39;</span><span class="p">,</span> <span class="n">C</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">),</span> <span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span>
+             <span class="o">.</span><span class="n">to_array</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">train_model</span><span class="p">(</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">),</span>
+                          <span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">save_to</span><span class="o">=</span><span class="n">V</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">))</span>
+             <span class="o">.</span><span class="n">run_later</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+<p>Action parameters that we want to vary we define as <code class="docutils literal notranslate"><span class="pre">C('parameter_name')</span></code>. Note
+that to specify parameters of batch generating <code class="docutils literal notranslate"><span class="pre">run_later</span></code> action must be defined.</p>
+<p>Create an instance of <cite>Research</cite> class and add train pipeline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span> <span class="o">=</span> <span class="n">Research</span><span class="p">()</span>
+<span class="n">research</span><span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">train_ppl</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameter <code class="docutils literal notranslate"><span class="pre">name</span></code> defines pipeline name inside <code class="docutils literal notranslate"><span class="pre">research</span></code>. At each iteration
+that pipeline will be executed with <code class="docutils literal notranslate"><span class="pre">.next_batch()</span></code> and all <code class="docutils literal notranslate"><span class="pre">variables</span></code> from the pipeline
+will be saved so that variables must be added with <code class="docutils literal notranslate"><span class="pre">mode='w'</span></code>.</p>
+<p>All parameter combinations we define through the dict where a key is
+a parameter name and value is a list of possible parameter values.
+Create a grid of parameters and add to <code class="docutils literal notranslate"><span class="pre">research</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">({</span><span class="s1">&#39;model_class&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">VGG7</span><span class="p">,</span> <span class="n">VGG16</span><span class="p">],</span> <span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="s1">&#39;can&#39;</span><span class="p">]})</span>
+<span class="n">research</span><span class="o">.</span><span class="n">add_domain</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To create more complex domains that can be updated in the process of research
+you can use <code class="docutils literal notranslate"><span class="pre">Option</span></code> class and <code class="docutils literal notranslate"><span class="pre">update_method</span></code> of <code class="docutils literal notranslate"><span class="pre">Research</span></code>.</p>
+<p>Each experiment with the same config will be repeated 10 times because of <cite>n_reps</cite> parameter.</p>
+<p>You can get all variants of config by <code class="docutils literal notranslate"><span class="pre">list(domain.iterator)</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">ConfigAlias</span><span class="p">({</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="s1">&#39;repetition&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG7&#39;</span><span class="p">}),</span>
+ <span class="n">ConfigAlias</span><span class="p">({</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="s1">&#39;repetition&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG16&#39;</span><span class="p">}),</span>
+ <span class="n">ConfigAlias</span><span class="p">({</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;repetition&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG7&#39;</span><span class="p">}),</span>
+ <span class="n">ConfigAlias</span><span class="p">({</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;repetition&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG16&#39;</span><span class="p">})]</span>
+</pre></div>
+</div>
+<p>Each element is a ConfigAlias. It’s a Config dict of parameter values
+and dict with aliases for parameter values.</p>
+<p>In order to control test accuracy we create test pipeline and add it
+to <code class="docutils literal notranslate"><span class="pre">research</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">test_ppl</span> <span class="o">=</span> <span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">p</span>
+            <span class="o">.</span><span class="n">init_variable</span><span class="p">(</span><span class="s1">&#39;predictions&#39;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">init_variable</span><span class="p">(</span><span class="s1">&#39;metrics&#39;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">C</span><span class="p">(</span><span class="s1">&#39;import_from&#39;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">to_array</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">predict_model</span><span class="p">(</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span>
+                           <span class="n">images</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">),</span>
+                           <span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="n">save_to</span><span class="o">=</span><span class="n">V</span><span class="p">(</span><span class="s1">&#39;predictions&#39;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">gather_metrics</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">),</span> <span class="n">predictions</span><span class="o">=</span><span class="n">V</span><span class="p">(</span><span class="s1">&#39;predictions&#39;</span><span class="p">),</span>
+                           <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;logits&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_to</span><span class="o">=</span><span class="n">V</span><span class="p">(</span><span class="s1">&#39;metrics&#39;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">run_later</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">research</span><span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">test_ppl</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;metrics&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">import_model</span><span class="o">=</span><span class="n">RP</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>That pipeline will be executed with <code class="docutils literal notranslate"><span class="pre">.run()</span></code> each 100 iterations because
+of parameters <code class="docutils literal notranslate"><span class="pre">run=True</span></code>  and <code class="docutils literal notranslate"><span class="pre">execute=100</span></code>. Pipeline variable <code class="docutils literal notranslate"><span class="pre">metrics</span></code>
+will be saved after each execution. In order to add a mean value of accuracy
+on the whole test dataset, you can add <code class="docutils literal notranslate"><span class="pre">get_metrics</span></code> method into research:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">pipeline</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">metrics_var</span><span class="o">=</span><span class="s1">&#39;metrics&#39;</span><span class="p">,</span> <span class="n">metrics_name</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+                     <span class="n">returns</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You also can add into pipeline your custom functions and specify <code class="docutils literal notranslate"><span class="pre">args</span></code> and <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> through
+<cite>ResearchNamedExpression</cite>-child classes.</p>
+<p>Note that we use <code class="docutils literal notranslate"><span class="pre">C('import_model')</span></code> in <code class="docutils literal notranslate"><span class="pre">import_model</span></code> action
+and add test pipeline with parameter <code class="docutils literal notranslate"><span class="pre">import_model=RP('train')</span></code>.
+All <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> in <code class="docutils literal notranslate"><span class="pre">add_pipeline</span></code> will be substituted to pipeline
+configs so we can use named expression <code class="docutils literal notranslate"><span class="pre">RP('train')</span></code> that will be
+evaluated and transformed to actual pipeline object.</p>
+<p>Method <code class="docutils literal notranslate"><span class="pre">run</span></code> starts computations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_iters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_research&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All results will be saved as
+<code class="docutils literal notranslate"><span class="pre">{research_name}/results/{config_alias}/{unitname}_{iteration}</span></code>
+as pickled dict (by dill) where keys are variable names and values are lists
+of corresponding values.</p>
+<p>There is method <code class="docutils literal notranslate"><span class="pre">load_results</span></code> to create <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with results
+of the research.</p>
+</div>
+<div class="section" id="parallel-runnings">
+<h2>Parallel runnings<a class="headerlink" href="#parallel-runnings" title="Permalink to this headline">¶</a></h2>
+<p>If you have a lot of GPU devices (say, 4) you can do research faster,
+just define in <code class="docutils literal notranslate"><span class="pre">run</span></code> method <code class="docutils literal notranslate"><span class="pre">workers=4</span></code>, <code class="docutils literal notranslate"><span class="pre">devices</span> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code>
+as a list of available devices and add <code class="docutils literal notranslate"><span class="pre">device=C('device')</span></code> into model
+config. In that case you can run 4 jobs in parallel!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_iters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_research&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In that case, two workers will execute tasks in different processes
+on different GPU.</p>
+</div>
+<div class="section" id="another-way-of-parallel-running">
+<h2>Another way of parallel running<a class="headerlink" href="#another-way-of-parallel-running" title="Permalink to this headline">¶</a></h2>
+<p>If you have heavy loading you can do it just one time for few pipelines
+with models. In that case devide pipelines into root and branch:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mnist</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">()</span>
+<span class="n">train_root</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">run_later</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="n">train_ppl</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pipeline</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">init_variable</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+             <span class="o">.</span><span class="n">init_model</span><span class="p">(</span><span class="s1">&#39;dynamic&#39;</span><span class="p">,</span> <span class="n">C</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">),</span> <span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span>
+             <span class="o">.</span><span class="n">to_array</span><span class="p">()</span>
+             <span class="o">.</span><span class="n">train_model</span><span class="p">(</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">),</span>
+                          <span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">save_to</span><span class="o">=</span><span class="n">V</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">))</span>
+             <span class="o">.</span><span class="n">run_later</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+<p>Then define research in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span> <span class="o">=</span> <span class="p">(</span><span class="n">Research</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">train_root</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">train_branch</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">test_ppl</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;metrics&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">import_model</span><span class="o">=</span><span class="n">RP</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">add_domain</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">pipeline</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">metrics_var</span><span class="o">=</span><span class="s1">&#39;metrics&#39;</span><span class="p">,</span> <span class="n">metrics_name</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+                 <span class="n">returns</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>And now you can define the number of branches in each worker:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_iters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_research&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dumping-of-results-and-logging">
+<h2>Dumping of results and logging<a class="headerlink" href="#dumping-of-results-and-logging" title="Permalink to this headline">¶</a></h2>
+<p>By default if unit has varaibles or returns then results
+will be dumped at last iteration. But there is unit parameter dump
+that allows to save result not only in the end. It defines as execute
+parameter. For example, dump train results each 200 iterations.
+Besides, each research has log file. In order to add information about
+unit execution and dumping into log, define <code class="docutils literal notranslate"><span class="pre">logging=True</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span> <span class="o">=</span> <span class="p">(</span><span class="n">Research</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">train_root</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">train_template</span><span class="p">,</span>
+                  <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">test_ppl</span><span class="p">,</span>
+                  <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">import_from</span><span class="o">=</span><span class="n">RP</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_domain</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">pipeline</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">metrics_var</span><span class="o">=</span><span class="s1">&#39;metrics&#39;</span><span class="p">,</span> <span class="n">metrics_name</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+                 <span class="n">returns</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">research</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_iters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_research&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>First worker will execute two branches on GPU 0 and 1
+and the second on the 2 and 3.</p>
+</div>
+<div class="section" id="functions-on-root">
+<h2>Functions on root<a class="headerlink" href="#functions-on-root" title="Permalink to this headline">¶</a></h2>
+<p>All functions and pipelines if branches &gt; 0 executed in parallel
+threads so sometime it can be a problem. In order to allow run
+function in main thread there exists parameter on_root. Function
+that will be added with on_root=True will get iteration, experiments
+and kwargs. experiments is a list of experiments that was defined above
+(OrderedDict of ExecutableUnits). Simple example of usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">on_root</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;On root&quot;</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span>
+
+<span class="n">research</span> <span class="o">=</span> <span class="p">(</span><span class="n">Research</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">on_root</span><span class="p">,</span> <span class="n">on_root</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">RI</span><span class="p">(),</span> <span class="n">logging</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">train_root</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">train_template</span><span class="p">,</span>
+                  <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_pipeline</span><span class="p">(</span><span class="n">test_ppl</span><span class="p">,</span>
+                  <span class="n">variables</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">import_from</span><span class="o">=</span><span class="n">RP</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_domain</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">pipeline</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">metrics_var</span><span class="o">=</span><span class="s1">&#39;metrics&#39;</span><span class="p">,</span> <span class="n">metrics_name</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+                 <span class="n">returns</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>That function will be executed just one time on 10 iteration
+and will be executed one time for all branches in task.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">research</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_iters</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_research&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Logfile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">32</span><span class="p">,</span><span class="mi">496</span><span class="p">]</span> <span class="n">Distributor</span> <span class="p">[</span><span class="nb">id</span><span class="p">:</span><span class="mi">5176</span><span class="p">]</span> <span class="ow">is</span> <span class="n">preparing</span> <span class="n">workers</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">32</span><span class="p">,</span><span class="mi">497</span><span class="p">]</span> <span class="n">Create</span> <span class="n">queue</span> <span class="n">of</span> <span class="n">jobs</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">32</span><span class="p">,</span><span class="mi">511</span><span class="p">]</span> <span class="n">Run</span> <span class="mi">2</span> <span class="n">workers</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">32</span><span class="p">,</span><span class="mi">608</span><span class="p">]</span> <span class="n">Start</span> <span class="n">Worker</span> <span class="mi">0</span> <span class="p">[</span><span class="nb">id</span><span class="p">:</span><span class="mi">26021</span><span class="p">]</span> <span class="p">(</span><span class="n">devices</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">32</span><span class="p">,</span><span class="mi">709</span><span class="p">]</span> <span class="n">Start</span> <span class="n">Worker</span> <span class="mi">1</span> <span class="p">[</span><span class="nb">id</span><span class="p">:</span><span class="mi">26022</span><span class="p">]</span> <span class="p">(</span><span class="n">devices</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">41</span><span class="p">,</span><span class="mi">722</span><span class="p">]</span> <span class="n">Worker</span> <span class="mi">0</span> <span class="ow">is</span> <span class="n">creating</span> <span class="n">process</span> <span class="k">for</span> <span class="n">Job</span> <span class="mi">0</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">49</span><span class="p">,</span><span class="mi">254</span><span class="p">]</span> <span class="n">Worker</span> <span class="mi">1</span> <span class="ow">is</span> <span class="n">creating</span> <span class="n">process</span> <span class="k">for</span> <span class="n">Job</span> <span class="mi">1</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">53</span><span class="p">,</span><span class="mi">101</span><span class="p">]</span> <span class="n">Job</span> <span class="mi">0</span> <span class="n">was</span> <span class="n">started</span> <span class="ow">in</span> <span class="n">subprocess</span> <span class="p">[</span><span class="nb">id</span><span class="p">:</span><span class="mi">26082</span><span class="p">]</span> <span class="n">by</span> <span class="n">Worker</span> <span class="mi">0</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">53</span><span class="p">,</span><span class="mi">118</span><span class="p">]</span> <span class="n">Job</span> <span class="mi">0</span> <span class="n">has</span> <span class="n">the</span> <span class="n">following</span> <span class="n">configs</span><span class="p">:</span>
+<span class="p">{</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG7&#39;</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG16&#39;</span><span class="p">}</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">59</span><span class="p">,</span><span class="mi">267</span><span class="p">]</span> <span class="n">Job</span> <span class="mi">1</span> <span class="n">was</span> <span class="n">started</span> <span class="ow">in</span> <span class="n">subprocess</span> <span class="p">[</span><span class="nb">id</span><span class="p">:</span><span class="mi">26130</span><span class="p">]</span> <span class="n">by</span> <span class="n">Worker</span> <span class="mi">1</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">59</span><span class="p">,</span><span class="mi">281</span><span class="p">]</span> <span class="n">Job</span> <span class="mi">1</span> <span class="n">has</span> <span class="n">the</span> <span class="n">following</span> <span class="n">configs</span><span class="p">:</span>
+<span class="p">{</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG7&#39;</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;layout&#39;</span><span class="p">:</span> <span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;VGG16&#39;</span><span class="p">}</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">02</span><span class="p">,</span><span class="mi">415</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">11</span><span class="p">:</span> <span class="n">on</span> <span class="n">root</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">02</span><span class="p">,</span><span class="mi">415</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">11</span><span class="p">:</span> <span class="n">on</span> <span class="n">root</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">07</span><span class="p">,</span><span class="mi">803</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">07</span><span class="p">,</span><span class="mi">803</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">08</span><span class="p">,</span><span class="mi">761</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">11</span><span class="p">:</span> <span class="n">on</span> <span class="n">root</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">08</span><span class="p">,</span><span class="mi">761</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">11</span><span class="p">:</span> <span class="n">on</span> <span class="n">root</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="mi">050</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">execute</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="mi">051</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">execute</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="mi">051</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="mi">051</span><span class="p">]</span> <span class="n">J</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="mi">056</span><span class="p">]</span> <span class="n">Job</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">26082</span><span class="p">]</span> <span class="n">was</span> <span class="n">finished</span> <span class="n">by</span> <span class="n">Worker</span> <span class="mi">0</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="mi">149</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="mi">149</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;unit_0&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="mi">819</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">execute</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="mi">819</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">execute</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="mi">820</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="mi">820</span><span class="p">]</span> <span class="n">J</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">I</span> <span class="mi">100</span><span class="p">:</span> <span class="n">dump</span> <span class="s1">&#39;test&#39;</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="mi">825</span><span class="p">]</span> <span class="n">Job</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">26130</span><span class="p">]</span> <span class="n">was</span> <span class="n">finished</span> <span class="n">by</span> <span class="n">Worker</span> <span class="mi">1</span>
+<span class="n">INFO</span>     <span class="p">[</span><span class="mi">2018</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="mi">837</span><span class="p">]</span> <span class="n">All</span> <span class="n">workers</span> <span class="n">have</span> <span class="n">finished</span> <span class="n">the</span> <span class="n">work</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="../api/batchflow.research.html"><span class="doc">Research API</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="model_zoo.html" class="btn btn-neutral float-right" title="Model zoo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../api/batchflow.models.torch.unet.html" class="btn btn-neutral float-left" title="UNet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

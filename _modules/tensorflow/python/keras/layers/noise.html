@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tensorflow.python.keras.layers.noise &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>tensorflow.python.keras.layers.noise</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tensorflow.python.keras.layers.noise</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2015 The TensorFlow Authors. All Rights Reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1"># ==============================================================================</span>
+<span class="sd">&quot;&quot;&quot;Layers that operate regularization via the addition of noise.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.engine.base_layer</span> <span class="kn">import</span> <span class="n">Layer</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.utils</span> <span class="kn">import</span> <span class="n">tf_utils</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="kn">import</span> <span class="n">keras_export</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.GaussianNoise&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GaussianNoise</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Apply additive zero-centered Gaussian noise.</span>
+
+<span class="sd">  This is useful to mitigate overfitting</span>
+<span class="sd">  (you could see it as a form of random data augmentation).</span>
+<span class="sd">  Gaussian Noise (GS) is a natural choice as corruption process</span>
+<span class="sd">  for real valued inputs.</span>
+
+<span class="sd">  As it is a regularization layer, it is only active at training time.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    stddev: Float, standard deviation of the noise distribution.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: Input tensor (of any rank).</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding noise) or in inference mode (doing nothing).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary. Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same shape as input.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stddev</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">GaussianNoise</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">stddev</span> <span class="o">=</span> <span class="n">stddev</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">noised</span><span class="p">():</span>
+      <span class="k">return</span> <span class="n">inputs</span> <span class="o">+</span> <span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span>
+          <span class="n">shape</span><span class="o">=</span><span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stddev</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">in_train_phase</span><span class="p">(</span><span class="n">noised</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;stddev&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stddev</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">GaussianNoise</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+  <span class="nd">@tf_utils</span><span class="o">.</span><span class="n">shape_type_conversion</span>
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.GaussianDropout&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GaussianDropout</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Apply multiplicative 1-centered Gaussian noise.</span>
+
+<span class="sd">  As it is a regularization layer, it is only active at training time.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    rate: Float, drop probability (as with `Dropout`).</span>
+<span class="sd">      The multiplicative noise will have</span>
+<span class="sd">      standard deviation `sqrt(rate / (1 - rate))`.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: Input tensor (of any rank).</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding dropout) or in inference mode (doing nothing).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary. Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same shape as input.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">GaussianDropout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+
+      <span class="k">def</span> <span class="nf">noised</span><span class="p">():</span>
+        <span class="n">stddev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">inputs</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="n">stddev</span><span class="p">)</span>
+
+      <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">in_train_phase</span><span class="p">(</span><span class="n">noised</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inputs</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;rate&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">GaussianDropout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+  <span class="nd">@tf_utils</span><span class="o">.</span><span class="n">shape_type_conversion</span>
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.AlphaDropout&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AlphaDropout</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Applies Alpha Dropout to the input.</span>
+
+<span class="sd">  Alpha Dropout is a `Dropout` that keeps mean and variance of inputs</span>
+<span class="sd">  to their original values, in order to ensure the self-normalizing property</span>
+<span class="sd">  even after this dropout.</span>
+<span class="sd">  Alpha Dropout fits well to Scaled Exponential Linear Units</span>
+<span class="sd">  by randomly setting activations to the negative saturation value.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    rate: float, drop probability (as with `Dropout`).</span>
+<span class="sd">      The multiplicative noise will have</span>
+<span class="sd">      standard deviation `sqrt(rate / (1 - rate))`.</span>
+<span class="sd">    seed: A Python integer to use as random seed.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: Input tensor (of any rank).</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding dropout) or in inference mode (doing nothing).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary. Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same shape as input.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">noise_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">AlphaDropout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span> <span class="o">=</span> <span class="n">noise_shape</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="k">def</span> <span class="nf">_get_noise_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span> <span class="k">else</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="mf">0.</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">:</span>
+      <span class="n">noise_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_noise_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+      <span class="k">def</span> <span class="nf">dropped_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.6732632423543772848170429916717</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0507009873554804934193349852946</span>
+        <span class="n">alpha_p</span> <span class="o">=</span> <span class="o">-</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">scale</span>
+
+        <span class="n">kept_idx</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span>
+            <span class="n">K</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">noise_shape</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">),</span> <span class="n">rate</span><span class="p">)</span>
+        <span class="n">kept_idx</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">kept_idx</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">floatx</span><span class="p">())</span>
+
+        <span class="c1"># Get affine transformation params</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rate</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">rate</span> <span class="o">*</span> <span class="n">alpha_p</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">**-</span><span class="mf">0.5</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span> <span class="o">*</span> <span class="n">alpha_p</span> <span class="o">*</span> <span class="n">rate</span>
+
+        <span class="c1"># Apply mask</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span> <span class="o">*</span> <span class="n">kept_idx</span> <span class="o">+</span> <span class="n">alpha_p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">kept_idx</span><span class="p">)</span>
+
+        <span class="c1"># Do affine transformation</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">b</span>
+
+      <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">in_train_phase</span><span class="p">(</span><span class="n">dropped_inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inputs</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;rate&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AlphaDropout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+  <span class="nd">@tf_utils</span><span class="o">.</span><span class="n">shape_type_conversion</span>
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

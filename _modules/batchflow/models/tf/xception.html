@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.xception &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.xception</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.xception</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">François Chollet. &quot;`Xception: Deep Learning with Depthwise Separable Convolutions</span>
+<span class="sd">&lt;https://arxiv.org/abs/1610.02357&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TFModel</span>
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">conv_block</span><span class="p">,</span> <span class="n">depthwise_conv</span><span class="p">,</span> <span class="n">combine</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">unpack_args</span>
+
+
+
+<div class="viewcode-block" id="Xception"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception">[docs]</a><span class="k">class</span> <span class="nc">Xception</span><span class="p">(</span><span class="n">TFModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Xception model architecture.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs : dict</span>
+<span class="sd">        Dictionary with &#39;images&#39; (see :meth:`~.TFModel._make_inputs`).</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        entry, middle, exit : dict</span>
+<span class="sd">        Dictionary with parameters for entry encoding: downsampling of the inputs.</span>
+
+<span class="sd">            num_stages : int</span>
+<span class="sd">                Number of `block`&#39;s in the respective flow.</span>
+<span class="sd">            filters : list of sequences of 3 ints</span>
+<span class="sd">                Number of filters inside for individual `block`.</span>
+<span class="sd">            strides : int or list of ints</span>
+<span class="sd">                Stride of the middle `separable_block` inside `block`.</span>
+<span class="sd">            depth_activation : bool or list of bools</span>
+<span class="sd">                Whether to use activation between depthwise and pointwise convolutions.</span>
+<span class="sd">            combine_op : {&#39;sum&#39;, &#39;softsum&#39;}</span>
+<span class="sd">                Whether to use convolution for skip-connections inside `separable_block` or</span>
+<span class="sd">                just sum skip and output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Xception.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model defaults. See :meth: `~.TFModel.default_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">TFModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/entry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">combine_op</span><span class="o">=</span><span class="s1">&#39;softsum&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/middle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">combine_op</span><span class="o">=</span><span class="s1">&#39;sum&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/exit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                   <span class="n">depth_activation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">combine_op</span><span class="o">=</span><span class="s1">&#39;softsum&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entry&#39;</span><span class="p">,</span> <span class="s1">&#39;middle&#39;</span><span class="p">,</span> <span class="s1">&#39;exit&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="Xception.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s architecture configuration. See :meth: `~.TFModel.build_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/units&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/filters&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="Xception.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Multiple consecutive blocks. &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span>
+
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_stages&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;group-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
+                    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">unpack_args</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">steps</span><span class="p">)}</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Xception.block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception.block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">combine_op</span><span class="o">=</span><span class="s1">&#39;softsum&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Basic building block of the architecture.</span>
+<span class="sd">        For details see figure 5 in the article.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filters : sequence of 3 ints</span>
+<span class="sd">            Number of feature maps in each layer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;strides&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="c1"># Three consecutive separable blocks</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filters</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">separable_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;separable_conv-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">combine</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">inputs</span><span class="p">],</span> <span class="n">op</span><span class="o">=</span><span class="n">combine_op</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                              <span class="n">data_format</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="Xception.separable_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception.separable_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">separable_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">depth_activation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;separable_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Separable convolution, followed by pointwise convolution with batch-normalization in-between. &quot;&quot;&quot;</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="s1">&#39;nacna&#39;</span> <span class="k">if</span> <span class="n">depth_activation</span> <span class="k">else</span> <span class="s1">&#39;ncn&#39;</span>
+        <span class="n">data_format</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_format&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">depthwise_conv</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="n">dilation_rate</span><span class="o">=</span><span class="n">rate</span><span class="p">,</span>
+                               <span class="n">data_format</span><span class="o">=</span><span class="n">data_format</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;depthwise&#39;</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+
+<div class="viewcode-block" id="Xception41"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception41">[docs]</a><span class="k">class</span> <span class="nc">Xception41</span><span class="p">(</span><span class="n">Xception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Xception-41 architecture.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Xception41.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception41.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/entry&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">128</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="mi">256</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="mi">728</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/middle&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                                      <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">728</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/exit&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">728</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="mi">1536</span><span class="p">,</span> <span class="mi">1536</span><span class="p">,</span> <span class="mi">2048</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="Xception64"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception64">[docs]</a><span class="k">class</span> <span class="nc">Xception64</span><span class="p">(</span><span class="n">Xception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Xception-64 architecture.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Xception64.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception64.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/entry&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">128</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="mi">256</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="mi">728</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/middle&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+                                      <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">728</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">16</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/exit&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">728</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="mi">1536</span><span class="p">,</span> <span class="mi">1536</span><span class="p">,</span> <span class="mi">2048</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="XceptionS"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.XceptionS">[docs]</a><span class="k">class</span> <span class="nc">XceptionS</span><span class="p">(</span><span class="n">Xception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Small version of Xception architecture.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="XceptionS.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.xception.html#batchflow.models.tf.xception.XceptionS.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/entry&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                     <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">6</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,])</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/middle&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                      <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">12</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/exit&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="n">filters</span><span class="o">=</span><span class="p">[[</span><span class="mi">12</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                                             <span class="p">[</span><span class="mi">15</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,])</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

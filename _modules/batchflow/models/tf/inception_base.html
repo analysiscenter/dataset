@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.inception_base &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.inception_base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.inception_base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Parent class to inception models &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TFModel</span>
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">conv_block</span>
+
+
+<div class="viewcode-block" id="Inception"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.inception.html#batchflow.models.tf.inception_base.Inception">[docs]</a><span class="k">class</span> <span class="nc">Inception</span><span class="p">(</span><span class="n">TFModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The base class for all inception models</span>
+
+<span class="sd">    **Configuration**</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of blocks in the network:</span>
+
+<span class="sd">            - b - inception block for v1 and v3 models</span>
+<span class="sd">            - r - reduction block</span>
+<span class="sd">            - f - factorization_block for Inception_v3 model (see :meth:`.factorization_block`)</span>
+<span class="sd">            - m - mixed_block for Inception_v3 model (see :meth:`.mixed_block`)</span>
+<span class="sd">            - e - expanded_block for Inception_v3 model (see :meth:`.expanded_block`)</span>
+<span class="sd">            - A - inception block A for Inception_v4 model (see :meth:`.inception_a_block`)</span>
+<span class="sd">            - B - inception block B for Inception_v4 model (see :meth:`.inception_b_block`)</span>
+<span class="sd">            - C - Inception block C for Inception_v4 model (see :meth:`.inception_c_block`)</span>
+<span class="sd">            - G - grid-reduction block for Inception_v4 model (see :meth:`.reduction_grid_block`)</span>
+
+<span class="sd">        arch : dict</span>
+<span class="sd">            parameters for each block:</span>
+
+<span class="sd">            key : str</span>
+<span class="sd">                block&#39;s short name</span>
+<span class="sd">            value : dict</span>
+<span class="sd">                specific parameters (e.g. filters)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Inception.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.inception.html#batchflow.models.tf.inception_base.Inception.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model defaults. See :meth: `~.TFModel.default_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/units&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/filters&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="Inception.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.inception.html#batchflow.models.tf.inception_base.Inception.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of blocks</span>
+<span class="sd">        arch : dict</span>
+<span class="sd">            parameters for each block</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">arch</span><span class="p">,</span> <span class="n">layout</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">([</span><span class="s1">&#39;arch&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="n">layout_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">block</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">layout_dict</span><span class="p">:</span>
+                    <span class="n">layout_dict</span><span class="p">[</span><span class="n">block</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">layout_dict</span><span class="p">[</span><span class="n">block</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layout</span><span class="p">):</span>
+                <span class="n">layout_dict</span><span class="p">[</span><span class="n">block</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">block_no</span> <span class="o">=</span> <span class="n">layout_dict</span><span class="p">[</span><span class="n">block</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">block_args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">arch</span><span class="p">[</span><span class="n">block</span><span class="p">]}</span>
+                <span class="n">filters</span> <span class="o">=</span> <span class="n">block_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;filters&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">filters</span> <span class="o">=</span> <span class="n">filters</span><span class="p">[</span><span class="n">block_no</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">reduction_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reduction_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">factorization_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;factorization_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;m&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mixed_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;mixed_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">expanded_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;expanded_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">inception_a_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;inception_a_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">inception_b_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;inception_b_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">inception_c_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;inception_c_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">reduction_grid_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reduction_grid_block-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">block_args</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Inception.reduction_block"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.inception.html#batchflow.models.tf.inception_base.Inception.reduction_block">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">reduction_block</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reduction_block&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reduction block.</span>
+
+<span class="sd">        For details see figure 10 in the article.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        filters : tuple of 3 ints</span>
+<span class="sd">            number of output filters</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">branch_3</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span>
+                                  <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv_3&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">branch_1_3</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">+</span><span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv_1_3&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">branch_1_3_3</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">branch_1_3</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                      <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv_1_3_3&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">branch_pool</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;max_pooling&#39;</span><span class="p">,</span>
+                                     <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">axis</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_format&#39;</span><span class="p">])</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">branch_3</span><span class="p">,</span> <span class="n">branch_1_3_3</span><span class="p">,</span> <span class="n">branch_pool</span><span class="p">],</span> <span class="n">axis</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

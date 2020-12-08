@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.layers.roi &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.layers.roi</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.layers.roi</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Layers for proposal regions. &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
+
+<span class="k">class</span> <span class="nc">ROI</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; ROI pooling layer with resize instead max-pool.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rois: tf.Tuple</span>
+<span class="sd">        Coordinates of bboxes for each image.</span>
+<span class="sd">    factor: tuple</span>
+<span class="sd">        Factor to transform coordinates of bboxes.</span>
+<span class="sd">    shape: tuple</span>
+<span class="sd">        Resize to</span>
+<span class="sd">    data_format: str, &#39;channels_last&#39; or &#39;channels_first&#39;.</span>
+<span class="sd">    name: str</span>
+<span class="sd">        Scope name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tuple</span>
+<span class="sd">        cropped regions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">roi_pooling_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="roi_pooling_layer"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.roi_pooling_layer">[docs]</a><span class="k">def</span> <span class="nf">roi_pooling_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">rois</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">data_format</span><span class="o">=</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;roi-pooling&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; ROI pooling layer with resize instead max-pool. &quot;&quot;&quot;</span>
+    <span class="c1">#pylint:disable=cell-var-from-loop</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="n">image_index</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">output_tuple</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rois</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">image_index</span><span class="p">,</span> <span class="n">image_rois</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rois</span><span class="p">):</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="n">image_index</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">cropped_regions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">image_rois</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">roi_index</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">cond_rois</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">roi_index</span><span class="p">,</span> <span class="n">cropped_regions</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">roi_index</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">image_rois</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">def</span> <span class="nf">_roi_body</span><span class="p">(</span><span class="n">roi_index</span><span class="p">,</span> <span class="n">cropped_regions</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;crop-from-image-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_index</span><span class="p">)):</span>
+                    <span class="n">roi</span> <span class="o">=</span> <span class="n">image_rois</span><span class="p">[</span><span class="n">roi_index</span><span class="p">]</span>
+
+                    <span class="n">spatial_start</span> <span class="o">=</span> <span class="n">roi</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">factor</span>
+                    <span class="n">spatial_size</span> <span class="o">=</span> <span class="n">roi</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">*</span> <span class="n">factor</span>
+
+                    <span class="n">spatial_start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">spatial_start</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                    <span class="n">spatial_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">spatial_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+                    <span class="n">spatial_start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">spatial_start</span><span class="p">)</span>
+                    <span class="n">spatial_start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">image</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">spatial_start</span><span class="p">)</span>
+
+                    <span class="n">spatial_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">spatial_size</span><span class="p">)</span>
+                    <span class="n">spatial_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">image</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">spatial_start</span><span class="p">,</span> <span class="n">spatial_size</span><span class="p">)</span>
+
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">spatial_start</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">((</span><span class="mi">0</span><span class="p">,))],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">spatial_size</span><span class="p">,</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">image</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">cropped</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+                    <span class="n">cropped</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize_images</span><span class="p">(</span><span class="n">cropped</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+                    <span class="n">cropped</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="o">*</span><span class="n">shape</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="k">if</span> <span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+                        <span class="n">cropped</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">cropped</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="n">cropped_regions</span> <span class="o">=</span> <span class="n">cropped_regions</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">roi_index</span><span class="p">,</span> <span class="n">cropped</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">roi_index</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">cropped_regions</span><span class="p">]</span>
+
+            <span class="n">_</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">cond_rois</span><span class="p">,</span> <span class="n">_roi_body</span><span class="p">,</span> <span class="p">[</span><span class="n">roi_index</span><span class="p">,</span> <span class="n">cropped_regions</span><span class="p">])</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+            <span class="n">output_tuple</span> <span class="o">=</span> <span class="n">output_tuple</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">image_index</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">_array_to_tuple</span><span class="p">(</span><span class="n">output_tuple</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rois</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">NonMaxSuppression</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Perform NMS on batch of images.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs: tf.Tuple</span>
+<span class="sd">        Each components is a set of bboxes for corresponding image.</span>
+<span class="sd">    scores: tf.Tuple</span>
+<span class="sd">        Scores of inputs.</span>
+<span class="sd">    batch_size:</span>
+<span class="sd">        Size of batch of inputs.</span>
+<span class="sd">    max_output_size:</span>
+<span class="sd">        Maximum size of bboxes per image.</span>
+<span class="sd">    score_threshold: float</span>
+<span class="sd">        Bboxes with score less the score_threshold will be dropped.</span>
+<span class="sd">    iou_threshold: float</span>
+<span class="sd">        Bboxes with iou which is greater then iou_threshold will be merged.</span>
+<span class="sd">    nonempty: bool</span>
+<span class="sd">        If True at least one bbox per image will be returned.</span>
+<span class="sd">    name: str</span>
+<span class="sd">        Scope name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tuple</span>
+<span class="sd">        indices of selected bboxes for each image</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">non_max_suppression</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="non_max_suppression"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.layers.html#batchflow.models.tf.layers.non_max_suppression">[docs]</a><span class="k">def</span> <span class="nf">non_max_suppression</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">max_output_size</span><span class="p">,</span>
+                        <span class="n">score_threshold</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">nonempty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;nms&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Perform NMS on batch of images. &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">filtered_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">infer_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">loop_cond</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ix</span><span class="p">,</span> <span class="n">filtered_rois</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_loop_body</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">filtered_rois</span><span class="p">):</span>
+            <span class="n">indices</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">roi</span> <span class="o">=</span> <span class="n">_filter_tensor</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="n">ix</span><span class="p">],</span> <span class="n">score_threshold</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="n">ix</span><span class="p">])</span> <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+            <span class="n">roi_corners</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">roi</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">roi</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">roi</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">roi_after_nms</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">non_max_suppression</span><span class="p">(</span><span class="n">roi_corners</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">max_output_size</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nonempty</span><span class="p">:</span>
+                <span class="n">is_not_empty</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">filtered_rois</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span>
+                                                           <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">roi_after_nms</span><span class="p">),</span>
+                                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+                <span class="n">is_empty</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">filtered_rois</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([[</span><span class="mi">0</span><span class="p">]]))</span>
+                <span class="n">filtered_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span> <span class="n">is_not_empty</span><span class="p">,</span> <span class="n">is_empty</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filtered_rois</span> <span class="o">=</span> <span class="n">filtered_rois</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">roi_after_nms</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">ix</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">filtered_rois</span><span class="p">]</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">loop_cond</span><span class="p">,</span> <span class="n">_loop_body</span><span class="p">,</span> <span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="n">filtered_rois</span><span class="p">])</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">_array_to_tuple</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_filter_tensor</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create indixes and elements of inputs which consists for which cond is True.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        inputs: tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        cond: callable or float</span>
+<span class="sd">            condition to choose elements. If float, elements which greater the cond will be choosen</span>
+<span class="sd">        *args: tf.Tensors:</span>
+<span class="sd">            tensors with the same shape as inputs. Will be returned corresponding elements of them.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        indices: tf.Tensor</span>
+<span class="sd">            indices of elements of inputs for which cond is True</span>
+<span class="sd">        tf.Tensors:</span>
+<span class="sd">            filtred inputs and tensors from args.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;filter_tensor&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">cond</span><span class="p">):</span>
+            <span class="n">callable_cond</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">cond</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">callable_cond</span> <span class="o">=</span> <span class="n">cond</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">callable_cond</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+<span class="k">def</span> <span class="nf">_array_to_tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Convert tf.TensorArray to tf.Tuple. &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s1">&#39;array_to_tuple&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">([</span><span class="n">inputs</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tuple</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">output</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

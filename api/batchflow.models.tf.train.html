@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.train &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tensorflow layers and losses" href="../intro/tf_layers.html" />
+    <link rel="prev" title="batchflow.models.tf.activations" href="batchflow.models.tf.activations.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.activations.html">batchflow.models.tf.activations</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">batchflow.models.tf.train</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/torch_models.html">Torch models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/tf_models.html">Tensorflow models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.tf.models.html">Base Models</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.train</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.tf.train.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.models.tf.nn.train">
+<span id="batchflow-models-tf-train"></span><h1>batchflow.models.tf.train<a class="headerlink" href="#module-batchflow.models.tf.nn.train" title="Permalink to this headline">¶</a></h1>
+<p>Helpers for training</p>
+<dl class="py function">
+<dt id="batchflow.models.tf.nn.train.cyclic_learning_rate">
+<code class="sig-name descname">cyclic_learning_rate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">learning_rate</span></em>, <em class="sig-param"><span class="n">global_step</span></em>, <em class="sig-param"><span class="n">max_lr</span></em>, <em class="sig-param"><span class="n">step_size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'tri'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'CyclicLearningRate'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/nn/train.html#cyclic_learning_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.nn.train.cyclic_learning_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function varies the learning rate between the
+minimum (learning_rate) and the maximum (max_lr).
+It returns the decayed learning rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em> or </em><em>tf.Tensor</em>) – The minimum learning rate boundary.</p></li>
+<li><p><strong>global_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>tf.Tensor</em>) – Global_step refers to the number of batches seen by the model.
+It is use for the cyclic computation. Must not be negative.</p></li>
+<li><p><strong>max_lr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em> or </em><em>tf.Tensor</em>) – The maximum learning rate boundary.</p></li>
+<li><p><strong>step_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>tf.Tensor</em>) – The number of iterations in half a cycle (the default is 10).</p></li>
+<li><p><strong>mode</strong> (<em>{'tri'</em><em>, </em><em>'sin'</em><em>, </em><em>'saw'}</em>) – Set the learning rate change function.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the operation (the default is ‘CyclicLearningRate’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>More detailed information about <cite>mode</cite>:</p>
+<dl>
+<dt>If ‘tri’:</dt><dd><p>Default, linearly increasing then linearly decreasing the
+learning rate at each cycle. Learning rate starting
+from (max_lr-learning_rate)/2 then decreasing to <cite>learning_rate</cite>.
+See <a class="reference external" href="https://arxiv.org/abs/1506.01186">Leslie N. Smith, Cyclical Learning Rates for Training Neural Networks</a> for more information.</p>
+<p>It is computed as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mod</span><span class="p">((</span><span class="n">global_step</span> <span class="o">+</span> <span class="n">step_size</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span>
+                        <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_lr</span> <span class="o">-</span> <span class="n">learning_rate</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="n">learning_rate</span>
+</pre></div>
+</div>
+</dd>
+<dt>If ‘sin’:</dt><dd><p>Learning rate changes as a sine wave, starting
+from (max_lr-learning_rate)/2 then decreasing to <cite>learning_rate</cite>.</p>
+<p>It is computed as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="p">(</span><span class="n">learning_rate</span> <span class="o">-</span> <span class="n">max_lr</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span>
+                        <span class="n">sin</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">global_step</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="p">(</span><span class="n">max_lr</span> <span class="o">+</span> <span class="n">learning_rate</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</dd>
+<dt>If ‘saw’:</dt><dd><p>Learning rate linearly increasing from <cite>learning_rate</cite> to <cite>max_lr</cite>
+and then sharply drops to <cite>learning_rate</cite> at each cycle.
+Learning rate starting from <cite>learning_rate</cite> then increasing.</p>
+<p>It is computed as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">decayed_learning_rate</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_lr</span> <span class="o">-</span> <span class="n">learning_rate</span><span class="p">)</span> <span class="o">*</span>
+                        <span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">global_step</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">)</span> <span class="o">-</span> <span class="n">global_step</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="n">learning_rate</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="batchflow.models.tf.nn.train.piecewise_constant">
+<code class="sig-name descname">piecewise_constant</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">global_step</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/nn/train.html#piecewise_constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.nn.train.piecewise_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant learning rate decay (uses global_step param instead of x)</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../intro/tf_layers.html" class="btn btn-neutral float-right" title="Tensorflow layers and losses" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.tf.activations.html" class="btn btn-neutral float-left" title="batchflow.models.tf.activations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

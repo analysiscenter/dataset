@@ -1,0 +1,857 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Inception &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyramidNet" href="batchflow.models.tf.pyramidnet.html" />
+    <link rel="prev" title="ResNet" href="batchflow.models.tf.resnet.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.vgg.html">VGG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.resnet.html">ResNet</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Inception</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.pyramidnet.html">PyramidNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.mobilenet.html">MobileNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.squeezenet.html">SqueezeNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.densenet.html">DenseNet for classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.resattention.html">ResNetAttention</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.xception.html">Xception</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/torch_models.html">Torch models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/tf_models.html">Tensorflow models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.tf.models.html">Base Models</a> &raquo;</li>
+        
+      <li>Inception</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.tf.inception.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="inception">
+<h1>Inception<a class="headerlink" href="#inception" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-batchflow.models.tf.inception_base">
+<span id="base-inception"></span><h2>Base Inception<a class="headerlink" href="#module-batchflow.models.tf.inception_base" title="Permalink to this headline">¶</a></h2>
+<p>Parent class to inception models</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.inception_base.Inception">
+<em class="property">class </em><code class="sig-name descname">Inception</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_base.html#Inception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_base.Inception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="batchflow.models.tf.base.html#batchflow.models.tf.base.TFModel" title="batchflow.models.tf.base.TFModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.base.TFModel</span></code></a></p>
+<p>The base class for all inception models</p>
+<p><strong>Configuration</strong></p>
+<dl>
+<dt>body<span class="classifier">dict</span></dt><dd><dl>
+<dt>layout<span class="classifier">str</span></dt><dd><p>a sequence of blocks in the network:</p>
+<ul class="simple">
+<li><p>b - inception block for v1 and v3 models</p></li>
+<li><p>r - reduction block</p></li>
+<li><p>f - factorization_block for Inception_v3 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v3.Inception_v3.factorization_block" title="batchflow.models.tf.inception_v3.Inception_v3.factorization_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">factorization_block()</span></code></a>)</p></li>
+<li><p>m - mixed_block for Inception_v3 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v3.Inception_v3.mixed_block" title="batchflow.models.tf.inception_v3.Inception_v3.mixed_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mixed_block()</span></code></a>)</p></li>
+<li><p>e - expanded_block for Inception_v3 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v3.Inception_v3.expanded_block" title="batchflow.models.tf.inception_v3.Inception_v3.expanded_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">expanded_block()</span></code></a>)</p></li>
+<li><p>A - inception block A for Inception_v4 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v4.Inception_v4.inception_a_block" title="batchflow.models.tf.inception_v4.Inception_v4.inception_a_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inception_a_block()</span></code></a>)</p></li>
+<li><p>B - inception block B for Inception_v4 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v4.Inception_v4.inception_b_block" title="batchflow.models.tf.inception_v4.Inception_v4.inception_b_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inception_b_block()</span></code></a>)</p></li>
+<li><p>C - Inception block C for Inception_v4 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v4.Inception_v4.inception_c_block" title="batchflow.models.tf.inception_v4.Inception_v4.inception_c_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inception_c_block()</span></code></a>)</p></li>
+<li><p>G - grid-reduction block for Inception_v4 model (see <a class="reference internal" href="#batchflow.models.tf.inception_v4.Inception_v4.reduction_grid_block" title="batchflow.models.tf.inception_v4.Inception_v4.reduction_grid_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">reduction_grid_block()</span></code></a>)</p></li>
+</ul>
+</dd>
+<dt>arch<span class="classifier">dict</span></dt><dd><p>parameters for each block:</p>
+<dl class="simple">
+<dt>key<span class="classifier">str</span></dt><dd><p>block’s short name</p>
+</dd>
+<dt>value<span class="classifier">dict</span></dt><dd><p>specific parameters (e.g. filters)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_base.Inception.build_config">
+<code class="sig-name descname">build_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_base.html#Inception.build_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_base.Inception.build_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_base.Inception.body">
+<em class="property">classmethod </em><code class="sig-name descname">body</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'body'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_base.html#Inception.body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_base.Inception.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of blocks</p></li>
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – parameters for each block</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_base.Inception.reduction_block">
+<em class="property">classmethod </em><code class="sig-name descname">reduction_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'reduction_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_base.html#Inception.reduction_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_base.Inception.reduction_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduction block.</p>
+<p>For details see figure 10 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 3 ints</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-batchflow.models.tf.inception_v1">
+<span id="inception-version-1"></span><h2>Inception version 1<a class="headerlink" href="#module-batchflow.models.tf.inception_v1" title="Permalink to this headline">¶</a></h2>
+<p>Szegedy C. et al “<a class="reference external" href="https://arxiv.org/abs/1409.4842">Going Deeper with Convolutions</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.inception_v1.Inception_v1">
+<em class="property">class </em><code class="sig-name descname">Inception_v1</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v1.html#Inception_v1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v1.Inception_v1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.inception_base.Inception" title="batchflow.models.tf.inception_base.Inception"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.inception_base.Inception</span></code></a></p>
+<p>Inception network, version 1</p>
+<p><strong>Configuration</strong></p>
+<dl class="simple">
+<dt>inputs<span class="classifier">dict</span></dt><dd><p>dict with ‘images’ and ‘labels’ (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">_make_inputs()</span></code>)</p>
+</dd>
+<dt>body/arch<span class="classifier">dict</span></dt><dd><p>architecture: network layout, block layout, number of filters in each block, pooling parameters</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v1.Inception_v1.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v1.html#Inception_v1.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v1.Inception_v1.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v1.Inception_v1.block">
+<em class="property">classmethod </em><code class="sig-name descname">block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cn'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v1.html#Inception_v1.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v1.Inception_v1.block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception building block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>list with 6 items:</em>) – <ul>
+<li><p>number of filters in 1x1 conv</p></li>
+<li><p>number of filters in 1x1 conv going before conv 3x3</p></li>
+<li><p>number of filters in 3x3 conv</p></li>
+<li><p>number of filters in 1x1 conv going before conv 5x5,</p></li>
+<li><p>number of filters in 5x5 conv,</p></li>
+<li><p>number of filters in 1x1 conv going before max-pooling</p></li>
+</ul>
+</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of layers in the block. Default is ‘cn’.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v1.Inception_v1.reduction_block">
+<em class="property">classmethod </em><code class="sig-name descname">reduction_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'p'</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'reduction_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v1.html#Inception_v1.reduction_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v1.Inception_v1.reduction_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduction block.</p>
+<p>Just a max pooling in 3x3 with strides=2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-batchflow.models.tf.inception_v3">
+<span id="inception-version-3"></span><h2>Inception version 3<a class="headerlink" href="#module-batchflow.models.tf.inception_v3" title="Permalink to this headline">¶</a></h2>
+<p>Christian Szegedy et al. “<a class="reference external" href="https://arxiv.org/abs/1512.00567">Rethinking the Inception Architecture for Computer Vision</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.inception_v3.Inception_v3">
+<em class="property">class </em><code class="sig-name descname">Inception_v3</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v3.html#Inception_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v3.Inception_v3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.inception_base.Inception" title="batchflow.models.tf.inception_base.Inception"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.inception_base.Inception</span></code></a></p>
+<p>The base Inception_v3 model</p>
+<p class="rubric">Notes</p>
+<p>Since the article misses some important details (e.g. the number of filters in all convolutions),
+this class is based on <a class="reference external" href="https://github.com/tensorflow/models/blob/master/research/slim/nets/inception_v3.py">Google’s implementation</a>.</p>
+<p><strong>Configuration</strong></p>
+<dl class="simple">
+<dt>inputs<span class="classifier">dict</span></dt><dd><p>dict with ‘images’ and ‘masks’ (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">_make_inputs()</span></code>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v3.Inception_v3.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v3.html#Inception_v3.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v3.Inception_v3.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the default parameters to inception_v3 model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>config</strong> – default parameters to build network</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v3.Inception_v3.block">
+<em class="property">classmethod </em><code class="sig-name descname">block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v3.html#Inception_v3.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v3.Inception_v3.block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Network building block.</p>
+<p>For details see figure 5 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 4 ints</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v3.Inception_v3.mixed_block">
+<em class="property">classmethod </em><code class="sig-name descname">mixed_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'mixed_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v3.html#Inception_v3.mixed_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v3.Inception_v3.mixed_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixed block.</p>
+<p>This block is not described in the paper, but is used in <a class="reference external" href="https://github.com/tensorflow/models/blob/master/research/slim/nets/inception_v3.py#L347:L364">Google’s implementation</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 2 ints</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v3.Inception_v3.factorization_block">
+<em class="property">classmethod </em><code class="sig-name descname">factorization_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'factorization_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v3.html#Inception_v3.factorization_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v3.Inception_v3.factorization_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>7x7 factorization block.</p>
+<p>For details see figure 6 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 3 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v3.Inception_v3.expanded_block">
+<em class="property">classmethod </em><code class="sig-name descname">expanded_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'expanded_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v3.html#Inception_v3.expanded_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v3.Inception_v3.expanded_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Network building block.</p>
+<p>For details see figure 7 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuole of 4 ints</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-batchflow.models.tf.inception_v4">
+<span id="inception-version-4"></span><h2>Inception version 4<a class="headerlink" href="#module-batchflow.models.tf.inception_v4" title="Permalink to this headline">¶</a></h2>
+<p>Christian Szegedy et al. “<a class="reference external" href="https://arxiv.org/abs/1602.07261">Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4">
+<em class="property">class </em><code class="sig-name descname">Inception_v4</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.inception_base.Inception" title="batchflow.models.tf.inception_base.Inception"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.inception_base.Inception</span></code></a></p>
+<p><strong>Configuration</strong></p>
+<dl class="simple">
+<dt>inputs<span class="classifier">dict</span></dt><dd><p>dict with ‘images’ and ‘masks’ (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">_make_inputs()</span></code>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default parameters for Inception_v4 model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>config</strong> – default parameters to network</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4.initial_block">
+<em class="property">classmethod </em><code class="sig-name descname">initial_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'initial_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4.initial_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4.initial_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input network block.</p>
+<p>For details see figure 3 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4.inception_a_block">
+<em class="property">classmethod </em><code class="sig-name descname">inception_a_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'inception_a_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4.inception_a_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4.inception_a_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception block A.</p>
+<p>For details see figure 4 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 2 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4.inception_b_block">
+<em class="property">classmethod </em><code class="sig-name descname">inception_b_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'inception_b_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4.inception_b_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4.inception_b_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception block B.</p>
+<p>For details see figure 5 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 5 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4.reduction_grid_block">
+<em class="property">classmethod </em><code class="sig-name descname">reduction_grid_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'reduction_b_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4.reduction_grid_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4.reduction_grid_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>grid-reduction block.</p>
+<p>For details see figure 8 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 3 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_v4.Inception_v4.inception_c_block">
+<em class="property">classmethod </em><code class="sig-name descname">inception_c_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'inception_c_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_v4.html#Inception_v4.inception_c_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_v4.Inception_v4.inception_c_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception block C.</p>
+<p>For details see figure 6 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 4 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-batchflow.models.tf.inception_resnet_v2">
+<span id="inception-resnet-version-2"></span><h2>Inception-ResNet version 2<a class="headerlink" href="#module-batchflow.models.tf.inception_resnet_v2" title="Permalink to this headline">¶</a></h2>
+<p>Szegedy C. et al “<a class="reference external" href="https://arxiv.org/abs/1602.07261">Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2">
+<em class="property">class </em><code class="sig-name descname">InceptionResNet_v2</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.inception_base.Inception" title="batchflow.models.tf.inception_base.Inception"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.inception_base.Inception</span></code></a></p>
+<p>Inception-ResNet network, version 2</p>
+<p><strong>Configuration</strong></p>
+<dl class="simple">
+<dt>inputs<span class="classifier">dict</span></dt><dd><p>dict with ‘images’ and ‘labels’ (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">_make_inputs()</span></code>)</p>
+</dd>
+<dt>body/arch<span class="classifier">dict</span></dt><dd><p>architecture: network layout, block layout, number of filters in each block, pooling parameters</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.initial_block">
+<em class="property">classmethod </em><code class="sig-name descname">initial_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'initial_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.initial_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.initial_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input network block.</p>
+<p>For details see figure 3 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.body">
+<em class="property">classmethod </em><code class="sig-name descname">body</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'body'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of blocks</p></li>
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – parameters for each block</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.block_a">
+<em class="property">classmethod </em><code class="sig-name descname">block_a</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'block_a'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.block_a"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.block_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception block A.</p>
+<p>For details see figure 16 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 6 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.block_b">
+<em class="property">classmethod </em><code class="sig-name descname">block_b</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'block_b'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.block_b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.block_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception block B.</p>
+<p>For details see figure 17 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 4 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.block_c">
+<em class="property">classmethod </em><code class="sig-name descname">block_c</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'block_c'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.block_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.block_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inception block C.</p>
+<p>For details see figure 19 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 4 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.reduction_a">
+<em class="property">classmethod </em><code class="sig-name descname">reduction_a</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'reduction_a'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.reduction_a"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.reduction_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduction block A.</p>
+<p>For details see figure 7 and Table 1 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 4 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.reduction_b">
+<em class="property">classmethod </em><code class="sig-name descname">reduction_b</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'cna'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'reduction_a'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/inception_resnet_v2.html#InceptionResNet_v2.reduction_b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.inception_resnet_v2.InceptionResNet_v2.reduction_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduction block B.</p>
+<p>For details see figure 18 in the article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>tuple of 7 int</em>) – number of output filters</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.tf.pyramidnet.html" class="btn btn-neutral float-right" title="PyramidNet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.tf.resnet.html" class="btn btn-neutral float-left" title="ResNet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

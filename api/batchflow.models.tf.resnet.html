@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ResNet &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Inception" href="batchflow.models.tf.inception.html" />
+    <link rel="prev" title="VGG" href="batchflow.models.tf.vgg.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.vgg.html">VGG</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">ResNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.inception.html">Inception</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.pyramidnet.html">PyramidNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.mobilenet.html">MobileNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.squeezenet.html">SqueezeNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.densenet.html">DenseNet for classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.resattention.html">ResNetAttention</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.xception.html">Xception</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/torch_models.html">Torch models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/tf_models.html">Tensorflow models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.tf.models.html">Base Models</a> &raquo;</li>
+        
+      <li>ResNet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.tf.resnet.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.models.tf.resnet">
+<span id="resnet"></span><h1>ResNet<a class="headerlink" href="#module-batchflow.models.tf.resnet" title="Permalink to this headline">¶</a></h1>
+<p>Kaiming He et al. “<a class="reference external" href="https://arxiv.org/abs/1512.03385">Deep Residual Learning for Image Recognition</a>”</p>
+<p>Kaiming He et al. “<a class="reference external" href="https://arxiv.org/abs/1603.05027">Identity Mappings in Deep Residual Networks</a>”</p>
+<p>Sergey Zagoruyko, Nikos Komodakis. “<a class="reference external" href="https://arxiv.org/abs/1605.07146">Wide Residual Networks</a>”</p>
+<p>Xie S. et al. “<a class="reference external" href="https://arxiv.org/abs/1611.05431">Aggregated Residual Transformations for Deep Neural Networks</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNet">
+<em class="property">class </em><code class="sig-name descname">ResNet</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="batchflow.models.tf.base.html#batchflow.models.tf.base.TFModel" title="batchflow.models.tf.base.TFModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.base.TFModel</span></code></a></p>
+<p>The base ResNet model</p>
+<p class="rubric">Notes</p>
+<p>This class is intended to define custom ResNets.
+For more convenience use predefined <code class="xref py py-class docutils literal notranslate"><span class="pre">ResNet18</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ResNet34</span></code>,
+and others described down below.</p>
+<p><strong>Configuration</strong></p>
+<dl class="simple">
+<dt>inputs<span class="classifier">dict</span></dt><dd><p>dict with ‘images’ and ‘labels’ (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">_make_inputs()</span></code>)</p>
+</dd>
+<dt>initial_block<span class="classifier">dict</span></dt><dd><dl class="simple">
+<dt>filters<span class="classifier">int</span></dt><dd><p>number of filters (default=64)</p>
+</dd>
+</dl>
+</dd>
+<dt>body<span class="classifier">dict</span></dt><dd><dl class="simple">
+<dt>num_blocks<span class="classifier">list of int</span></dt><dd><p>number of blocks in each group with the same number of filters.</p>
+</dd>
+<dt>filters<span class="classifier">list of int</span></dt><dd><p>number of filters in each group</p>
+</dd>
+<dt>downsample<span class="classifier">list of lists of int</span></dt><dd><p>indices of blocks in each group that should perform downsampling;
+by default downsampling is applied at first block of each ResNet group
+except for the first one.</p>
+</dd>
+<dt>block<span class="classifier">dict</span></dt><dd><dl class="simple">
+<dt>layout<span class="classifier">str</span></dt><dd><p>a sequence of layers in the block</p>
+</dd>
+<dt>filters<span class="classifier">int or list/tuple of ints</span></dt><dd><p>number of output filters</p>
+</dd>
+<dt>zero_pad<span class="classifier">bool</span></dt><dd><p>whether to pad a shortcut with zeros when a number of filters increases
+or apply a 1x1 convolution (default is False)</p>
+</dd>
+<dt>width_factor<span class="classifier">int</span></dt><dd><p>widening factor to make WideResNet (default=1)</p>
+</dd>
+<dt>resnext<span class="classifier">int or None</span></dt><dd><p>if None - do not use ResNeXt block
+if int - number of aggregations in ResNeXt block
+default is None</p>
+</dd>
+<dt>bottleneck<span class="classifier">int or None</span></dt><dd><p>if None - use simple (3x3,3x3) block
+if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)
+default is None</p>
+</dd>
+<dt>se_block<span class="classifier">dict or None</span></dt><dd><p>params for squeeze-and-excitation blocks, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">se_block()</span></code> (default=None)</p>
+</dd>
+<dt>post_activation<span class="classifier">None or bool or str</span></dt><dd><p>layout to apply after after residual and shortcut summation (default is None)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>head<span class="classifier">dict</span></dt><dd><p>‘Vdf’ with dropout_rate=.4</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.default_layout">
+<em class="property">classmethod </em><code class="sig-name descname">default_layout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bottleneck</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.default_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.default_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define conv block layout</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.build_config">
+<code class="sig-name descname">build_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.build_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.build_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model’s architecture configuration. See :meth: <cite>~.TFModel.build_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.body">
+<em class="property">classmethod </em><code class="sig-name descname">body</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'body'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base layers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>filters</strong> (<em>list of int</em><em> or </em><em>list of list of int</em>) – number of filters in each block group</p></li>
+<li><p><strong>num_blocks</strong> (<em>list of int</em>) – number of blocks in each group</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.double_block">
+<em class="property">classmethod </em><code class="sig-name descname">double_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'double_block'</span></em>, <em class="sig-param"><span class="n">downsample</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.double_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.double_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two ResNet blocks one after another</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – whether to decrease spatial dimensions</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – block parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.block">
+<em class="property">classmethod </em><code class="sig-name descname">block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.block" title="Permalink to this definition">¶</a></dt>
+<dd><p>A network building block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of layers in the block</p></li>
+<li><p><strong>filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>list/tuple of ints</em>) – number of output filters</p></li>
+<li><p><strong>zero_pad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – whether to pad shortcut when a number of filters increases</p></li>
+<li><p><strong>width_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – a factor to increase number of filters to build a wide network</p></li>
+<li><p><strong>downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – whether to decrease spatial dimensions with strides=2 in the first convolution</p></li>
+<li><p><strong>resnext</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – if None - do not use ResNeXt block
+if int - number of aggregations in ResNeXt block</p></li>
+<li><p><strong>bottleneck</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – if None - use simple (3x3,3x3) block
+if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</p></li>
+<li><p><strong>se_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – params for squeeze-and-excitation blocks, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">se_block()</span></code> (default=None)</p></li>
+<li><p><strong>post_activation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – layout to apply after after residual and shortcut summation (default is None)</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – conv_block parameters for all sub blocks</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.conv_block">
+<em class="property">classmethod </em><code class="sig-name descname">conv_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">layout</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">bottleneck</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.conv_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.conv_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>ResNet convolution block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of layers in the block</p></li>
+<li><p><strong>filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – number of output filters</p></li>
+<li><p><strong>downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – whether to decrease spatial dimensions with strides=2</p></li>
+<li><p><strong>bottleneck</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – if None - use simple (3x3,3x3) block
+if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – conv_block parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.simple_block">
+<em class="property">classmethod </em><code class="sig-name descname">simple_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kernel_size</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">downsample</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.simple_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.simple_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple residual block (by default with two 3x3 convolutions)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of layers in the block</p></li>
+<li><p><strong>filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – number of filters</p></li>
+<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – convolution kernel size</p></li>
+<li><p><strong>downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – whether to decrease spatial dimensions with strides=2</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – conv_block parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.bottleneck_block">
+<em class="property">classmethod </em><code class="sig-name descname">bottleneck_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kernel_size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bottleneck</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">downsample</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.bottleneck_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.bottleneck_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>A stack of 1x1, 3x3, 1x1 convolutions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of layers in the block</p></li>
+<li><p><strong>filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>list of int</em>) – if int, number of filters in the first convolution.
+if list, number of filters in each layer.</p></li>
+<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – convolution kernel size</p></li>
+<li><p><strong>bottleneck</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – filter number multiplier for a bottleneck block</p></li>
+<li><p><strong>downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – whether to decrease spatial dimensions with strides=2</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – conv_block parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet.next_conv_block">
+<em class="property">classmethod </em><code class="sig-name descname">next_conv_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">layout</span></em>, <em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">bottleneck</span></em>, <em class="sig-param"><span class="n">resnext</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet.next_conv_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet.next_conv_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>ResNeXt convolution block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a sequence of layers in the block</p></li>
+<li><p><strong>filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – number of output filters</p></li>
+<li><p><strong>bottleneck</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – if None - use simple (3x3,3x3) block
+if int - filter shrinking factor in a bottleneck block (1x1,3x3,1x1)</p></li>
+<li><p><strong>resnext</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – number of aggregations in ResNeXt block</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <cite>conv_block</cite> parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNet18">
+<em class="property">class </em><code class="sig-name descname">ResNet18</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet18"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet18" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The original ResNet-18 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet18.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet18.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet18.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNet34">
+<em class="property">class </em><code class="sig-name descname">ResNet34</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet34" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The original ResNet-34 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet34.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet34.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet34.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNet50">
+<em class="property">class </em><code class="sig-name descname">ResNet50</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet50" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The original ResNet-50 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet50.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet50.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet50.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNet101">
+<em class="property">class </em><code class="sig-name descname">ResNet101</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet101" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The original ResNet-101 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet101.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet101.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet101.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNet152">
+<em class="property">class </em><code class="sig-name descname">ResNet152</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet152" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The original ResNet-152 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNet152.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNet152.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNet152.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNeXt18">
+<em class="property">class </em><code class="sig-name descname">ResNeXt18</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt18"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt18" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-18 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNeXt18.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt18.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt18.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNeXt34">
+<em class="property">class </em><code class="sig-name descname">ResNeXt34</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt34" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-34 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNeXt34.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt34.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt34.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNeXt50">
+<em class="property">class </em><code class="sig-name descname">ResNeXt50</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt50" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-50 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNeXt50.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt50.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt50.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNeXt101">
+<em class="property">class </em><code class="sig-name descname">ResNeXt101</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt101" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-101 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNeXt101.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt101.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt101.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.ResNeXt152">
+<em class="property">class </em><code class="sig-name descname">ResNeXt152</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt152" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-152 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.ResNeXt152.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#ResNeXt152.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.ResNeXt152.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNet18">
+<em class="property">class </em><code class="sig-name descname">SEResNet18</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet18"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet18" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNet-18 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNet18.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet18.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet18.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNet34">
+<em class="property">class </em><code class="sig-name descname">SEResNet34</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet34" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNet-34 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNet34.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet34.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet34.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNet50">
+<em class="property">class </em><code class="sig-name descname">SEResNet50</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet50" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNet-50 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNet50.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet50.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet50.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNet101">
+<em class="property">class </em><code class="sig-name descname">SEResNet101</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet101" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNet-101 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNet101.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet101.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet101.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNet152">
+<em class="property">class </em><code class="sig-name descname">SEResNet152</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet152" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNet-152 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNet152.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNet152.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNet152.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNeXt18">
+<em class="property">class </em><code class="sig-name descname">SEResNeXt18</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt18"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt18" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-18 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNeXt18.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt18.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt18.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNeXt34">
+<em class="property">class </em><code class="sig-name descname">SEResNeXt34</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt34" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-34 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNeXt34.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt34.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt34.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNeXt50">
+<em class="property">class </em><code class="sig-name descname">SEResNeXt50</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt50" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-50 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNeXt50.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt50.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt50.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNeXt101">
+<em class="property">class </em><code class="sig-name descname">SEResNeXt101</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt101" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-101 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNeXt101.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt101.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt101.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.resnet.SEResNeXt152">
+<em class="property">class </em><code class="sig-name descname">SEResNeXt152</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt152" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.resnet.ResNet" title="batchflow.models.tf.resnet.ResNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.resnet.ResNet</span></code></a></p>
+<p>The ResNeXt-152 architecture with squeeze-and-excitation blocks.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.resnet.SEResNeXt152.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/resnet.html#SEResNeXt152.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.resnet.SEResNeXt152.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.tf.inception.html" class="btn btn-neutral float-right" title="Inception" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.tf.vgg.html" class="btn btn-neutral float-left" title="VGG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

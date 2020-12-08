@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.resattention &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.resattention</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.resattention</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot; Wang F. at all. &quot;`Residual Attention Network for Image Classification</span>
+<span class="sd">&lt;https://arxiv.org/abs/1704.06904&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">conv_block</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TFModel</span>
+<span class="kn">from</span> <span class="nn">.resnet</span> <span class="kn">import</span> <span class="n">ResNet</span>
+
+
+<div class="viewcode-block" id="ResNetAttention"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention">[docs]</a><span class="k">class</span> <span class="nc">ResNetAttention</span><span class="p">(</span><span class="n">TFModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Residual Attention Network</span>
+
+<span class="sd">    **Configuration**</span>
+
+<span class="sd">    inputs : dict</span>
+<span class="sd">        dict with images and labels (see :meth:`~.TFModel._make_inputs`)</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        layout : str</span>
+<span class="sd">            a sequence of blocks</span>
+
+<span class="sd">        filters : list of int</span>
+<span class="sd">            number of filters in each block</span>
+
+<span class="sd">        trunk : dict</span>
+<span class="sd">            config for trunk branch</span>
+
+<span class="sd">        mask : dict</span>
+<span class="sd">            config for mask branch</span>
+
+<span class="sd">    head : dict</span>
+<span class="sd">        &#39;Vf&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNetAttention.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model defaults. See :meth: `~.TFModel.default_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">TFModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+
+        <span class="n">filters</span> <span class="o">=</span> <span class="mi">64</span>   <span class="c1"># number of filters in the first block</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                        <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">bottleneck</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;trunk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">bottleneck</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">downsample</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">bottleneck</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;mask&#39;</span><span class="p">][</span><span class="s1">&#39;upsample&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">][</span><span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Vf&#39;</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ce&#39;</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;common&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">conv</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="ResNetAttention.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s architecture configuration. See :meth: `~.TFModel.build_config` &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/units&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;head/filters&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="ResNetAttention.trunk"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention.trunk">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">trunk</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;trunk&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Trunk branch</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body/trunk&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">double_block</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNetAttention.mask"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention.mask">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">mask</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Mask branch</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        level : int</span>
+<span class="sd">            nested mask level</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body/mask&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">upsample_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;upsample&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">skip</span> <span class="o">=</span> <span class="n">inputs</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;pool&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;resblock_1&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;resblock_2&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mask</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;submask-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">level</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;resblock_3&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">resize_to</span><span class="o">=</span><span class="n">skip</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;interpolation&#39;</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_format&#39;</span><span class="p">],</span>
+                             <span class="o">**</span><span class="n">upsample_args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNetAttention.attention"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention.attention">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attention</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Attention module</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        level : int</span>
+<span class="sd">            nested mask level</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;initial&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">trunk</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mask</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;nac nac&#39;</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span>
+                           <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;filters&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">})</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention_map&#39;</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ResNetAttention.body"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention.body">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Base blocks</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            input tensor</span>
+<span class="sd">        name : str</span>
+<span class="sd">            scope name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_params</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">layout</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">([</span><span class="s1">&#39;layout&#39;</span><span class="p">,</span> <span class="s1">&#39;filters&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">trunk</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;trunk&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">mask</span><span class="p">}</span>
+        <span class="n">trunk</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">trunk</span><span class="p">}</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layout</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">ResNet</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;resblock-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;downsample&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attention</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+<div class="viewcode-block" id="ResNetAttention56"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention56">[docs]</a><span class="k">class</span> <span class="nc">ResNetAttention56</span><span class="p">(</span><span class="n">ResNetAttention</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNetAttention-56 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNetAttention56.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention56.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNetAttention</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">][</span><span class="s1">&#39;filters&#39;</span><span class="p">]</span>   <span class="c1"># number of filters in the first block</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r2r1r0rrr&#39;</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNetAttention92"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention92">[docs]</a><span class="k">class</span> <span class="nc">ResNetAttention92</span><span class="p">(</span><span class="n">ResNetAttention</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNetAttention-92 architecture &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNetAttention92.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.tf.resattention.html#batchflow.models.tf.resattention.ResNetAttention92.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ResNetAttention</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">][</span><span class="s1">&#39;filters&#39;</span><span class="p">]</span>   <span class="c1"># number of filters in the first block</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r2r11r000rrr&#39;</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">][</span><span class="s1">&#39;filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

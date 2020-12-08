@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dataset.models.metrics" href="batchflow.models.metrics.html" />
+    <link rel="prev" title="batchflow.opensets" href="batchflow.opensets.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="batchflow.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="batchflow.core.html">batchflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.opensets.html">batchflow.opensets</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">batchflow.models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.metrics.html">dataset.models.metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.html">batchflow.models.tf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.torch.html">batchflow.models.torch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.research.html">batchflow.research</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="batchflow.html">API</a> &raquo;</li>
+        
+      <li>batchflow.models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="batchflow-models">
+<h1>batchflow.models<a class="headerlink" href="#batchflow-models" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.models.metrics.html">dataset.models.metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.metrics.html#metrics">Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.metrics.html#classificationmetrics">ClassificationMetrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.metrics.html#segmentationmetricsbypixels">SegmentationMetricsByPixels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.metrics.html#segmentationmetricsbyinstances">SegmentationMetricsByInstances</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.models.tf.html">batchflow.models.tf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.base.html">TFModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.encoder_decoder.html">Encoder-decoder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.vgg.html">VGG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.resnet.html">ResNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.inception.html">Inception</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.inception.html#module-batchflow.models.tf.inception_base">Base Inception</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.inception.html#module-batchflow.models.tf.inception_v1">Inception version 1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.inception.html#module-batchflow.models.tf.inception_v3">Inception version 3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.inception.html#module-batchflow.models.tf.inception_v4">Inception version 4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.inception.html#module-batchflow.models.tf.inception_resnet_v2">Inception-ResNet version 2</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.pyramidnet.html">PyramidNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.mobilenet.html">MobileNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.squeezenet.html">SqueezeNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.densenet.html">DenseNet for classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.resattention.html">ResNetAttention</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.xception.html">Xception</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.unet.html">UNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.vnet.html">VNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.densenet_fc.html">DenseNet for segmentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.refinenet.html">RefineNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.deeplab.html">DeepLab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.gcn.html">Global Convolution Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.fcn.html">FCN</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.linknet.html">LinkNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.faster_rcnn.html">Faster RCNN</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.activations.html">batchflow.models.tf.activations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.train.html">batchflow.models.tf.train</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.tf.layers.html">Custom layers and blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.tf.losses.html">Custom losses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.models.torch.html">batchflow.models.torch</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.torch.models.html">Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.torch.base.html">TorchModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.torch.vgg.html">VGG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.torch.resnet.html">ResNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.torch.squeezenet.html">SqueezeNet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.torch.unet.html">UNet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="batchflow.models.torch.layers.html">Custom layers and blocks</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<span class="target" id="module-batchflow.models"></span><p>Contains models</p>
+<dl class="py class">
+<dt id="batchflow.models.BaseModel">
+<em class="property">class </em><code class="sig-name descname">BaseModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all models</p>
+<dl class="py attribute">
+<dt id="batchflow.models.BaseModel.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#batchflow.models.BaseModel.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>a model name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="batchflow.models.BaseModel.config">
+<code class="sig-name descname">config</code><a class="headerlink" href="#batchflow.models.BaseModel.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>configuration parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<p><strong>Configuration</strong>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>build<span class="classifier">bool or 1 or ‘first’</span></dt><dd><p>whether to build a model by calling <cite>self.build()</cite>. Default is True.
+If build == 1 or ‘first’, then build is called before load, otherwise afterwards.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>load<span class="classifier">dict</span></dt><dd><p>parameters for model loading. If present, a model will be loaded
+by calling <cite>self.load(**config[‘load’])</cite>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>model_class<span class="classifier">type</span></dt><dd><p>(optional) A specific model class to instantiate the model.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.default_name">
+<em class="property">property </em><code class="sig-name descname">default_name</code><a class="headerlink" href="#batchflow.models.BaseModel.default_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>str - the class name (serve as a default for a model name)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.get">
+<em class="property">classmethod </em><code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">variables</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return variables from config</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.pop">
+<em class="property">classmethod </em><code class="sig-name descname">pop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">variables</span></em>, <em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return variables and remove them from config</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a prediction using the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.put">
+<em class="property">classmethod </em><code class="sig-name descname">put</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">variable</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put a new variable into config</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the trained model to allow a new training from scratch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.BaseModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/base.html#BaseModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.BaseModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.SklearnModel">
+<em class="property">class </em><code class="sig-name descname">SklearnModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for scikit-learn models</p>
+<dl class="py attribute">
+<dt id="batchflow.models.SklearnModel.estimator">
+<code class="sig-name descname">estimator</code><a class="headerlink" href="#batchflow.models.SklearnModel.estimator" title="Permalink to this definition">¶</a></dt>
+<dd><p>an instance of scikit-learn estimator</p>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<p><strong>Configuration</strong></p>
+<p>estimator - an instance of scikit-learn estimator</p>
+<p>load / path - a path to a pickled estimator</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline</span>
+    <span class="o">.</span><span class="n">init_model</span><span class="p">(</span><span class="s1">&#39;static&#39;</span><span class="p">,</span> <span class="n">SklearnModel</span><span class="p">,</span> <span class="s1">&#39;my_model&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;estimator&#39;</span><span class="p">:</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">linear_model</span><span class="o">.</span><span class="n">SGDClassifier</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s1">&#39;huber&#39;</span><span class="p">)})</span>
+
+<span class="n">pipeline</span>
+    <span class="o">.</span><span class="n">init_model</span><span class="p">(</span><span class="s1">&#39;static&#39;</span><span class="p">,</span> <span class="n">SklearnModel</span><span class="p">,</span> <span class="s1">&#39;my_model&#39;</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;load/path&#39;</span><span class="p">:</span> <span class="s1">&#39;/path/to/estimator.pickle&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="batchflow.models.SklearnModel.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.SklearnModel.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a full path to a file from which a model will be loaded</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.SklearnModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict with the data provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like</em>) – Subset of the training data, shape (n_samples, n_features)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For more details and other parameters look at the documentation for the estimator used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Predicted value per sample, shape (n_samples,)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.SklearnModel.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the trained model to allow a new training from scratch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.SklearnModel.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a full path to a file where a model will be saved to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.SklearnModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/sklearn.html#SklearnModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.SklearnModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model with the data provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array-like</em>) – Subset of the training data, shape (n_samples, n_features)</p></li>
+<li><p><strong>y</strong> (<em>numpy array</em>) – Subset of the target values, shape (n_samples,)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For more details and other parameters look at the documentation for the estimator used.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.metrics.html" class="btn btn-neutral float-right" title="dataset.models.metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.opensets.html" class="btn btn-neutral float-left" title="batchflow.opensets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

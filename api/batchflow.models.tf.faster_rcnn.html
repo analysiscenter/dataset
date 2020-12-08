@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Faster RCNN &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="batchflow.models.tf.activations" href="batchflow.models.tf.activations.html" />
+    <link rel="prev" title="LinkNet" href="batchflow.models.tf.linknet.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.unet.html">UNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.vnet.html">VNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.densenet_fc.html">DenseNet for segmentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.refinenet.html">RefineNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.deeplab.html">DeepLab</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.gcn.html">Global Convolution Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.fcn.html">FCN</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.linknet.html">LinkNet</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Faster RCNN</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/torch_models.html">Torch models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/tf_models.html">Tensorflow models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.tf.models.html">Base Models</a> &raquo;</li>
+        
+      <li>Faster RCNN</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.tf.faster_rcnn.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.models.tf.faster_rcnn">
+<span id="faster-rcnn"></span><h1>Faster RCNN<a class="headerlink" href="#module-batchflow.models.tf.faster_rcnn" title="Permalink to this headline">¶</a></h1>
+<p>Ren S. et al “<a class="reference external" href="https://arxiv.org/abs/1506.01497">Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN">
+<em class="property">class </em><code class="sig-name descname">FasterRCNN</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="batchflow.models.tf.base.html#batchflow.models.tf.base.TFModel" title="batchflow.models.tf.base.TFModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.base.TFModel</span></code></a></p>
+<p>Faster Region-based convolutional neural network.
+WARNING: FasterRCNN works with TensorFlow 1.3.0 and with fixed batch size.</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.build_config">
+<code class="sig-name descname">build_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.build_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.build_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model’s architecture configuration. See :meth: <cite>~.TFModel.build_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.initial_block">
+<code class="sig-name descname">initial_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">base_network</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'initial_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.initial_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.initial_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform inputs.  See :meth: <cite>~.TFModel.initial_block</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.body">
+<em class="property">classmethod </em><code class="sig-name descname">body</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'body'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base layers.  See :meth: <cite>~.TFModel.body</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors_tensors">
+<code class="sig-name descname">create_anchors_tensors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.create_anchors_tensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors_tensors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create placheholders for anchor-based inputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.head">
+<code class="sig-name descname">head</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">image_shape</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'head'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.head" title="Permalink to this definition">¶</a></dt>
+<dd><p>The last network layers which produce predictions. See :meth: <cite>~.TFModel.head</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.stop_gradient_tuple">
+<code class="sig-name descname">stop_gradient_tuple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.stop_gradient_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.stop_gradient_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop gradients through tf.tuple.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors">
+<code class="sig-name descname">create_anchors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scales</span><span class="o">=</span><span class="default_value">(4, 8, 16)</span></em>, <em class="sig-param"><span class="n">ratio</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.create_anchors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create anchors for image_shape depending on output_map_shape.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.create_rpn_inputs">
+<em class="property">classmethod </em><code class="sig-name descname">create_rpn_inputs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">anchors</span></em>, <em class="sig-param"><span class="n">bboxes</span></em>, <em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">thresholds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.create_rpn_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.create_rpn_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create reg and clsf targets of RPN.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.iou_bbox">
+<em class="property">classmethod </em><code class="sig-name descname">iou_bbox</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bboxes1</span></em>, <em class="sig-param"><span class="n">bboxes2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.iou_bbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.iou_bbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the IoUs between bounding boxes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors_batch">
+<em class="property">classmethod </em><code class="sig-name descname">create_anchors_batch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">anchor_clsf</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">64</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.create_anchors_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.create_anchors_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create batch indices for anchors.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.create_bbox_batch">
+<em class="property">classmethod </em><code class="sig-name descname">create_bbox_batch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">64</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.create_bbox_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.create_bbox_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create batch indices for bboxes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.rpn_loss">
+<em class="property">classmethod </em><code class="sig-name descname">rpn_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reg</span></em>, <em class="sig-param"><span class="n">clsf</span></em>, <em class="sig-param"><span class="n">true_reg</span></em>, <em class="sig-param"><span class="n">true_cls</span></em>, <em class="sig-param"><span class="n">anchor_batch</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.rpn_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.rpn_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixed MSE+CE Loss for RPN.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.rcn_loss">
+<em class="property">classmethod </em><code class="sig-name descname">rcn_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clsf</span></em>, <em class="sig-param"><span class="n">true_cls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.rcn_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.rcn_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>CE loss for RCN.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.parametrize">
+<code class="sig-name descname">parametrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">base</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.parametrize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.parametrize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parametrize inputs coordinates with respect of base.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.faster_rcnn.FasterRCNN.unparametrize">
+<code class="sig-name descname">unparametrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">base</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/faster_rcnn.html#FasterRCNN.unparametrize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.faster_rcnn.FasterRCNN.unparametrize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unparametrize inputs coordinates with respect of base.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.tf.activations.html" class="btn btn-neutral float-right" title="batchflow.models.tf.activations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.tf.linknet.html" class="btn btn-neutral float-left" title="LinkNet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

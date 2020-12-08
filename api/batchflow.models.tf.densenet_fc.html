@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DenseNet for segmentation &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="RefineNet" href="batchflow.models.tf.refinenet.html" />
+    <link rel="prev" title="VNet" href="batchflow.models.tf.vnet.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.unet.html">UNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.vnet.html">VNet</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">DenseNet for segmentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.refinenet.html">RefineNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.deeplab.html">DeepLab</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.gcn.html">Global Convolution Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.fcn.html">FCN</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.linknet.html">LinkNet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.faster_rcnn.html">Faster RCNN</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/torch_models.html">Torch models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/tf_models.html">Tensorflow models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.tf.models.html">Base Models</a> &raquo;</li>
+        
+      <li>DenseNet for segmentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.tf.densenet_fc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.models.tf.densenet_fc">
+<span id="densenet-for-segmentation"></span><h1>DenseNet for segmentation<a class="headerlink" href="#module-batchflow.models.tf.densenet_fc" title="Permalink to this headline">¶</a></h1>
+<p>Jegou S. et al “<a class="reference external" href="https://arxiv.org/abs/1611.09326">The One Hundred Layers Tiramisu:
+Fully Convolutional DenseNets for Semantic Segmentation</a>”</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC">
+<em class="property">class </em><code class="sig-name descname">DenseNetFC</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="batchflow.models.tf.base.html#batchflow.models.tf.base.TFModel" title="batchflow.models.tf.base.TFModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.base.TFModel</span></code></a></p>
+<p>DenseNet for semantic segmentation</p>
+<p><strong>Configuration</strong></p>
+<dl class="simple">
+<dt>inputs<span class="classifier">dict</span></dt><dd><p>dict with ‘images’ and ‘masks’ (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">_make_inputs()</span></code>)</p>
+</dd>
+<dt>body<span class="classifier">dict</span></dt><dd><dl class="simple">
+<dt>num_layers<span class="classifier">list of int</span></dt><dd><p>number of layers in downsampling/upsampling blocks</p>
+</dd>
+<dt>block<span class="classifier">dict</span></dt><dd><p>dense block parameters</p>
+</dd>
+<dt>transition_down<span class="classifier">dict</span></dt><dd><p>downsampling transition layer parameters</p>
+</dd>
+<dt>transition_up<span class="classifier">dict</span></dt><dd><p>upsampling transition layer parameters</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC.build_config">
+<code class="sig-name descname">build_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">names</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC.build_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC.build_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model’s architecture configuration. See :meth: <cite>~.TFModel.build_config</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC.body">
+<em class="property">classmethod </em><code class="sig-name descname">body</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'body'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC.body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>FC DenseNet body</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC.transition_down">
+<em class="property">classmethod </em><code class="sig-name descname">transition_down</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'transition_down'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC.transition_down"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC.transition_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>A downsampling interconnect layer between two dense blocks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC.transition_up">
+<em class="property">classmethod </em><code class="sig-name descname">transition_up</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'transition_up'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC.transition_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC.transition_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>An upsampling interconnect layer between two dense blocks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – input tensor</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – scope name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC56">
+<em class="property">class </em><code class="sig-name descname">DenseNetFC56</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC56"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC56" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.densenet_fc.DenseNetFC" title="batchflow.models.tf.densenet_fc.DenseNetFC"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.densenet_fc.DenseNetFC</span></code></a></p>
+<p>FC DenseNet-56 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC56.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC56.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC56.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC67">
+<em class="property">class </em><code class="sig-name descname">DenseNetFC67</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC67"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC67" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.densenet_fc.DenseNetFC" title="batchflow.models.tf.densenet_fc.DenseNetFC"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.densenet_fc.DenseNetFC</span></code></a></p>
+<p>FC DenseNet-67 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC67.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC67.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC67.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC103">
+<em class="property">class </em><code class="sig-name descname">DenseNetFC103</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC103"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC103" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchflow.models.tf.densenet_fc.DenseNetFC" title="batchflow.models.tf.densenet_fc.DenseNetFC"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.tf.densenet_fc.DenseNetFC</span></code></a></p>
+<p>FC DenseNet-103 architecture</p>
+<dl class="py method">
+<dt id="batchflow.models.tf.densenet_fc.DenseNetFC103.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/densenet_fc.html#DenseNetFC103.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.densenet_fc.DenseNetFC103.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults. See :meth: <cite>~.TFModel.default_config</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.tf.refinenet.html" class="btn btn-neutral float-right" title="RefineNet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.tf.vnet.html" class="btn btn-neutral float-left" title="VNet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

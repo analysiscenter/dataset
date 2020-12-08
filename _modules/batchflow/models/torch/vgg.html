@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.torch.vgg &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.torch.vgg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.torch.vgg</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Simonyan K., Zisserman A. &quot;`Very Deep Convolutional Networks for Large-Scale Image Recognition</span>
+<span class="sd">&lt;https://arxiv.org/abs/1409.1556&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.encoder_decoder</span> <span class="kn">import</span> <span class="n">Encoder</span>
+<span class="kn">from</span> <span class="nn">.blocks</span> <span class="kn">import</span> <span class="n">VGGBlock</span>
+
+
+
+<div class="viewcode-block" id="VGG"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG">[docs]</a><span class="k">class</span> <span class="nc">VGG</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base VGG architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="VGG.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;common/conv/bias&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;block&#39;</span><span class="p">,</span> <span class="s1">&#39;downsampling&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">VGGBlock</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;Vdf&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ce&#39;</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="VGG7"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG7">[docs]</a><span class="k">class</span> <span class="nc">VGG7</span><span class="p">(</span><span class="n">VGG</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; VGG7 network. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="VGG7.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG7.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span>
+                                              <span class="n">depth3</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                              <span class="n">depth1</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="VGG16"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG16">[docs]</a><span class="k">class</span> <span class="nc">VGG16</span><span class="p">(</span><span class="n">VGG</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; VGG16 network. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="VGG16.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG16.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+                                              <span class="n">depth3</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">depth1</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="VGG19"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG19">[docs]</a><span class="k">class</span> <span class="nc">VGG19</span><span class="p">(</span><span class="n">VGG</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; VGG19 network. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="VGG19.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.vgg.html#batchflow.models.torch.vgg.VGG19.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+                                              <span class="n">depth3</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">depth1</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

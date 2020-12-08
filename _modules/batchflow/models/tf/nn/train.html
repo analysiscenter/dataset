@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.tf.nn.train &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.tf.nn.train</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.tf.nn.train</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Helpers for training &quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<div class="viewcode-block" id="piecewise_constant"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.train.html#batchflow.models.tf.nn.train.piecewise_constant">[docs]</a><span class="k">def</span> <span class="nf">piecewise_constant</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Constant learning rate decay (uses global_step param instead of x) &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">piecewise_constant</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="cyclic_learning_rate"><a class="viewcode-back" href="../../../../../api/batchflow.models.tf.train.html#batchflow.models.tf.nn.train.cyclic_learning_rate">[docs]</a><span class="k">def</span> <span class="nf">cyclic_learning_rate</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">max_lr</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;tri&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;CyclicLearningRate&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function varies the learning rate between the</span>
+<span class="sd">    minimum (learning_rate) and the maximum (max_lr).</span>
+<span class="sd">    It returns the decayed learning rate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    learning_rate : float or tf.Tensor</span>
+<span class="sd">        The minimum learning rate boundary.</span>
+<span class="sd">    global_step : int or tf.Tensor</span>
+<span class="sd">        Global_step refers to the number of batches seen by the model.</span>
+<span class="sd">        It is use for the cyclic computation. Must not be negative.</span>
+<span class="sd">    max_lr : float or tf.Tensor</span>
+<span class="sd">        The maximum learning rate boundary.</span>
+<span class="sd">    step_size : int or tf.Tensor</span>
+<span class="sd">        The number of iterations in half a cycle (the default is 10).</span>
+<span class="sd">    mode : {&#39;tri&#39;, &#39;sin&#39;, &#39;saw&#39;}</span>
+<span class="sd">        Set the learning rate change function.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the operation (the default is &#39;CyclicLearningRate&#39;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tensor</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    More detailed information about `mode`:</span>
+
+<span class="sd">    If &#39;tri&#39;:</span>
+<span class="sd">        Default, linearly increasing then linearly decreasing the</span>
+<span class="sd">        learning rate at each cycle. Learning rate starting</span>
+<span class="sd">        from (max_lr-learning_rate)/2 then decreasing to `learning_rate`.</span>
+<span class="sd">        See `Leslie N. Smith, Cyclical Learning Rates for Training Neural Networks</span>
+<span class="sd">        &lt;https://arxiv.org/abs/1506.01186&gt;`_ for more information.</span>
+
+<span class="sd">        It is computed as::</span>
+
+<span class="sd">            decayed_learning_rate = abs(mod((global_step + step_size / 4) / step_size, 1) - 0.5) *</span>
+<span class="sd">                                    2 * (max_lr - learning_rate) +</span>
+<span class="sd">                                    learning_rate</span>
+
+
+<span class="sd">    If &#39;sin&#39;:</span>
+<span class="sd">        Learning rate changes as a sine wave, starting</span>
+<span class="sd">        from (max_lr-learning_rate)/2 then decreasing to `learning_rate`.</span>
+
+<span class="sd">        It is computed as::</span>
+
+<span class="sd">            decayed_learning_rate = (learning_rate - max_lr) / 2 *</span>
+<span class="sd">                                    sin(pi * global_step / step_size) +</span>
+<span class="sd">                                    (max_lr + learning_rate) / 2</span>
+
+
+<span class="sd">    If &#39;saw&#39;:</span>
+<span class="sd">        Learning rate linearly increasing from `learning_rate` to `max_lr`</span>
+<span class="sd">        and then sharply drops to `learning_rate` at each cycle.</span>
+<span class="sd">        Learning rate starting from `learning_rate` then increasing.</span>
+
+<span class="sd">        It is computed as::</span>
+
+<span class="sd">            decayed_learning_rate = (max_lr - learning_rate) *</span>
+<span class="sd">                                    (floor(global_step / step_size) - global_step / step_size) +</span>
+<span class="sd">                                    learning_rate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">step_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">max_lr</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">max_lr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;tri&#39;</span><span class="p">:</span>
+            <span class="n">periodic_comp</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">mod</span><span class="p">((</span><span class="n">global_step</span> <span class="o">+</span> <span class="n">step_size</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">first_factor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">periodic_comp</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">second_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_lr</span> <span class="o">-</span> <span class="n">learning_rate</span><span class="p">)</span>
+            <span class="n">second_comp</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;sin&#39;</span><span class="p">:</span>
+            <span class="n">first_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">learning_rate</span> <span class="o">-</span> <span class="n">max_lr</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
+            <span class="n">second_factor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">pi</span> <span class="o">*</span> <span class="n">global_step</span><span class="p">)</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">)</span>
+            <span class="n">second_comp</span> <span class="o">=</span> <span class="p">(</span><span class="n">learning_rate</span> <span class="o">+</span> <span class="n">max_lr</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;saw&#39;</span><span class="p">:</span>
+            <span class="n">first_factor</span> <span class="o">=</span> <span class="n">max_lr</span> <span class="o">-</span> <span class="n">learning_rate</span>
+            <span class="n">second_factor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">global_step</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">second_comp</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="k">return</span> <span class="n">first_factor</span> <span class="o">*</span> <span class="n">second_factor</span> <span class="o">+</span> <span class="n">second_comp</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.torch.resnet &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.torch.resnet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.torch.resnet</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Kaiming He et al. &quot;`Deep Residual Learning for Image Recognition</span>
+<span class="sd">&lt;https://arxiv.org/abs/1512.03385&gt;`_&quot;</span>
+
+<span class="sd">Kaiming He et al. &quot;`Identity Mappings in Deep Residual Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1603.05027&gt;`_&quot;</span>
+
+<span class="sd">Sergey Zagoruyko, Nikos Komodakis. &quot;`Wide Residual Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1605.07146&gt;`_&quot;</span>
+
+<span class="sd">Xie S. et al. &quot;`Aggregated Residual Transformations for Deep Neural Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1611.05431&gt;`_&quot;</span>
+
+<span class="sd">Jie Hu. et al. &quot;`Squeeze-and-Excitation Networks</span>
+<span class="sd">&lt;https://arxiv.org/abs/1709.01507`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#pylint: disable=too-many-ancestors</span>
+<span class="kn">from</span> <span class="nn">.encoder_decoder</span> <span class="kn">import</span> <span class="n">Encoder</span>
+<span class="kn">from</span> <span class="nn">.blocks</span> <span class="kn">import</span> <span class="n">ResBlock</span>
+
+
+
+<div class="viewcode-block" id="ResNet"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet">[docs]</a><span class="k">class</span> <span class="nc">ResNet</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base ResNet model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    body : dict, optional</span>
+<span class="sd">        encoder : dict, optional</span>
+<span class="sd">            num_stages : int</span>
+<span class="sd">                Number of different layers. Default is 4.</span>
+
+<span class="sd">            order : str, sequence of str</span>
+<span class="sd">                Determines order of applying layers.</span>
+<span class="sd">                See more in :class:`~.encoder_decoder.Encoder` documentation.</span>
+<span class="sd">                In default ResNet, only ``&#39;block&#39;`` is needed.</span>
+
+<span class="sd">            blocks : dict, optional</span>
+<span class="sd">                Parameters for pre-processing blocks. Each of the parameters can be represented</span>
+<span class="sd">                either by a single value or by a list with `num_stages` length.</span>
+<span class="sd">                If it is a `list`, then the i-th block is formed using the i-th value of the `list`.</span>
+<span class="sd">                If this is a single value, then all the blocks is formed using it.</span>
+
+<span class="sd">                base : callable, list of callable</span>
+<span class="sd">                    Tensor processing function. Default is :class:`~ResBlock`.</span>
+<span class="sd">                layout : str, list of str</span>
+<span class="sd">                    A sequence of letters, each letter meaning individual operation.</span>
+<span class="sd">                    See more in :class:`~.layers.conv_block.BaseConvBlock` documentation.</span>
+<span class="sd">                filters : int, str, list of int, list of str</span>
+<span class="sd">                    If `str`, then number of filters is calculated by its evaluation. ``&#39;S&#39;`` and ``&#39;same&#39;``</span>
+<span class="sd">                    stand for the number of filters in the previous tensor. Note the `eval` usage under the hood.</span>
+<span class="sd">                    If `int`, then number of filters in the block.</span>
+<span class="sd">                n_reps : int, list of int</span>
+<span class="sd">                    Number of times to repeat the whole block.</span>
+<span class="sd">                downsample : bool, int, list of bool, list of int</span>
+<span class="sd">                    If `int`, in first repetition of block downsampling with a factor ``downsample``.</span>
+<span class="sd">                    If ``True``, in first repetition of block downsampling with a factor 2.</span>
+<span class="sd">                    If ``False``, without downsampling.</span>
+<span class="sd">                bottleneck : bool, int, list of bool, list of int</span>
+<span class="sd">                    If ``True``, then construct a canonical bottleneck block from the given layout.</span>
+<span class="sd">                    If ``False``, then bottleneck is not used.</span>
+<span class="sd">                se : bool, list of bool</span>
+<span class="sd">                    If ``True``, then construct a SE-ResNet block from the given layout.</span>
+<span class="sd">                    If ``False``, then squeeze and excitation is not used.</span>
+<span class="sd">                other args : dict</span>
+<span class="sd">                    Parameters for the base block.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This class is intended to define custom ResNets.</span>
+<span class="sd">    For more convenience use predefined :class:`ResNet18`, :class:`ResNet34` and others described down below.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                        <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;skip&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">ResBlock</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnacn&#39;</span><span class="p">,</span>
+                                              <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+                                              <span class="n">n_reps</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                              <span class="n">downsample</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+                                              <span class="n">bottleneck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                              <span class="n">se</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;Vdf&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ce&#39;</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+
+<div class="viewcode-block" id="ResNet18"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet18">[docs]</a><span class="k">class</span> <span class="nc">ResNet18</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-18 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/n_reps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet34"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet34">[docs]</a><span class="k">class</span> <span class="nc">ResNet34</span><span class="p">(</span><span class="n">ResNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-34 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/n_reps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet50"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet50">[docs]</a><span class="k">class</span> <span class="nc">ResNet50</span><span class="p">(</span><span class="n">ResNet34</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-50 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cna&#39;</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/bottleneck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet101"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet101">[docs]</a><span class="k">class</span> <span class="nc">ResNet101</span><span class="p">(</span><span class="n">ResNet50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-101 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/n_reps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNet152"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet152">[docs]</a><span class="k">class</span> <span class="nc">ResNet152</span><span class="p">(</span><span class="n">ResNet50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original ResNet-152 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNet152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNet152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/n_reps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+
+<div class="viewcode-block" id="ResNeXt18"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt18">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt18</span><span class="p">(</span><span class="n">ResNet18</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-18 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt34"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt34">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt34</span><span class="p">(</span><span class="n">ResNet34</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-34 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt50"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt50">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt50</span><span class="p">(</span><span class="n">ResNet50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-50 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt101"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt101">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt101</span><span class="p">(</span><span class="n">ResNet101</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-101 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="ResNeXt152"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt152">[docs]</a><span class="k">class</span> <span class="nc">ResNeXt152</span><span class="p">(</span><span class="n">ResNet152</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The ResNeXt-152 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResNeXt152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.ResNeXt152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+
+<div class="viewcode-block" id="SEResNet18"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet18">[docs]</a><span class="k">class</span> <span class="nc">SEResNet18</span><span class="p">(</span><span class="n">ResNet18</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original SE-ResNet-18 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet34"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet34">[docs]</a><span class="k">class</span> <span class="nc">SEResNet34</span><span class="p">(</span><span class="n">ResNet34</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original SE-ResNet-34 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet50"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet50">[docs]</a><span class="k">class</span> <span class="nc">SEResNet50</span><span class="p">(</span><span class="n">ResNet50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original SE-ResNet-50 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet101"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet101">[docs]</a><span class="k">class</span> <span class="nc">SEResNet101</span><span class="p">(</span><span class="n">ResNet101</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original SE-ResNet-101 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNet152"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet152">[docs]</a><span class="k">class</span> <span class="nc">SEResNet152</span><span class="p">(</span><span class="n">ResNet152</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The original SE-ResNet-152 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNet152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNet152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+
+<div class="viewcode-block" id="SEResNeXt18"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt18">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt18</span><span class="p">(</span><span class="n">ResNeXt18</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The SE-ResNeXt-18 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt18.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt18.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt34"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt34">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt34</span><span class="p">(</span><span class="n">ResNeXt34</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The SE-ResNeXt-34 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt34.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt34.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt50"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt50">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt50</span><span class="p">(</span><span class="n">ResNeXt50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The SE-ResNeXt-50 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt50.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt50.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt101"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt101">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt101</span><span class="p">(</span><span class="n">ResNeXt101</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The SE-ResNeXt-101 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt101.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt101.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+<div class="viewcode-block" id="SEResNeXt152"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt152">[docs]</a><span class="k">class</span> <span class="nc">SEResNeXt152</span><span class="p">(</span><span class="n">ResNeXt152</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The SE-ResNeXt-152 architecture. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SEResNeXt152.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.resnet.html#batchflow.models.torch.resnet.SEResNeXt152.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

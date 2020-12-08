@@ -1,0 +1,1318 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tensorflow.python.keras.layers.core &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>tensorflow.python.keras.layers.core</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tensorflow.python.keras.layers.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2015 The TensorFlow Authors. All Rights Reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1"># ==============================================================================</span>
+<span class="sd">&quot;&quot;&quot;Core Keras layers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">types</span> <span class="k">as</span> <span class="nn">python_types</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">context</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">tensor_shape</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">activations</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">constraints</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">initializers</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">regularizers</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.engine.base_layer</span> <span class="kn">import</span> <span class="n">Layer</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.engine.input_spec</span> <span class="kn">import</span> <span class="n">InputSpec</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.utils</span> <span class="kn">import</span> <span class="n">conv_utils</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.utils</span> <span class="kn">import</span> <span class="n">generic_utils</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras.utils</span> <span class="kn">import</span> <span class="n">tf_utils</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">sparse_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">standard_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">variable_scope</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">nest</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">tf_inspect</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="kn">import</span> <span class="n">keras_export</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Masking&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Masking</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Masks a sequence by using a mask value to skip timesteps.</span>
+
+<span class="sd">  For each timestep in the input tensor (dimension #1 in the tensor),</span>
+<span class="sd">  if all values in the input tensor at that timestep</span>
+<span class="sd">  are equal to `mask_value`, then the timestep will be masked (skipped)</span>
+<span class="sd">  in all downstream layers (as long as they support masking).</span>
+
+<span class="sd">  If any downstream layer does not support masking yet receives such</span>
+<span class="sd">  an input mask, an exception will be raised.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">  Consider a Numpy data array `x` of shape `(samples, timesteps, features)`,</span>
+<span class="sd">  to be fed to an LSTM layer.</span>
+<span class="sd">  You want to mask timestep #3 and #5 because you lack data for</span>
+<span class="sd">  these timesteps. You can:</span>
+
+<span class="sd">  - Set `x[:, 3, :] = 0.` and `x[:, 5, :] = 0.`</span>
+<span class="sd">  - Insert a `Masking` layer with `mask_value=0.` before the LSTM layer:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  model = Sequential()</span>
+<span class="sd">  model.add(Masking(mask_value=0., input_shape=(timesteps, features)))</span>
+<span class="sd">  model.add(LSTM(32))</span>
+<span class="sd">  ```</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask_value</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Masking</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">mask_value</span> <span class="o">=</span> <span class="n">mask_value</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_compute_output_and_mask_jointly</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="k">def</span> <span class="nf">compute_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_value</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="n">boolean_mask</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+        <span class="n">math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_value</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">inputs</span> <span class="o">*</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">boolean_mask</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="c1"># Compute the mask and outputs simultaneously.</span>
+    <span class="n">outputs</span><span class="o">.</span><span class="n">_keras_mask</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">boolean_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+    <span class="k">return</span> <span class="n">outputs</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mask_value&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_value</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Masking</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Dropout&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Dropout</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Applies Dropout to the input.</span>
+
+<span class="sd">  Dropout consists in randomly setting</span>
+<span class="sd">  a fraction `rate` of input units to 0 at each update during training time,</span>
+<span class="sd">  which helps prevent overfitting.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    rate: Float between 0 and 1. Fraction of the input units to drop.</span>
+<span class="sd">    noise_shape: 1D integer tensor representing the shape of the</span>
+<span class="sd">      binary dropout mask that will be multiplied with the input.</span>
+<span class="sd">      For instance, if your inputs have shape</span>
+<span class="sd">      `(batch_size, timesteps, features)` and</span>
+<span class="sd">      you want the dropout mask to be the same for all timesteps,</span>
+<span class="sd">      you can use `noise_shape=(batch_size, 1, features)`.</span>
+<span class="sd">    seed: A Python integer to use as random seed.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: Input tensor (of any rank).</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding dropout) or in inference mode (doing nothing).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">noise_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Dropout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span> <span class="o">=</span> <span class="n">noise_shape</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="k">def</span> <span class="nf">_get_noise_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="c1"># Subclasses of `Dropout` may implement `_get_noise_shape(self, inputs)`,</span>
+    <span class="c1"># which will override `self.noise_shape`, and allows for custom noise</span>
+    <span class="c1"># shapes with dynamically sized inputs.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">concrete_inputs_shape</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">noise_shape</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span><span class="p">):</span>
+      <span class="n">noise_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">concrete_inputs_shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">noise_shape</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">training</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">training</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">learning_phase</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">dropped_inputs</span><span class="p">():</span>
+      <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span>
+          <span class="n">inputs</span><span class="p">,</span>
+          <span class="n">noise_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_noise_shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+          <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+          <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">tf_utils</span><span class="o">.</span><span class="n">smart_cond</span><span class="p">(</span><span class="n">training</span><span class="p">,</span>
+                                 <span class="n">dropped_inputs</span><span class="p">,</span>
+                                 <span class="k">lambda</span><span class="p">:</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;rate&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="p">,</span>
+        <span class="s1">&#39;noise_shape&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_shape</span><span class="p">,</span>
+        <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+    <span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Dropout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.SpatialDropout1D&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SpatialDropout1D</span><span class="p">(</span><span class="n">Dropout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Spatial 1D version of Dropout.</span>
+
+<span class="sd">  This version performs the same function as Dropout, however it drops</span>
+<span class="sd">  entire 1D feature maps instead of individual elements. If adjacent frames</span>
+<span class="sd">  within feature maps are strongly correlated (as is normally the case in</span>
+<span class="sd">  early convolution layers) then regular dropout will not regularize the</span>
+<span class="sd">  activations and will otherwise just result in an effective learning rate</span>
+<span class="sd">  decrease. In this case, SpatialDropout1D will help promote independence</span>
+<span class="sd">  between feature maps and should be used instead.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    rate: Float between 0 and 1. Fraction of the input units to drop.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: A 3D tensor.</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding dropout) or in inference mode (doing nothing).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    3D tensor with shape:</span>
+<span class="sd">    `(samples, timesteps, channels)`</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same as input.</span>
+
+<span class="sd">  References:</span>
+<span class="sd">    - [Efficient Object Localization Using Convolutional</span>
+<span class="sd">      Networks](https://arxiv.org/abs/1411.4280)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SpatialDropout1D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_noise_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">noise_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">noise_shape</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.SpatialDropout2D&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SpatialDropout2D</span><span class="p">(</span><span class="n">Dropout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Spatial 2D version of Dropout.</span>
+
+<span class="sd">  This version performs the same function as Dropout, however it drops</span>
+<span class="sd">  entire 2D feature maps instead of individual elements. If adjacent pixels</span>
+<span class="sd">  within feature maps are strongly correlated (as is normally the case in</span>
+<span class="sd">  early convolution layers) then regular dropout will not regularize the</span>
+<span class="sd">  activations and will otherwise just result in an effective learning rate</span>
+<span class="sd">  decrease. In this case, SpatialDropout2D will help promote independence</span>
+<span class="sd">  between feature maps and should be used instead.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    rate: Float between 0 and 1. Fraction of the input units to drop.</span>
+<span class="sd">    data_format: &#39;channels_first&#39; or &#39;channels_last&#39;.</span>
+<span class="sd">      In &#39;channels_first&#39; mode, the channels dimension</span>
+<span class="sd">      (the depth) is at index 1,</span>
+<span class="sd">      in &#39;channels_last&#39; mode is it at index 3.</span>
+<span class="sd">      It defaults to the `image_data_format` value found in your</span>
+<span class="sd">      Keras config file at `~/.keras/keras.json`.</span>
+<span class="sd">      If you never set it, then it will be &quot;channels_last&quot;.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: A 4D tensor.</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding dropout) or in inference mode (doing nothing).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    4D tensor with shape:</span>
+<span class="sd">    `(samples, channels, rows, cols)` if data_format=&#39;channels_first&#39;</span>
+<span class="sd">    or 4D tensor with shape:</span>
+<span class="sd">    `(samples, rows, cols, channels)` if data_format=&#39;channels_last&#39;.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same as input.</span>
+
+<span class="sd">  References:</span>
+<span class="sd">    - [Efficient Object Localization Using Convolutional</span>
+<span class="sd">      Networks](https://arxiv.org/abs/1411.4280)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SpatialDropout2D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">data_format</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">image_data_format</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">}:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;data_format must be in &#39;</span>
+                       <span class="s1">&#39;{&quot;channels_last&quot;, &quot;channels_first&quot;}&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">data_format</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_noise_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_last&#39;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.SpatialDropout3D&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SpatialDropout3D</span><span class="p">(</span><span class="n">Dropout</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Spatial 3D version of Dropout.</span>
+
+<span class="sd">  This version performs the same function as Dropout, however it drops</span>
+<span class="sd">  entire 3D feature maps instead of individual elements. If adjacent voxels</span>
+<span class="sd">  within feature maps are strongly correlated (as is normally the case in</span>
+<span class="sd">  early convolution layers) then regular dropout will not regularize the</span>
+<span class="sd">  activations and will otherwise just result in an effective learning rate</span>
+<span class="sd">  decrease. In this case, SpatialDropout3D will help promote independence</span>
+<span class="sd">  between feature maps and should be used instead.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    rate: Float between 0 and 1. Fraction of the input units to drop.</span>
+<span class="sd">    data_format: &#39;channels_first&#39; or &#39;channels_last&#39;.</span>
+<span class="sd">        In &#39;channels_first&#39; mode, the channels dimension (the depth)</span>
+<span class="sd">        is at index 1, in &#39;channels_last&#39; mode is it at index 4.</span>
+<span class="sd">        It defaults to the `image_data_format` value found in your</span>
+<span class="sd">        Keras config file at `~/.keras/keras.json`.</span>
+<span class="sd">        If you never set it, then it will be &quot;channels_last&quot;.</span>
+
+<span class="sd">  Call arguments:</span>
+<span class="sd">    inputs: A 5D tensor.</span>
+<span class="sd">    training: Python boolean indicating whether the layer should behave in</span>
+<span class="sd">      training mode (adding dropout) or in inference mode (doing nothing).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    5D tensor with shape:</span>
+<span class="sd">    `(samples, channels, dim1, dim2, dim3)` if data_format=&#39;channels_first&#39;</span>
+<span class="sd">    or 5D tensor with shape:</span>
+<span class="sd">    `(samples, dim1, dim2, dim3, channels)` if data_format=&#39;channels_last&#39;.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same as input.</span>
+
+<span class="sd">  References:</span>
+<span class="sd">    - [Efficient Object Localization Using Convolutional</span>
+<span class="sd">      Networks](https://arxiv.org/abs/1411.4280)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SpatialDropout3D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">data_format</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">image_data_format</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;channels_last&#39;</span><span class="p">,</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">}:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;data_format must be in &#39;</span>
+                       <span class="s1">&#39;{&quot;channels_last&quot;, &quot;channels_first&quot;}&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">data_format</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_noise_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_last&#39;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Activation&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Activation</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Applies an activation function to an output.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    activation: Activation function, such as `tf.nn.relu`, or string name of</span>
+<span class="sd">      built-in activation function, such as &quot;relu&quot;.</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary. Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same shape as input.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activation</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Activation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">activation</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;activation&#39;</span><span class="p">:</span> <span class="n">activations</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">)}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Activation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Reshape&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Reshape</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Reshapes an output to a certain shape.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    target_shape: Target shape. Tuple of integers,</span>
+<span class="sd">      does not include the samples dimension (batch size).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary, although all dimensions in the input shaped must be fixed.</span>
+<span class="sd">    Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    `(batch_size,) + target_shape`</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  # as first layer in a Sequential model</span>
+<span class="sd">  model = Sequential()</span>
+<span class="sd">  model.add(Reshape((3, 4), input_shape=(12,)))</span>
+<span class="sd">  # now: model.output_shape == (None, 3, 4)</span>
+<span class="sd">  # note: `None` is the batch dimension</span>
+
+<span class="sd">  # as intermediate layer in a Sequential model</span>
+<span class="sd">  model.add(Reshape((6, 2)))</span>
+<span class="sd">  # now: model.output_shape == (None, 6, 2)</span>
+
+<span class="sd">  # also supports shape inference using `-1` as dimension</span>
+<span class="sd">  model.add(Reshape((-1, 2, 2)))</span>
+<span class="sd">  # now: model.output_shape == (None, None, 2, 2)</span>
+<span class="sd">  ```</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Reshape</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">target_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_fix_unknown_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find and replace a missing dimension in an output shape.</span>
+
+<span class="sd">    This is a near direct port of the internal Numpy function</span>
+<span class="sd">    `_fix_unknown_dimension` in `numpy/core/src/multiarray/shape.c`</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">      input_shape: Shape of array being reshaped</span>
+<span class="sd">      output_shape: Desired shape of the array with at most</span>
+<span class="sd">        a single -1 which indicates a dimension that should be</span>
+<span class="sd">        derived from the input shape.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The new output shape with a -1 replaced with its computed value.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: If the total array size of the output_shape is</span>
+<span class="sd">      different than the input_shape, or more than one unknown dimension</span>
+<span class="sd">      is specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;total size of new array must be unchanged&#39;</span>
+
+    <span class="n">known</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_shape</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">dim</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">unknown</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="n">unknown</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Can only specify one unknown dimension.&#39;</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">known</span> <span class="o">*=</span> <span class="n">dim</span>
+
+    <span class="n">original</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unknown</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">known</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">original</span> <span class="o">%</span> <span class="n">known</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+      <span class="n">output_shape</span><span class="p">[</span><span class="n">unknown</span><span class="p">]</span> <span class="o">=</span> <span class="n">original</span> <span class="o">//</span> <span class="n">known</span>
+    <span class="k">elif</span> <span class="n">original</span> <span class="o">!=</span> <span class="n">known</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_shape</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+      <span class="n">output_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+      <span class="c1"># input shape (partially) unknown? replace -1&#39;s with None&#39;s</span>
+      <span class="n">output_shape</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">s</span> <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_shape</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">output_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+      <span class="n">output_shape</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_unknown_dimension</span><span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">target_shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span>
+                             <span class="p">(</span><span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">],)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_shape</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;target_shape&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_shape</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Reshape</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Permute&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Permute</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Permutes the dimensions of the input according to a given pattern.</span>
+
+<span class="sd">  Useful for e.g. connecting RNNs and convnets together.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  model = Sequential()</span>
+<span class="sd">  model.add(Permute((2, 1), input_shape=(10, 64)))</span>
+<span class="sd">  # now: model.output_shape == (None, 64, 10)</span>
+<span class="sd">  # note: `None` is the batch dimension</span>
+<span class="sd">  ```</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    dims: Tuple of integers. Permutation pattern, does not include the</span>
+<span class="sd">      samples dimension. Indexing starts at 1.</span>
+<span class="sd">      For instance, `(2, 1)` permutes the first and second dimensions</span>
+<span class="sd">      of the input.</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary. Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same as the input shape, but with the dimensions re-ordered according</span>
+<span class="sd">    to the specified pattern.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Permute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+          <span class="s1">&#39;Invalid permutation `dims` for Permute Layer: </span><span class="si">%s</span><span class="s1">. &#39;</span>
+          <span class="s1">&#39;The set of indices in `dims` must be consecutive and start from 1.&#39;</span> <span class="o">%</span>
+          <span class="p">(</span><span class="n">dims</span><span class="p">,))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+    <span class="n">output_shape</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">):</span>
+      <span class="n">target_dim</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+      <span class="n">output_shape</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_dim</span>
+    <span class="k">return</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dims&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Permute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Flatten&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Flatten</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Flattens the input. Does not affect the batch size.</span>
+
+<span class="sd">  If inputs are shaped `(batch,)` without a channel dimension, then flattening</span>
+<span class="sd">  adds an extra channel dimension and output shapes are `(batch, 1)`.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    data_format: A string,</span>
+<span class="sd">      one of `channels_last` (default) or `channels_first`.</span>
+<span class="sd">      The ordering of the dimensions in the inputs.</span>
+<span class="sd">      `channels_last` corresponds to inputs with shape</span>
+<span class="sd">      `(batch, ..., channels)` while `channels_first` corresponds to</span>
+<span class="sd">      inputs with shape `(batch, channels, ...)`.</span>
+<span class="sd">      It defaults to the `image_data_format` value found in your</span>
+<span class="sd">      Keras config file at `~/.keras/keras.json`.</span>
+<span class="sd">      If you never set it, then it will be &quot;channels_last&quot;.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  model = Sequential()</span>
+<span class="sd">  model.add(Convolution2D(64, 3, 3,</span>
+<span class="sd">                          border_mode=&#39;same&#39;,</span>
+<span class="sd">                          input_shape=(3, 32, 32)))</span>
+<span class="sd">  # now: model.output_shape == (None, 64, 32, 32)</span>
+
+<span class="sd">  model.add(Flatten())</span>
+<span class="sd">  # now: model.output_shape == (None, 65536)</span>
+<span class="sd">  ```</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Flatten</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">conv_utils</span><span class="o">.</span><span class="n">normalize_data_format</span><span class="p">(</span><span class="n">data_format</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">min_ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s1">&#39;channels_first&#39;</span>
+        <span class="ow">and</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="n">permutation</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">permutation</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                          <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">inputs</span><span class="p">))])</span>
+      <span class="n">permutation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+      <span class="n">inputs</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="n">permutation</span><span class="p">)</span>
+
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="p">,</span> <span class="p">(</span><span class="n">tensor_shape</span><span class="o">.</span><span class="n">dimension_value</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span>
+                 <span class="n">array_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
+      <span class="n">outputs</span><span class="o">.</span><span class="n">set_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">outputs</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">input_shape</span><span class="p">:</span>
+      <span class="n">output_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">output_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+      <span class="n">output_shape</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">output_shape</span> <span class="o">+=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data_format&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Flatten</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.RepeatVector&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RepeatVector</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Repeats the input n times.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  model = Sequential()</span>
+<span class="sd">  model.add(Dense(32, input_dim=32))</span>
+<span class="sd">  # now: model.output_shape == (None, 32)</span>
+<span class="sd">  # note: `None` is the batch dimension</span>
+
+<span class="sd">  model.add(RepeatVector(3))</span>
+<span class="sd">  # now: model.output_shape == (None, 3, 32)</span>
+<span class="sd">  ```</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    n: Integer, repetition factor.</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    2D tensor of shape `(num_samples, features)`.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    3D tensor of shape `(num_samples, n, features)`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">RepeatVector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">RepeatVector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Lambda&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Lambda</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Wraps arbitrary expressions as a `Layer` object.</span>
+
+<span class="sd">  The `Lambda` layer exists so that arbitrary TensorFlow functions</span>
+<span class="sd">  can be used when constructing `Sequential` and Functional API</span>
+<span class="sd">  models. `Lambda` layers are best suited for simple operations or</span>
+<span class="sd">  quick experimentation. For more advanced use cases, subclassing</span>
+<span class="sd">  `keras.layers.Layer` is preferred. One reason for this is that</span>
+<span class="sd">  when saving a Model, `Lambda` layers are saved by serializing the</span>
+<span class="sd">  Python bytecode, whereas subclassed Layers are saved via overriding</span>
+<span class="sd">  their `get_config` method and are thus more portable. Models that rely</span>
+<span class="sd">  on subclassed Layers are also often easier to visualize and reason</span>
+<span class="sd">  about.</span>
+
+<span class="sd">  Examples:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  # add a x -&gt; x^2 layer</span>
+<span class="sd">  model.add(Lambda(lambda x: x ** 2))</span>
+<span class="sd">  ```</span>
+<span class="sd">  ```python</span>
+<span class="sd">  # add a layer that returns the concatenation</span>
+<span class="sd">  # of the positive part of the input and</span>
+<span class="sd">  # the opposite of the negative part</span>
+
+<span class="sd">  def antirectifier(x):</span>
+<span class="sd">      x -= K.mean(x, axis=1, keepdims=True)</span>
+<span class="sd">      x = K.l2_normalize(x, axis=1)</span>
+<span class="sd">      pos = K.relu(x)</span>
+<span class="sd">      neg = K.relu(-x)</span>
+<span class="sd">      return K.concatenate([pos, neg], axis=1)</span>
+
+<span class="sd">  model.add(Lambda(antirectifier))</span>
+<span class="sd">  ```</span>
+
+<span class="sd">  Variables can be created within a `Lambda` layer. Like with</span>
+<span class="sd">  other layers, these variables will be created only once and reused</span>
+<span class="sd">  if the `Lambda` layer is called on new inputs. If creating more</span>
+<span class="sd">  than one variable in a given `Lambda` instance, be sure to use</span>
+<span class="sd">  a different name for each variable. Note that calling sublayers</span>
+<span class="sd">  from within a `Lambda` is not supported.</span>
+
+<span class="sd">  Example of variable creation:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  def linear_transform(x):</span>
+<span class="sd">    v1 = tf.Variable(1., name=&#39;multiplier&#39;)</span>
+<span class="sd">    v2 = tf.Variable(0., name=&#39;bias&#39;)</span>
+<span class="sd">    return x*v1 + v2</span>
+
+<span class="sd">  linear_layer = Lambda(linear_transform)</span>
+<span class="sd">  model.add(linear_layer)</span>
+<span class="sd">  model.add(keras.layers.Dense(10, activation=&#39;relu&#39;))</span>
+<span class="sd">  model.add(linear_layer)  # Reuses existing Variables</span>
+<span class="sd">  ```</span>
+
+<span class="sd">  Note that creating two instances of `Lambda` using the same function</span>
+<span class="sd">  will *not* share Variables between the two instances. Each instance of</span>
+<span class="sd">  `Lambda` will create and manage its own weights.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    function: The function to be evaluated. Takes input tensor as first</span>
+<span class="sd">      argument.</span>
+<span class="sd">    output_shape: Expected output shape from function. This argument can be</span>
+<span class="sd">      inferred if not explicitly provided. Can be a tuple or function. If a</span>
+<span class="sd">      tuple, it only specifies the first dimension onward;</span>
+<span class="sd">      sample dimension is assumed either the same as the input: `output_shape =</span>
+<span class="sd">        (input_shape[0], ) + output_shape` or, the input is `None` and</span>
+<span class="sd">      the sample dimension is also `None`: `output_shape = (None, ) +</span>
+<span class="sd">        output_shape` If a function, it specifies the entire shape as a function</span>
+<span class="sd">        of the</span>
+<span class="sd">      input shape: `output_shape = f(input_shape)`</span>
+<span class="sd">    mask: Either None (indicating no masking) or a callable with the same</span>
+<span class="sd">      signature as the `compute_mask` layer method, or a tensor that will be</span>
+<span class="sd">      returned as output mask regardless what the input is.</span>
+<span class="sd">    arguments: Optional dictionary of keyword arguments to be passed to the</span>
+<span class="sd">      function.</span>
+<span class="sd">  Input shape: Arbitrary. Use the keyword argument input_shape (tuple of</span>
+<span class="sd">    integers, does not include the samples axis) when using this layer as the</span>
+<span class="sd">    first layer in a model.</span>
+<span class="sd">  Output shape: Specified by `output_shape` argument</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">output_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">arguments</span> <span class="o">=</span> <span class="n">arguments</span> <span class="k">if</span> <span class="n">arguments</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_output_shape</span> <span class="o">=</span> <span class="n">output_shape</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># These attributes are inherited from `Layer`.</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_trainable_weights</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_non_trainable_weights</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">function_args</span> <span class="o">=</span> <span class="n">tf_inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_fn_expects_training_arg</span> <span class="o">=</span> <span class="s1">&#39;training&#39;</span> <span class="ow">in</span> <span class="n">function_args</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_fn_expects_mask_arg</span> <span class="o">=</span> <span class="s1">&#39;mask&#39;</span> <span class="ow">in</span> <span class="n">function_args</span>
+
+  <span class="nd">@tf_utils</span><span class="o">.</span><span class="n">shape_type_conversion</span>
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="c1"># Make use of existing autocomputation but provide Lambda-specific</span>
+      <span class="c1"># error message. This is always safe to run even when the outer context</span>
+      <span class="c1"># is Graph mode because Lambda layers don&#39;t have side effects such as</span>
+      <span class="c1"># `add_loss`.</span>
+      <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">eager_mode</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+              <span class="s1">&#39;We could not automatically infer the shape of the Lambda</span><span class="se">\&#39;</span><span class="s1">s &#39;</span>
+              <span class="s1">&#39;output. Please specify `output_shape` for this Lambda.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_shape</span><span class="p">):</span>
+      <span class="n">output_shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">tf_utils</span><span class="o">.</span><span class="n">convert_shapes</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">,</span> <span class="n">to_tuples</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Output shapes are passed directly and don&#39;t include batch dimension.</span>
+    <span class="n">input_tensor_shape</span> <span class="o">=</span> <span class="n">tf_utils</span><span class="o">.</span><span class="n">convert_shapes</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">to_tuples</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">input_tensor_shape</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">input_shape</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_add_batch</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([</span><span class="n">batch_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span>
+
+    <span class="n">output_shapes</span> <span class="o">=</span> <span class="n">tf_utils</span><span class="o">.</span><span class="n">convert_shapes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_shape</span><span class="p">,</span> <span class="n">to_tuples</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">_add_batch</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arguments</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fn_expects_mask_arg</span><span class="p">:</span>
+      <span class="n">arguments</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fn_expects_training_arg</span><span class="p">:</span>
+      <span class="n">arguments</span><span class="p">[</span><span class="s1">&#39;training&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">training</span>
+    <span class="k">with</span> <span class="n">variable_scope</span><span class="o">.</span><span class="n">variable_creator_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_creator</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_variable_creator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_creator</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">next_creator</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_variable_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span>
+    <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">trainable</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_trainable_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_non_trainable_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="n">K</span><span class="o">.</span><span class="n">track_variable</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">var</span>
+
+  <span class="k">def</span> <span class="nf">compute_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">function_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_function_to_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+    <span class="n">output_shape_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_function_to_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_shape</span><span class="p">,</span>
+                                                             <span class="n">allow_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="n">function_config</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s1">&#39;function_type&#39;</span><span class="p">:</span> <span class="n">function_config</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s1">&#39;module&#39;</span><span class="p">:</span> <span class="n">function_config</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+        <span class="s1">&#39;output_shape&#39;</span><span class="p">:</span> <span class="n">output_shape_config</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s1">&#39;output_shape_type&#39;</span><span class="p">:</span> <span class="n">output_shape_config</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s1">&#39;output_shape_module&#39;</span><span class="p">:</span> <span class="n">output_shape_config</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">mask_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_function_to_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+      <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+          <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="n">mask_config</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="s1">&#39;mask_type&#39;</span><span class="p">:</span> <span class="n">mask_config</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+          <span class="s1">&#39;mask_module&#39;</span><span class="p">:</span> <span class="n">mask_config</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+      <span class="p">})</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arguments</span>
+
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+  <span class="k">def</span> <span class="nf">_serialize_function_to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">allow_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">python_types</span><span class="o">.</span><span class="n">LambdaType</span><span class="p">):</span>
+      <span class="n">output</span> <span class="o">=</span> <span class="n">generic_utils</span><span class="o">.</span><span class="n">func_dump</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+      <span class="n">output_type</span> <span class="o">=</span> <span class="s1">&#39;lambda&#39;</span>
+      <span class="n">module</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="vm">__module__</span>
+    <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+      <span class="n">output</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="vm">__name__</span>
+      <span class="n">output_type</span> <span class="o">=</span> <span class="s1">&#39;function&#39;</span>
+      <span class="n">module</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="vm">__module__</span>
+    <span class="k">elif</span> <span class="n">allow_raw</span><span class="p">:</span>
+      <span class="n">output</span> <span class="o">=</span> <span class="n">inputs</span>
+      <span class="n">output_type</span> <span class="o">=</span> <span class="s1">&#39;raw&#39;</span>
+      <span class="n">module</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+          <span class="s1">&#39;Invalid input for serialization, type: </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="n">module</span>
+
+  <span class="nd">@classmethod</span>
+  <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_function_from_config</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="p">,</span> <span class="s1">&#39;function&#39;</span><span class="p">,</span> <span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="s1">&#39;function_type&#39;</span><span class="p">)</span>
+
+    <span class="n">output_shape</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_function_from_config</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="p">,</span> <span class="s1">&#39;output_shape&#39;</span><span class="p">,</span> <span class="s1">&#39;output_shape_module&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;output_shape_type&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;mask&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+      <span class="n">mask</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_function_from_config</span><span class="p">(</span>
+          <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;mask_module&#39;</span><span class="p">,</span> <span class="s1">&#39;mask_type&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;output_shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_shape</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
+
+    <span class="c1"># If arguments were numpy array, they have been saved as</span>
+    <span class="c1"># list. We need to recover the ndarray</span>
+    <span class="k">if</span> <span class="s1">&#39;arguments&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+          <span class="n">arg_dict</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+          <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">arg_dict</span> <span class="ow">and</span> <span class="n">arg_dict</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
+            <span class="c1"># Overwrite the argument with its numpy translation</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">arg_dict</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+  <span class="nd">@classmethod</span>
+  <span class="k">def</span> <span class="nf">_parse_function_from_config</span><span class="p">(</span>
+      <span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="p">,</span> <span class="n">func_attr_name</span><span class="p">,</span> <span class="n">module_attr_name</span><span class="p">,</span>
+      <span class="n">func_type_attr_name</span><span class="p">):</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_attr_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+      <span class="n">globs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">module</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="c1"># Note: we don&#39;t know the name of the function if it&#39;s a lambda.</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not loaded, but a Lambda layer uses it. &#39;</span>
+                    <span class="s1">&#39;It may cause errors.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+                    <span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">custom_objects</span><span class="p">:</span>
+      <span class="n">globs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_objects</span><span class="p">)</span>
+    <span class="n">function_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">func_type_attr_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">function_type</span> <span class="o">==</span> <span class="s1">&#39;function&#39;</span><span class="p">:</span>
+      <span class="c1"># Simple lookup in custom objects</span>
+      <span class="n">function</span> <span class="o">=</span> <span class="n">generic_utils</span><span class="o">.</span><span class="n">deserialize_keras_object</span><span class="p">(</span>
+          <span class="n">config</span><span class="p">[</span><span class="n">func_attr_name</span><span class="p">],</span>
+          <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">,</span>
+          <span class="n">printable_module_name</span><span class="o">=</span><span class="s1">&#39;function in Lambda layer&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">function_type</span> <span class="o">==</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span>
+      <span class="c1"># Unsafe deserialization from bytecode</span>
+      <span class="n">function</span> <span class="o">=</span> <span class="n">generic_utils</span><span class="o">.</span><span class="n">func_load</span><span class="p">(</span>
+          <span class="n">config</span><span class="p">[</span><span class="n">func_attr_name</span><span class="p">],</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">function_type</span> <span class="o">==</span> <span class="s1">&#39;raw&#39;</span><span class="p">:</span>
+      <span class="n">function</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">func_attr_name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unknown function type:&#39;</span><span class="p">,</span> <span class="n">function_type</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">function</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.Dense&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Dense</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Just your regular densely-connected NN layer.</span>
+
+<span class="sd">  `Dense` implements the operation:</span>
+<span class="sd">  `output = activation(dot(input, kernel) + bias)`</span>
+<span class="sd">  where `activation` is the element-wise activation function</span>
+<span class="sd">  passed as the `activation` argument, `kernel` is a weights matrix</span>
+<span class="sd">  created by the layer, and `bias` is a bias vector created by the layer</span>
+<span class="sd">  (only applicable if `use_bias` is `True`).</span>
+
+<span class="sd">  Note: If the input to the layer has a rank greater than 2, then</span>
+<span class="sd">  it is flattened prior to the initial dot product with `kernel`.</span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">  ```python</span>
+<span class="sd">  # as first layer in a sequential model:</span>
+<span class="sd">  model = Sequential()</span>
+<span class="sd">  model.add(Dense(32, input_shape=(16,)))</span>
+<span class="sd">  # now the model will take as input arrays of shape (*, 16)</span>
+<span class="sd">  # and output arrays of shape (*, 32)</span>
+
+<span class="sd">  # after the first layer, you don&#39;t need to specify</span>
+<span class="sd">  # the size of the input anymore:</span>
+<span class="sd">  model.add(Dense(32))</span>
+<span class="sd">  ```</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    units: Positive integer, dimensionality of the output space.</span>
+<span class="sd">    activation: Activation function to use.</span>
+<span class="sd">      If you don&#39;t specify anything, no activation is applied</span>
+<span class="sd">      (ie. &quot;linear&quot; activation: `a(x) = x`).</span>
+<span class="sd">    use_bias: Boolean, whether the layer uses a bias vector.</span>
+<span class="sd">    kernel_initializer: Initializer for the `kernel` weights matrix.</span>
+<span class="sd">    bias_initializer: Initializer for the bias vector.</span>
+<span class="sd">    kernel_regularizer: Regularizer function applied to</span>
+<span class="sd">      the `kernel` weights matrix.</span>
+<span class="sd">    bias_regularizer: Regularizer function applied to the bias vector.</span>
+<span class="sd">    activity_regularizer: Regularizer function applied to</span>
+<span class="sd">      the output of the layer (its &quot;activation&quot;)..</span>
+<span class="sd">    kernel_constraint: Constraint function applied to</span>
+<span class="sd">      the `kernel` weights matrix.</span>
+<span class="sd">    bias_constraint: Constraint function applied to the bias vector.</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    N-D tensor with shape: `(batch_size, ..., input_dim)`.</span>
+<span class="sd">    The most common situation would be</span>
+<span class="sd">    a 2D input with shape `(batch_size, input_dim)`.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    N-D tensor with shape: `(batch_size, ..., units)`.</span>
+<span class="sd">    For instance, for a 2D input with shape `(batch_size, input_dim)`,</span>
+<span class="sd">    the output would have shape `(batch_size, units)`.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">units</span><span class="p">,</span>
+               <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">kernel_initializer</span><span class="o">=</span><span class="s1">&#39;glorot_uniform&#39;</span><span class="p">,</span>
+               <span class="n">bias_initializer</span><span class="o">=</span><span class="s1">&#39;zeros&#39;</span><span class="p">,</span>
+               <span class="n">kernel_regularizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">bias_regularizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">activity_regularizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">kernel_constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">bias_constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;input_shape&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s1">&#39;input_dim&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+      <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;input_shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;input_dim&#39;</span><span class="p">),)</span>
+
+    <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">activity_regularizer</span><span class="o">=</span><span class="n">regularizers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">activity_regularizer</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">activation</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span> <span class="o">=</span> <span class="n">use_bias</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">kernel_initializer</span> <span class="o">=</span> <span class="n">initializers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kernel_initializer</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bias_initializer</span> <span class="o">=</span> <span class="n">initializers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bias_initializer</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">kernel_regularizer</span> <span class="o">=</span> <span class="n">regularizers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kernel_regularizer</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bias_regularizer</span> <span class="o">=</span> <span class="n">regularizers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bias_regularizer</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">kernel_constraint</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kernel_constraint</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bias_constraint</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bias_constraint</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">min_ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">as_dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">or</span> <span class="n">K</span><span class="o">.</span><span class="n">floatx</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dtype</span><span class="o">.</span><span class="n">is_floating</span> <span class="ow">or</span> <span class="n">dtype</span><span class="o">.</span><span class="n">is_complex</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unable to build `Dense` layer with non-floating point &#39;</span>
+                      <span class="s1">&#39;dtype </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dtype</span><span class="p">,))</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">dimension_value</span><span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The last dimension of the inputs to `Dense` &#39;</span>
+                       <span class="s1">&#39;should be defined. Found `None`.&#39;</span><span class="p">)</span>
+    <span class="n">last_dim</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">dimension_value</span><span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">input_spec</span> <span class="o">=</span> <span class="n">InputSpec</span><span class="p">(</span><span class="n">min_ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                <span class="n">axes</span><span class="o">=</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="n">last_dim</span><span class="p">})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+        <span class="s1">&#39;kernel&#39;</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">last_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">],</span>
+        <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_initializer</span><span class="p">,</span>
+        <span class="n">regularizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_regularizer</span><span class="p">,</span>
+        <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_constraint</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+          <span class="s1">&#39;bias&#39;</span><span class="p">,</span>
+          <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,],</span>
+          <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_initializer</span><span class="p">,</span>
+          <span class="n">regularizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_regularizer</span><span class="p">,</span>
+          <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_constraint</span><span class="p">,</span>
+          <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+          <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="c1"># Broadcasting is required for the inputs.</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="n">standard_ops</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="p">[[</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+      <span class="c1"># Reshape the output back to the original ndim of the input.</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">]</span>
+        <span class="n">outputs</span><span class="o">.</span><span class="n">set_shape</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">inputs</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_dtype</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">sparse_ops</span><span class="o">.</span><span class="n">sparse_tensor_dense_matmul</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">mat_mul</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">bias_add</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>  <span class="c1"># pylint: disable=not-callable</span>
+    <span class="k">return</span> <span class="n">outputs</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">input_shape</span><span class="o">.</span><span class="n">with_rank_at_least</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">dimension_value</span><span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+          <span class="s1">&#39;The innermost dimension of input_shape must be defined, but saw: </span><span class="si">%s</span><span class="s1">&#39;</span>
+          <span class="o">%</span> <span class="n">input_shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">input_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span>
+        <span class="s1">&#39;activation&#39;</span><span class="p">:</span> <span class="n">activations</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">),</span>
+        <span class="s1">&#39;use_bias&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">,</span>
+        <span class="s1">&#39;kernel_initializer&#39;</span><span class="p">:</span> <span class="n">initializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_initializer</span><span class="p">),</span>
+        <span class="s1">&#39;bias_initializer&#39;</span><span class="p">:</span> <span class="n">initializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_initializer</span><span class="p">),</span>
+        <span class="s1">&#39;kernel_regularizer&#39;</span><span class="p">:</span> <span class="n">regularizers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_regularizer</span><span class="p">),</span>
+        <span class="s1">&#39;bias_regularizer&#39;</span><span class="p">:</span> <span class="n">regularizers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_regularizer</span><span class="p">),</span>
+        <span class="s1">&#39;activity_regularizer&#39;</span><span class="p">:</span>
+            <span class="n">regularizers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activity_regularizer</span><span class="p">),</span>
+        <span class="s1">&#39;kernel_constraint&#39;</span><span class="p">:</span> <span class="n">constraints</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_constraint</span><span class="p">),</span>
+        <span class="s1">&#39;bias_constraint&#39;</span><span class="p">:</span> <span class="n">constraints</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_constraint</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+
+<span class="nd">@keras_export</span><span class="p">(</span><span class="s1">&#39;keras.layers.ActivityRegularization&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ActivityRegularization</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Layer that applies an update to the cost function based input activity.</span>
+
+<span class="sd">  Arguments:</span>
+<span class="sd">    l1: L1 regularization factor (positive float).</span>
+<span class="sd">    l2: L2 regularization factor (positive float).</span>
+
+<span class="sd">  Input shape:</span>
+<span class="sd">    Arbitrary. Use the keyword argument `input_shape`</span>
+<span class="sd">    (tuple of integers, does not include the samples axis)</span>
+<span class="sd">    when using this layer as the first layer in a model.</span>
+
+<span class="sd">  Output shape:</span>
+<span class="sd">    Same shape as input.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">ActivityRegularization</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">activity_regularizer</span><span class="o">=</span><span class="n">regularizers</span><span class="o">.</span><span class="n">L1L2</span><span class="p">(</span><span class="n">l1</span><span class="o">=</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="n">l2</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">supports_masking</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="n">l1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">=</span> <span class="n">l2</span>
+
+  <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">input_shape</span>
+
+  <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;l1&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="p">}</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ActivityRegularization</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

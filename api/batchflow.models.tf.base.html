@@ -1,0 +1,1161 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TFModel &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Encoder-decoder" href="batchflow.models.tf.encoder_decoder.html" />
+    <link rel="prev" title="Base Models" href="batchflow.models.tf.models.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../intro/classes.html">Classes and capabilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro/dsindex.html">Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/dataset.html">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/batch.html">Batch class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/images_batch.html">Batch class for handling images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/named_expr.html">Named expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parallel.html">Within batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/prefetch.html">Inter-batch parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/models.html">Working with models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../intro/tf_models.html">Tensorflow models</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="batchflow.models.tf.models.html">Base Models</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">TFModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batchflow.models.tf.encoder_decoder.html">Encoder-decoder</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#classification-networks">Classification networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#segmentation-networks">Segmentation networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batchflow.models.tf.models.html#helpers">Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/tf_layers.html">Tensorflow layers and losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/torch_models.html">Torch models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/research.html">Research</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model_zoo.html">Model zoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../intro/classes.html">Classes and capabilities</a> &raquo;</li>
+        
+          <li><a href="../intro/tf_models.html">Tensorflow models</a> &raquo;</li>
+        
+          <li><a href="batchflow.models.tf.models.html">Base Models</a> &raquo;</li>
+        
+      <li>TFModel</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/batchflow.models.tf.base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-batchflow.models.tf.base">
+<span id="tfmodel"></span><h1>TFModel<a class="headerlink" href="#module-batchflow.models.tf.base" title="Permalink to this headline">¶</a></h1>
+<p>Contains base class for tensorflow models</p>
+<dl class="py class">
+<dt id="batchflow.models.tf.base.TFModel">
+<em class="property">class </em><code class="sig-name descname">TFModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">batchflow.models.base.BaseModel</span></code></p>
+<p>Base class for all TensorFlow models.
+Allows to easily define complex neural networks via configuration dictionaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Mapping from placeholder names (e.g. <code class="docutils literal notranslate"><span class="pre">images</span></code>, <code class="docutils literal notranslate"><span class="pre">labels</span></code>, <code class="docutils literal notranslate"><span class="pre">masks</span></code>) to arguments of their initialization.
+Allows to create placeholders of needed format (shape, dtype, data format) with specified name
+and apply some typical transformations (like one-hot-encoding), if needed.</p>
+<p>If value is a string, then it must point to another key from the input-dict, effectively making an alias.
+By default, <code class="docutils literal notranslate"><span class="pre">targets</span></code> is aliased to <code class="docutils literal notranslate"><span class="pre">labels</span></code> or <code class="docutils literal notranslate"><span class="pre">masks</span></code>, if present.
+If value is a tuple, then it must contain all of the arguments below in the same order. <code class="docutils literal notranslate"><span class="pre">None</span></code> is reserved
+for using default value.
+If value is a dictionary, then it can omit some of the parameters (default values will be at use).</p>
+<blockquote>
+<div><dl>
+<dt>dtype<span class="classifier">str or tf.DType</span></dt><dd><p>Data type. Default is ‘float32’.</p>
+</dd>
+<dt>shape<span class="classifier">int, None, sequence of ints or Nones</span></dt><dd><p>Tensor shape with channels and without batch size. Default is None.</p>
+</dd>
+<dt>classes<span class="classifier">int, array-like or None</span></dt><dd><p>If int, then number of classes.
+If array-like, then labels of classes (can be strings or anything else).
+If None, then tensor has no classes. Default is None.</p>
+</dd>
+<dt>data_format<span class="classifier">{‘channels_first’, ‘channels_last’, ‘f’, ‘l’}</span></dt><dd><p>The ordering of the dimensions in the inputs. Can be shortened to <code class="docutils literal notranslate"><span class="pre">df</span></code> for brevity.
+Default is ‘channels_last’.</p>
+</dd>
+<dt>transform<span class="classifier">str, callable or None</span></dt><dd><p>If str, then one of predefined transform is used.
+If callable, then it is immediately applied to tensor.
+If None, no transform is applied. Default is None.</p>
+<dl class="simple">
+<dt>Predefined transforms are:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ohe</span></code> - one-hot encoding.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mip</span> <span class="pre">&#64;</span> <span class="pre">d</span></code> - max intensity projection <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.Mip" title="batchflow.models.tf.layers.Mip"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mip</span></code></a> with depth <code class="docutils literal notranslate"><span class="pre">d</span></code> (should be int).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">downsample</span> <span class="pre">&#64;</span> <span class="pre">d</span></code> - downsampling with a factor <code class="docutils literal notranslate"><span class="pre">d</span></code> (should be int).</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>name<span class="classifier">str</span></dt><dd><p>Name for the transformed tensor.</p>
+</dd>
+</dl>
+</div></blockquote>
+</p></li>
+<li><p><strong>loss</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Loss function, might be defined in multiple formats.</p>
+<p>If str, then short <code class="docutils literal notranslate"><span class="pre">name</span></code>.
+If tuple, then <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">*args)</span></code>.
+If dict, then <code class="docutils literal notranslate"><span class="pre">{'name':</span> <span class="pre">name,</span> <span class="pre">**kwargs}</span></code>.</p>
+<dl class="simple">
+<dt>Name must be one of:</dt><dd><ul>
+<li><p>short name (e.g. <code class="docutils literal notranslate"><span class="pre">'mse'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ce'</span></code>, <code class="docutils literal notranslate"><span class="pre">'l1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cos'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hinge'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'huber'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logloss'</span></code>, <code class="docutils literal notranslate"><span class="pre">'dice'</span></code>)</p></li>
+<li><p>a function name from <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/losses">tf.losses</a>
+(e.g. <code class="docutils literal notranslate"><span class="pre">'absolute_difference'</span></code> or <code class="docutils literal notranslate"><span class="pre">'sparse_softmax_cross_entropy'</span></code>)</p></li>
+<li><p>callable</p></li>
+</ul>
+</dd>
+</dl>
+<p>It is possible to compute loss not only with network output and ground truth, but with
+any named tensors in model by passing their names as <code class="docutils literal notranslate"><span class="pre">predictions</span></code> and <code class="docutils literal notranslate"><span class="pre">targets</span></code> parameters.</p>
+<p>If loss is a callable, then either <code class="docutils literal notranslate"><span class="pre">add_loss</span></code> should be set to True, or the callable should
+manually add the result to a loss collection.</p>
+<p><code class="docutils literal notranslate"><span class="pre">loss_collection</span></code> parameter can be used to specify collection of losses.</p>
+<p>Examples:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">'mse'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">{'name':</span> <span class="pre">'sigmoid_cross_entropy',</span> <span class="pre">'label_smoothing':</span> <span class="pre">1e-6}}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">(tf.losses.huber_loss,</span> <span class="pre">{'reduction':</span> <span class="pre">tf.losses.Reduction.MEAN})}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">{'name':</span> <span class="pre">'dice',</span> <span class="pre">'predictions':</span> <span class="pre">'body_output',</span> <span class="pre">'targets':</span> <span class="pre">'body_targets'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">external_loss_fn_with_add_loss_inside}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">{'name':</span> <span class="pre">external_loss_fn_without_add_loss,</span> <span class="pre">'add_loss':</span> <span class="pre">True}}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'loss':</span> <span class="pre">{'name':</span> <span class="pre">external_loss_fn,</span> <span class="pre">'add_loss':</span> <span class="pre">True,</span> <span class="pre">'loss_collection':</span> <span class="pre">tf.GraphKeys.LOSSES}}</span></code></p></li>
+</ul>
+</p></li>
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Optimizer, might be defined in multiple formats.</p>
+<p>If str, then short <code class="docutils literal notranslate"><span class="pre">name</span></code>.
+If tuple, then <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">*args)</span></code>.
+If dict, then <code class="docutils literal notranslate"><span class="pre">{'name':</span> <span class="pre">name,</span> <span class="pre">**kwargs}</span></code>.</p>
+<dl class="simple">
+<dt>Name must be one of:</dt><dd><ul>
+<li><p>short name (e.g. <code class="docutils literal notranslate"><span class="pre">'Adam'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Adagrad'</span></code>, any optimizer from
+<a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/train">tf.train</a> with or without word <cite>Optimizer</cite>)</p></li>
+<li><p>a function name from <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/train">tf.train</a>
+(e.g. <code class="docutils literal notranslate"><span class="pre">'FtlrOptimizer'</span></code>)</p></li>
+<li><p>callable</p></li>
+</ul>
+</dd>
+</dl>
+<p>Examples:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'optimizer':</span> <span class="pre">'Adam'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'optimizer':</span> <span class="pre">('Ftlr',</span> <span class="pre">{'learning_rate_power':</span> <span class="pre">0})}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'optimizer':</span> <span class="pre">{'name':</span> <span class="pre">'Adagrad',</span> <span class="pre">'initial_accumulator_value':</span> <span class="pre">0.01}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'optimizer':</span> <span class="pre">functools.partial(tf.train.MomentumOptimizer,</span> <span class="pre">momentum=0.95)}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'optimizer':</span> <span class="pre">some_optimizer_fn}</span></code></p></li>
+</ul>
+</p></li>
+<li><p><strong>decay</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Learning rate decay algorithm, might be defined in multiple formats.</p>
+<p>If str, then short <code class="docutils literal notranslate"><span class="pre">name</span></code>.
+If tuple, then <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">*args)</span></code>.
+If dict, then <code class="docutils literal notranslate"><span class="pre">{'name':</span> <span class="pre">name,</span> <span class="pre">**kwargs}</span></code>.</p>
+<dl class="simple">
+<dt>Name must be one of:</dt><dd><ul>
+<li><p>short name (e.g. <code class="docutils literal notranslate"><span class="pre">'exp'</span></code>, <code class="docutils literal notranslate"><span class="pre">'invtime'</span></code>, <code class="docutils literal notranslate"><span class="pre">'naturalexp'</span></code>, <code class="docutils literal notranslate"><span class="pre">'const'</span></code>, <code class="docutils literal notranslate"><span class="pre">'poly'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cyclic'</span></code>)</p></li>
+<li><p>a function name from <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/train">tf.train</a>
+(e.g. <code class="docutils literal notranslate"><span class="pre">'exponential_decay'</span></code>)</p></li>
+<li><p>callable</p></li>
+</ul>
+</dd>
+</dl>
+<p>Examples:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'decay':</span> <span class="pre">'exp'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'decay':</span> <span class="pre">('polynomial_decay',</span> <span class="pre">{'decay_steps':</span> <span class="pre">10000})}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'decay':</span> <span class="pre">{'name':</span> <span class="pre">tf.train.inverse_time_decay,</span> <span class="pre">'decay_rate':</span> <span class="pre">.5}</span></code></p></li>
+</ul>
+</p></li>
+<li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>sequence of str</em>) – <p>Subset of variables to optimize during training.
+Value <code class="docutils literal notranslate"><span class="pre">''</span></code> is reserved for optimizing all trainable variables.
+Putting <code class="docutils literal notranslate"><span class="pre">-</span></code> sign before name stands for complement: optimize everything but the passed scope.</p>
+<p>Examples:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'scope':</span> <span class="pre">''}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'scope':</span> <span class="pre">'body/custom_layer'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'scope':</span> <span class="pre">'-body/custom_layer'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'scope':</span> <span class="pre">['body/custom_layer_1',</span> <span class="pre">'head/custom_layer_2']}</span></code></p></li>
+</ul>
+</p></li>
+<li><p><strong>train_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Configuration of different training procedures.
+Must be a mapping from string names to dictionary with train parameters like
+loss, decay, scope, optimizer. Those keys support syntax defined above.</p>
+<p>If any of loss, decay, scope, optimizer is defined directly in config, it serves as the default
+value for every train step.</p>
+<p>Optimizer and decay, created at one train step, can be re-used in another. To do so, one can
+pass ‘use’ key with value corresponding to the name of train step from which you want to borrow optimizer.
+Note that in this case you are still free to change loss-function or scope.</p>
+<p>In order to use particular train step during train, one must pass <cite>train_mode</cite> argument to
+<a class="reference internal" href="#batchflow.models.tf.base.TFModel.train" title="batchflow.models.tf.base.TFModel.train"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.train()</span></code></a> method.</p>
+<p>Examples:</p>
+<dl class="simple">
+<dt>Create multiple training procedures:</dt><dd><ul>
+<li><p>one to optimize the whole network to minimize cross-entropy loss with Adam</p></li>
+<li><p>one to optimize weights only in body to minimize Dice-coefficient loss with RMSProp</p></li>
+<li><p>one to optimize weights in initial block and head to minimize cross-entropy loss with re-used
+optimizer from body</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;train_steps&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;whole_network&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;ce&#39;</span><span class="p">,</span> <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="s1">&#39;Adam&#39;</span><span class="p">,</span> <span class="s1">&#39;scope&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+                 <span class="s1">&#39;only_body&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;dice&#39;</span><span class="p">,</span> <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="s1">&#39;RMSProp&#39;</span><span class="p">,</span> <span class="s1">&#39;scope&#39;</span><span class="p">:</span> <span class="s1">&#39;body&#39;</span><span class="p">}},</span>
+                 <span class="s1">&#39;ib_and_head&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;ce&#39;</span><span class="p">,</span> <span class="s1">&#39;use&#39;</span><span class="p">:</span> <span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="s1">&#39;scope&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">]}}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>session</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Parameters for session configuration. <cite>allow_soft_placement</cite> is always True.
+See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/Session">Tensorflow Session parameters</a>.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>sequence of str</em>) – <p>Device name(s), e.g. <code class="docutils literal notranslate"><span class="pre">'/device:GPU:0'</span></code> (TensorFlow-like format), <code class="docutils literal notranslate"><span class="pre">['gpu:1',</span> <span class="pre">'CPU:0']</span></code>.
+Regular expressions are also allowed, e.g. <code class="docutils literal notranslate"><span class="pre">'GPU:*'</span></code>.
+Default behaviour is to use the first available GPU (or CPU if no GPUs are detected).
+See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/device">tf.device</a> for details.</p>
+<p>Batch size must be divisible by number of devices.</p>
+</p></li>
+<li><p><strong>microbatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Size of chunks to split every batch into. Allows to process given data sequentially, accumulating gradients
+from microbatches and applying them once in the end. Batch size must be divisible by microbatch size.
+Can be changed later via <cite>microbatch</cite> argument of <a class="reference internal" href="#batchflow.models.tf.base.TFModel.train" title="batchflow.models.tf.base.TFModel.train"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.train()</span></code></a>.</p></li>
+<li><p><strong>initial_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Parameters for the input block, usually <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a> parameters.</p>
+<p>The only required parameter here is <code class="docutils literal notranslate"><span class="pre">initial_block/inputs</span></code> which should contain a name or
+a list of names from <code class="docutils literal notranslate"><span class="pre">inputs</span></code> which tensors will be passed to <code class="docutils literal notranslate"><span class="pre">initial_block</span></code> as <code class="docutils literal notranslate"><span class="pre">inputs</span></code>.</p>
+<p>Examples:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'initial_block/inputs':</span> <span class="pre">'images'}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'initial_block':</span> <span class="pre">{'inputs':</span> <span class="pre">'features'}}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{'initial_block':</span> <span class="pre">{'inputs':</span> <span class="pre">'images',</span> <span class="pre">'layout':</span> <span class="pre">'nac',</span> <span class="pre">'filters':64,</span> <span class="pre">'kernel_size':</span> <span class="pre">7,</span> <span class="pre">'strides':</span> <span class="pre">2}}</span></code></p></li>
+</ul>
+</p></li>
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Parameters for the base network layers, usually <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a> parameters.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Parameters for the head layers, usually <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a> parameters.</p></li>
+<li><p><strong>predictions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>callable</em>) – An operation applied to the head output to make the predictions tensor which is used in the loss function.
+See see <a class="reference internal" href="#batchflow.models.tf.base.TFModel.output" title="batchflow.models.tf.base.TFModel.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.output()</span></code></a> for details.</p></li>
+<li><p><strong>output</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Auxiliary operations to apply to the network output. See see <a class="reference internal" href="#batchflow.models.tf.base.TFModel.output" title="batchflow.models.tf.base.TFModel.output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.output()</span></code></a> for details.</p></li>
+<li><p><strong>common</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Parameters to pass to every part of the network (e.g. initial block, body, head),
+usually <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a> parameters.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>In order to create your own model, it is recommended to:</strong></p>
+<ul class="simple">
+<li><p>Take a look at <a class="reference internal" href="batchflow.models.html#batchflow.models.BaseModel" title="batchflow.models.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></a>: <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">load</span></code> methods inherited from it.</p></li>
+<li><p>Take a look at <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a> since it is a widely used as a building block,
+capable of chaining various operations (convolutions, batch normalizations, etc).</p></li>
+<li><p>Define model defaults (e.g. number of filters, dropout rates, etc) by overriding
+<a class="reference internal" href="#batchflow.models.tf.base.TFModel.default_config" title="batchflow.models.tf.base.TFModel.default_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.default_config()</span></code></a>. Those parameters are updated with external configuration dictionary.</p></li>
+<li><p>Define config post-processing by overriding <a class="reference internal" href="#batchflow.models.tf.base.TFModel.build_config" title="batchflow.models.tf.base.TFModel.build_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_config()</span></code></a>.
+Its main use is to infer parameters that can’t be known in advance (e.g. number of classes, shape of inputs).</p></li>
+<li><p>Override <a class="reference internal" href="#batchflow.models.tf.base.TFModel.initial_block" title="batchflow.models.tf.base.TFModel.initial_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial_block()</span></code></a>, <a class="reference internal" href="#batchflow.models.tf.base.TFModel.body" title="batchflow.models.tf.base.TFModel.body"><code class="xref py py-meth docutils literal notranslate"><span class="pre">body()</span></code></a> and <a class="reference internal" href="#batchflow.models.tf.base.TFModel.head" title="batchflow.models.tf.base.TFModel.head"><code class="xref py py-meth docutils literal notranslate"><span class="pre">head()</span></code></a>, if needed.
+You can either use usual tf-functions, or predefined layers like <code class="xref py py-class docutils literal notranslate"><span class="pre">ASPP</span></code>.
+Conveniently, ‘initial_block’ is used to make pre-processing (e.g. reshaping or agressive pooling) of inputs,
+‘body’ contains the meat of the network flow,
+and ‘head’ makes sure that the output is compatible with targets.</p></li>
+<li><p>To use layers that behave differently at train/test times, <code class="docutils literal notranslate"><span class="pre">is_training</span></code> tensor is predefined and passed
+to model parts (initial block, body, head) as keyword argument.
+You can also get it via <a class="reference internal" href="#batchflow.models.tf.base.TFModel.get_from_attr" title="batchflow.models.tf.base.TFModel.get_from_attr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.get_from_attr()</span></code></a>.</p></li>
+<li><p>To use layers or decays that behave differently depending on number of iterations done, <code class="docutils literal notranslate"><span class="pre">global_step</span></code> tensor is
+predefined and passed to model parts (initial block, body, head) as keyword argument.
+You can also get it via <a class="reference internal" href="#batchflow.models.tf.base.TFModel.get_from_attr" title="batchflow.models.tf.base.TFModel.get_from_attr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.get_from_attr()</span></code></a>.</p></li>
+</ul>
+<p><strong>In order to use existing model, it is recommended to define following keys in configuration dictionary:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">inputs</span></code>: defines input data together with parameters like shape, dtype, number of classes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">loss</span></code>, <code class="docutils literal notranslate"><span class="pre">optimizer</span></code>, <code class="docutils literal notranslate"><span class="pre">decay</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_block</span></code> sub-dictionary must contain <code class="docutils literal notranslate"><span class="pre">inputs</span></code> key with names of tensors to use as network inputs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_block</span></code>, <code class="docutils literal notranslate"><span class="pre">body</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code>: used to define behaviour of respective part of the network.
+Default behaviour is to support all of the <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a> options.
+For complex models, take a look at default config of the chosen model to learn
+which parameters should be configured.</p></li>
+</ul>
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.store_to_attr">
+<code class="sig-name descname">store_to_attr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attr</span></em>, <em class="sig-param"><span class="n">graph_item</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.store_to_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.store_to_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store <cite>graph_item</cite> to private container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_from_attr">
+<code class="sig-name descname">get_from_attr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attr</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_from_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_from_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get item from private container or directly from model graph.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.create_session">
+<code class="sig-name descname">create_session</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.create_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.create_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create TF session</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the trained model to allow a new training from scratch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.to_classes">
+<code class="sig-name descname">to_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">input_name</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.to_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.to_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert tensor with labels to classes of <code class="docutils literal notranslate"><span class="pre">input_name</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_number_of_trainable_vars">
+<code class="sig-name descname">get_number_of_trainable_vars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_number_of_trainable_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_number_of_trainable_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of trainable variable in the model graph</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_tensor_config">
+<code class="sig-name descname">get_tensor_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_tensor_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_tensor_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return tensor configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – If str, then name of tensor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tensor config (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel._make_inputs()</span></code>)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError shape in tensor configuration isn't int</strong><strong>, </strong><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><strong>tuple</strong></a><strong> or </strong><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><strong>list</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.eval">
+<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change model learning phase. Important to use to control behaviour of layers, that
+perform different operations on train/inference (dropout, batch-norm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – If evaluates to True, then all the layers are set to use <cite>train</cite> behaviour.
+If evaluates to False, then all the layers are set to use <cite>test</cite> behaviour.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fetches</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">feed_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_lock</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">train_mode</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">microbatch</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model with the data provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetches</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Sequence of <cite>tf.Operation</cite> and/or <cite>tf.Tensor</cite> to calculate.</p></li>
+<li><p><strong>feed_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Input data, where key is a placeholder name and value is a numpy value.</p></li>
+<li><p><strong>use_lock</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, the whole train step is locked, thus allowing for multithreading.</p></li>
+<li><p><strong>train_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>sequence of str</em>) – Name(s) of train step(s) to optimize. Regular expressions are allowed.
+If multiple train steps are selected (either via passing a sequence or by using regular expression),
+then all of them are optimized sequentially.</p></li>
+<li><p><strong>microbatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Size of chunks to split every batch into. Note that if this option was not specified
+in the model configuration, the first invocation of this method would create additional operations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Calculated values of tensors in <cite>fetches</cite> in the same order.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">feed_dict</span></code> is not required as all placeholder names and their data can be passed directly as named arguments.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;images&#39;</span><span class="p">:</span> <span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">)})</span>
+</pre></div>
+</div>
+<p>The same as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/Session#run">Tensorflow Session run</a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fetches</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">feed_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get predictions on the data provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fetches</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Sequence of <cite>tf.Operation</cite> and/or <cite>tf.Tensor</cite> to calculate.</p></li>
+<li><p><strong>feed_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Input data, where key is a placeholder name and value is a numpy value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Calculated values of tensors in <cite>fetches</cite> in the same order.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">feed_dict</span></code> is not required as all placeholder names and their data can be passed directly.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;images&#39;</span><span class="p">:</span> <span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">)})</span>
+</pre></div>
+</div>
+<p>The same as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fetches</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="n">B</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/Session#run">Tensorflow Session run</a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save tensorflow model and most of important attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to a directory where all model files will be stored.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tf_model</span> <span class="o">=</span> <span class="n">ResNet34</span><span class="p">()</span>
+<span class="n">tf_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;/path/to/models/resnet34&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The model will be saved to /path/to/models/resnet34</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">graph</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">checkpoint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a TensorFlow model and most important attributes from files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Directory where a model is stored.</p></li>
+<li><p><strong>graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Filename for a metagraph file.</p></li>
+<li><p><strong>checkpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – If str, then checkpoint file name.
+If None, then load the latest checkpoint.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resnet</span> <span class="o">=</span> <span class="n">ResNet34</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/path/to/models/resnet34&#39;</span><span class="p">))</span>
+<span class="n">tf_model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/path/to/models/resnet34&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.initial_block">
+<em class="property">classmethod </em><code class="sig-name descname">initial_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'initial_block'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.initial_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.initial_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform inputs. Usually used for initial preprocessing, e.g. reshaping, downsampling etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Scope name.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For other parameters see <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.body">
+<em class="property">classmethod </em><code class="sig-name descname">body</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'body'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base layers which produce a network embedding.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Scope name.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For other parameters see <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tf.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MyModel</span><span class="o">.</span><span class="n">body</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;ca ca ca&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.make_encoder">
+<em class="property">classmethod </em><code class="sig-name descname">make_encoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'encoder'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.make_encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.make_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the body and return the last tensors of each spatial resolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Scope name.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Body params.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>In order to use custom class as encoder, body of the network must create <code class="docutils literal notranslate"><span class="pre">group-i/output</span></code> tensors.
+An example of this can be seen in <a class="reference internal" href="batchflow.models.tf.xception.html#batchflow.models.tf.xception.Xception" title="batchflow.models.tf.xception.Xception"><code class="xref py py-class docutils literal notranslate"><span class="pre">Xception</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.head">
+<em class="property">classmethod </em><code class="sig-name descname">head</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'head'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.head" title="Permalink to this definition">¶</a></dt>
+<dd><p>The last network layers which produce predictions. Usually used to make network output
+compatible with the <cite>targets</cite> tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Scope name.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For other parameters see <a class="reference internal" href="batchflow.models.tf.layers.html#batchflow.models.tf.layers.ConvBlock" title="batchflow.models.tf.layers.ConvBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvBlock</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tf.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>A fully convolutional head with 3x3 and 1x1 convolutions and global max pooling:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MyModel</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">network_embedding</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cacaP&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">],</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>A fully connected head with dropouts, a dense layer with 1000 units and final dense layer with class logits:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MyModel</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">network_embedding</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;dfadf&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">],</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">15</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.output">
+<code class="sig-name descname">output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">predictions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ops</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add output operations to the model graph, like predicted probabilities or labels, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em><em> or </em><em>a sequence of tf.Tensors</em>) – input tensors. If list, all resulting outputs will have postfix _{i} where i is an index of input.</p></li>
+<li><p><strong>predictions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>callable</em>) – <p>Operation to apply to the network output to obtain tensor which is used in loss computation.</p>
+<dl class="simple">
+<dt>If str, then one of predefined operations:</dt><dd><ul>
+<li><p>’sigmoid’ - <code class="docutils literal notranslate"><span class="pre">sigmoid(inputs)</span></code></p></li>
+<li><p>’proba’ - <code class="docutils literal notranslate"><span class="pre">softmax(inputs)</span></code></p></li>
+<li><p>’labels’ - <code class="docutils literal notranslate"><span class="pre">argmax(inputs)</span></code></p></li>
+<li><p>’softplus’ - <code class="docutils literal notranslate"><span class="pre">softplus(inputs)</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>If callable, then user-defined operation.</p>
+</p></li>
+<li><p><strong>ops</strong> (<em>sequence</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> or </em><em>OrderedDict</em>) – <p>Auxiliary operations to apply.</p>
+<p>If sequence, then operations to apply. Transformed tensors are stored with the same name, as operation
+If dict, then mapping from prefixes to operations. Transformed tensors are stored with
+the prefixed name of the operation.</p>
+<p>For multi-output models ensure that an ordered dict is used (e.g. <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrderedDict</span></code></a>).</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError if the number of inputs does not equal to the number of prefixes</strong> – </p></li>
+<li><p><strong>TypeError if inputs is not a Tensor</strong><strong> or </strong><strong>a sequence of Tensors</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;proba&#39;</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>However, if one of the placeholders also has a name ‘labels’, then it will be lost as the model
+will rewrite the name ‘labels’ with an output. In this case dict might be more convenient:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;predicted&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;proba&#39;</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">]}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now the output will be stored under names ‘predicted_proba’ and ‘predicted_labels’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.default_config">
+<em class="property">classmethod </em><code class="sig-name descname">default_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.default_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model defaults.</p>
+<p>You need to override this method if you expect your model or its blocks to serve as a base for other models
+(e.g. VGG for FCN, ResNet for LinkNet, etc).</p>
+<p>Put here all constants (like the number of filters, kernel sizes, block layouts, strides, etc)
+specific to the model, but independent of anything else (like image shapes, number of classes, etc).</p>
+<p>These defaults can be changed in <a class="reference internal" href="#batchflow.models.tf.base.TFModel.build_config" title="batchflow.models.tf.base.TFModel.build_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_config()</span></code></a> or when calling <a class="reference internal" href="batchflow.pipeline.html#batchflow.Pipeline.init_model" title="batchflow.Pipeline.init_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.init_model()</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">TFModel</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;initial_block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnap&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                   <span class="n">pool_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pool_strides</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cnadV&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.fill_params">
+<em class="property">classmethod </em><code class="sig-name descname">fill_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_name</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.fill_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.fill_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill block params from default config and kwargs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.combine_configs">
+<code class="sig-name descname">combine_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.combine_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.combine_configs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.build_config">
+<code class="sig-name descname">build_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.build_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.build_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define model’s architecture configuration.</p>
+<ul class="simple">
+<li><p>Don’t forget to call <code class="docutils literal notranslate"><span class="pre">super().build_config(names)</span></code> in the beginning.</p></li>
+<li><p>Define parameters for <a class="reference internal" href="#batchflow.models.tf.base.TFModel.initial_block" title="batchflow.models.tf.base.TFModel.initial_block"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.initial_block()</span></code></a>, <a class="reference internal" href="#batchflow.models.tf.base.TFModel.body" title="batchflow.models.tf.base.TFModel.body"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.body()</span></code></a>, <a class="reference internal" href="#batchflow.models.tf.base.TFModel.head" title="batchflow.models.tf.base.TFModel.head"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TFModel.head()</span></code></a>,
+which depend on inputs.</p></li>
+<li><p>Don’t forget to return <code class="docutils literal notranslate"><span class="pre">config</span></code> at the end.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;head/num_classes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.add_block">
+<em class="property">classmethod </em><code class="sig-name descname">add_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">defaults</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.add_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.add_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all model parts of the same type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.data_format">
+<code class="sig-name descname">data_format</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.data_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.data_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tensor data format (channels_last or channels_first).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data_format</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.has_classes">
+<code class="sig-name descname">has_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.has_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.has_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a tensor has classes defined in the config.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.classes">
+<code class="sig-name descname">classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the classes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.num_classes">
+<code class="sig-name descname">num_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.num_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.num_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of classes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_num_channels">
+<code class="sig-name descname">get_num_channels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_num_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_num_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of channels in the tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>number of channels</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.num_channels">
+<em class="property">classmethod </em><code class="sig-name descname">num_channels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">data_format</span><span class="o">=</span><span class="default_value">'channels_last'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.num_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.num_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of channels in the input tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>shape</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of ints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_shape">
+<code class="sig-name descname">get_shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tensor shape without batch dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>shape</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.shape">
+<em class="property">classmethod </em><code class="sig-name descname">shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">dynamic</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return shape of the input tensor without batch size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> (<em>tf.Tensor</em>) – </p></li>
+<li><p><strong>dynamic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, returns tensor which represents shape. If False, returns list of ints and/or Nones.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>shape</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_spatial_dim">
+<code class="sig-name descname">get_spatial_dim</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_spatial_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_spatial_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tensor spatial dimensionality (without batch and channels dimensions).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>number of spatial dimensions</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.spatial_dim">
+<em class="property">classmethod </em><code class="sig-name descname">spatial_dim</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.spatial_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.spatial_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return spatial dim of the input tensor (without channels and batch dimension).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dim</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_spatial_shape">
+<code class="sig-name descname">get_spatial_shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_spatial_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_spatial_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tensor spatial shape (without batch and channels dimensions).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>spatial shape</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.spatial_shape">
+<em class="property">classmethod </em><code class="sig-name descname">spatial_shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">data_format</span><span class="o">=</span><span class="default_value">'channels_last'</span></em>, <em class="sig-param"><span class="n">dynamic</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.spatial_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.spatial_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tensor spatial shape (without batch and channels dimensions).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> (<em>tf.Tensor</em>) – </p></li>
+<li><p><strong>dynamic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, returns tensor which represents shape. If False, returns list of ints and/or Nones.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>shape</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.get_batch_size">
+<code class="sig-name descname">get_batch_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.get_batch_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.get_batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return batch size (the length of the first dimension) of the input tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>tf.Tensor</em>) – If str, then name of pre-stored tensor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>batch size</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.batch_size">
+<em class="property">classmethod </em><code class="sig-name descname">batch_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.batch_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return batch size (the length of the first dimension) of the input tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<em>tf.Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>batch size</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.channels_axis">
+<em class="property">classmethod </em><code class="sig-name descname">channels_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_format</span><span class="o">=</span><span class="default_value">'channels_last'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.channels_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.channels_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integer channels axis based on string data format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.crop">
+<em class="property">classmethod </em><code class="sig-name descname">crop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">resize_to</span></em>, <em class="sig-param"><span class="n">data_format</span><span class="o">=</span><span class="default_value">'channels_last'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.crop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.crop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crop input tensor to a shape of a given image.
+If resize_to does not have a fully defined shape (resize_to.get_shape() has at least one None),
+the returned tf.Tensor will be of unknown shape except the number of channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>resize_to</strong> (<em>tf.Tensor</em>) – Tensor which shape the inputs should be resized to.</p></li>
+<li><p><strong>data_format</strong> (<em>str {'channels_last'</em><em>, </em><em>'channels_first'}</em>) – Data format.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.se_block">
+<em class="property">classmethod </em><code class="sig-name descname">se_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">ratio</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'se'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.se_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.se_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Squeeze and excitation block.</p>
+<p>Hu J. et al. “<a class="reference external" href="https://arxiv.org/abs/1709.01507">Squeeze-and-Excitation Networks</a>”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Squeeze ratio for the number of filters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.scse_block">
+<em class="property">classmethod </em><code class="sig-name descname">scse_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">ratio</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'scse'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.scse_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.scse_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concurrent spatial and channel squeeze and excitation.</p>
+<p>Roy A.G. et al. “<a class="reference external" href="https://arxiv.org/abs/1803.02579">Concurrent Spatial and Channel ‘Squeeze &amp; Excitation’
+in Fully Convolutional Networks</a>”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – Squeeze ratio for the number of filters in spatial squeeze
+and channel excitation block. Default is 2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="batchflow.models.tf.base.TFModel.upsample">
+<em class="property">classmethod </em><code class="sig-name descname">upsample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">factor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resize_to</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">'b'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'upsample'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/batchflow/models/tf/base.html#TFModel.upsample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#batchflow.models.tf.base.TFModel.upsample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upsample input tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em><em> or </em><em>tuple of two tf.Tensor</em>) – Tensor to resize.</p></li>
+<li><p><strong>factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Upsamping scale.</p></li>
+<li><p><strong>resize_to</strong> (<em>tf.Tensor</em>) – Tensor which shape is used to resize the output.</p></li>
+<li><p><strong>layout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Resizing technique, a sequence of:
+- R - use residual connection with bilinear additive upsampling (must be the first symbol)
+- b - bilinear resize
+- B - bilinear additive upsampling
+- N - nearest neighbor resize
+- t - transposed convolution
+- X - subpixel convolution</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batchflow.models.tf.encoder_decoder.html" class="btn btn-neutral float-right" title="Encoder-decoder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batchflow.models.tf.models.html" class="btn btn-neutral float-left" title="Base Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

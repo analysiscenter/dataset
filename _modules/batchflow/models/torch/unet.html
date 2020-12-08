@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>batchflow.models.torch.unet &mdash; BatchFlow 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> BatchFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/intro.html">A short introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/classes.html">Classes and capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/batchflow.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BatchFlow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>batchflow.models.torch.unet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for batchflow.models.torch.unet</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;  Ronneberger O. et al &quot;`U-Net: Convolutional Networks for Biomedical Image Segmentation</span>
+<span class="sd">&lt;https://arxiv.org/abs/1505.04597&gt;`_&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">.encoder_decoder</span> <span class="kn">import</span> <span class="n">EncoderDecoder</span>
+<span class="kn">from</span> <span class="nn">.blocks</span> <span class="kn">import</span> <span class="n">ResBlock</span><span class="p">,</span> <span class="n">DenseBlock</span>
+
+
+
+<div class="viewcode-block" id="UNet"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.UNet">[docs]</a><span class="k">class</span> <span class="nc">UNet</span><span class="p">(</span><span class="n">EncoderDecoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; UNet-like model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    auto_build : dict, optional</span>
+<span class="sd">        Parameters for auto-building `filters` in accordance with the idea described in the original paper.</span>
+<span class="sd">        Note that any of `filters`, if passed, will be replaced by auto-built ones.</span>
+
+<span class="sd">        num_stages : int</span>
+<span class="sd">            number of encoder/decoder stages — defines network depth and the number of its skip connections</span>
+<span class="sd">        filters : int, optional</span>
+<span class="sd">            number of filters in first encoder block — each of the following ones will be doubled until embedding</span>
+
+<span class="sd">    body : dict</span>
+<span class="sd">        encoder : dict</span>
+<span class="sd">            num_stages : int</span>
+<span class="sd">                number of downsampling blocks (default=4)</span>
+<span class="sd">            blocks : dict</span>
+<span class="sd">                Parameters for pre-processing blocks:</span>
+
+<span class="sd">                filters : None, int, list of ints or list of lists of ints</span>
+<span class="sd">                    The number of filters in the output tensor.</span>
+<span class="sd">                    If int, same number of filters applies to all layers on all stages</span>
+<span class="sd">                    If list of ints, specifies number of filters in each layer of different stages</span>
+<span class="sd">                    If list of list of ints, specifies number of filters in different layers on different stages</span>
+<span class="sd">                    If not given or None, filters parameters in encoder/blocks, decoder/blocks and decoder/upsample</span>
+<span class="sd">                    default to values which make number of filters double</span>
+<span class="sd">                    on each stage of encoding and halve on each stage of decoding,</span>
+<span class="sd">                    provided that `decoder/skip` is `True`. Specify `filters=None` explicitly</span>
+<span class="sd">                    if you want to use custom `num_steps` and infer `filters`</span>
+
+<span class="sd">        decoder : dict</span>
+<span class="sd">            num_stages : int</span>
+<span class="sd">                number of upsampling blocks. Defaults to the number of downsamplings.</span>
+
+<span class="sd">            factor : None, int or list of ints</span>
+<span class="sd">                If int, the total upsampling factor for all stages combined.</span>
+<span class="sd">                If list, upsampling factors for each stage</span>
+<span class="sd">                If not given or None, defaults to [2]*num_stages</span>
+
+<span class="sd">            blocks : dict</span>
+<span class="sd">                Parameters for post-processing blocks:</span>
+
+<span class="sd">                filters : None, int, list of ints or list of lists of ints</span>
+<span class="sd">                    same as encoder/blocks/filters</span>
+
+<span class="sd">            upsample : dict</span>
+<span class="sd">                Parameters for upsampling (see :func:`~.layers.upsample`).</span>
+
+<span class="sd">                filters : int, list of ints or list of lists of ints</span>
+<span class="sd">                    same as encoder/blocks/filters</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For more parameters see :class:`~.EncoderDecoder`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="UNet.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.UNet.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s defaults. &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;block&#39;</span><span class="p">,</span> <span class="s1">&#39;skip&#39;</span><span class="p">,</span> <span class="s1">&#39;downsampling&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna cna&#39;</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">])</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/embedding&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna cna&#39;</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;upsampling&#39;</span><span class="p">,</span> <span class="s1">&#39;combine&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna cna&#39;</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ce&#39;</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="UNet.build_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.UNet.build_config">[docs]</a>    <span class="k">def</span> <span class="nf">build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define model&#39;s architecture configuration. &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_config</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auto_build&#39;</span><span class="p">):</span>
+            <span class="n">num_stages</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auto_build/num_stages&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auto_build/filters&#39;</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+            <span class="n">encoder_filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stages</span><span class="p">)]</span>
+
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_stages</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder_filters</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/embedding/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder_filters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/num_stages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_stages</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/blocks/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder_filters</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/upsample/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder_filters</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;body/decoder/upsample/filters&#39;</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;&#39;decoder/upsample/filters&#39; are not set and &quot;</span> <span class="o">+</span>
+                          <span class="s2">&quot;can be inconsistent with &#39;decoder/blocks/filters&#39;! Please revise your model&#39;s config. &quot;</span> <span class="o">+</span>
+                          <span class="s2">&quot;In future, upsample filters can be made to match decoder block&#39;s filters by default.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="ResUNet"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.ResUNet">[docs]</a><span class="k">class</span> <span class="nc">ResUNet</span><span class="p">(</span><span class="n">UNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; UNet with residual blocks. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResUNet.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.ResUNet.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">ResBlock</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">ResBlock</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;cna&#39;</span><span class="p">,</span> <span class="n">n_reps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+<div class="viewcode-block" id="DenseUNet"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.DenseUNet">[docs]</a><span class="k">class</span> <span class="nc">DenseUNet</span><span class="p">(</span><span class="n">UNet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; UNet with dense blocks. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DenseUNet.default_config"><a class="viewcode-back" href="../../../../api/batchflow.models.torch.unet.html#batchflow.models.torch.unet.DenseUNet.default_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/encoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">DenseBlock</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;nacd&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;body/decoder/blocks&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">DenseBlock</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;nacd&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2017-2019, Analysis Center
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
